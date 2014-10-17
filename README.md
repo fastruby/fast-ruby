@@ -215,15 +215,15 @@ Comparison:
 $ ruby code/enumerable/each-push-vs-map.rb
 
 Calculating -------------------------------------
-   Array#each + push      6787 i/100ms
-           Array#map     10376 i/100ms
+   Array#each + push     10308 i/100ms
+           Array#map     15125 i/100ms
 -------------------------------------------------
-   Array#each + push    71150.3 (±9.5%) i/s -     352924 in   5.020339s
-           Array#map   121601.8 (±5.3%) i/s -     612184 in   5.047429s
+   Array#each + push   106052.2 (±4.2%) i/s -     536016 in   5.063496s
+           Array#map   166484.6 (±4.9%) i/s -     847000 in   5.100707s
 
 Comparison:
-           Array#map:   121601.8 i/s
-   Array#each + push:    71150.3 i/s - 1.71x slower
+           Array#map:   166484.6 i/s
+   Array#each + push:   106052.2 i/s - 1.57x slower
 ```
 
 ##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
