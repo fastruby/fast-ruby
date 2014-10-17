@@ -209,6 +209,23 @@ Comparison:
   Array#reverse.each:   205046.1 i/s - 1.13x slower
 ```
 
+##### `Enumerable#each` vs `Enumerable#map + push` [code](code/enumerable/each-push-vs-map.rb)
+
+```
+$ ruby code/enumerable/each-push-vs-map.rb
+
+Calculating -------------------------------------
+   Array#each + push      6787 i/100ms
+           Array#map     10376 i/100ms
+-------------------------------------------------
+   Array#each + push    71150.3 (±9.5%) i/s -     352924 in   5.020339s
+           Array#map   121601.8 (±5.3%) i/s -     612184 in   5.047429s
+
+Comparison:
+           Array#map:   121601.8 i/s
+   Array#each + push:    71150.3 i/s - 1.71x slower
+```
+
 ##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
 
 > [rails/rails#12065](https://github.com/rails/rails/pull/12065)
