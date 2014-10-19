@@ -137,6 +137,45 @@ Comparison:
          String#gsub:   603615.0 i/s - 3.54x slower
 ```
 
+##### Check start/end of the string `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
+
+> :warning: sometimes you cant replace regexp with `start_with?`, for example
+> `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
+> :warning: You can combine `start_with?` and `end_with?` to replace
+> something like this `error.path =~ /^#{path}(\.rb)?$/` to this
+> `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
+> Sometimes it can be really :rocket: up to 20x.<br>
+> —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
+
+```
+$ ruby code/string/start-string-checking-match-vs-start_with.rb
+
+Calculating -------------------------------------
+           String#=~     50281 i/100ms
+  String#start_with?    106594 i/100ms
+-------------------------------------------------
+           String#=~  1007225.5 (±30.3%) i/s -    4374447 in   5.006442s
+  String#start_with?  4088874.6 (±10.5%) i/s -   20252860 in   5.014760s
+
+Comparison:
+  String#start_with?:  4088874.6 i/s
+           String#=~:  1007225.5 i/s - 4.06x slower
+```
+
+```
+$ ruby code/string/end-string-checking-match-vs-start_with.rb
+
+Calculating -------------------------------------
+           String#=~     43826 i/100ms
+    String#end_with?     84810 i/100ms
+-------------------------------------------------
+           String#=~   926098.8 (±28.3%) i/s -    4075818 in   5.025425s
+    String#end_with?  2792475.3 (±12.5%) i/s -   13739220 in   5.004958s
+
+Comparison:
+    String#end_with?:  2792475.3 i/s
+           String#=~:   926098.8 i/s - 3.02x slower
+```
 
 ### Array
 
