@@ -137,14 +137,15 @@ Comparison:
          String#gsub:   603615.0 i/s - 3.54x slower
 ```
 
-##### Check start/end of the string `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
+##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
 
-> :warning: sometimes you cant replace regexp with `start_with?`, for example
-> `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
-> :warning: You can combine `start_with?` and `end_with?` to replace
-> something like this `error.path =~ /^#{path}(\.rb)?$/` to this
+> :warning: <br>
+> Sometimes you cant replace regexp with `start_with?`, <br>
+> for example: `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
+> :warning: <br>
+> You can combine `start_with?` and `end_with?` to replace
+> `error.path =~ /^#{path}(\.rb)?$/` to this <br>
 > `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
-> Sometimes it can be really :rocket: up to 20x.<br>
 > —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
 
 ```
