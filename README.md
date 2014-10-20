@@ -122,6 +122,8 @@ Comparison:
 
 ##### `String#gsub` vs `String#tr` [code](code/string/gsub-vs-tr.rb)
 
+> [rails/rails#17257](https://github.com/rails/rails/pull/17257)
+
 ```
 $ ruby code/string/gsub-vs-tr.rb
 
