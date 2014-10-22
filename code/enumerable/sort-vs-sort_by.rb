@@ -1,16 +1,16 @@
 require 'benchmark/ips'
 
-User = Struct.new(:name)
+User  = Struct.new(:name)
 ARRAY = Array.new(100) do
   User.new(sprintf "%010d", rand(1_000_000_000))
 end
 
 def slow
-  ARRAY.sort { |a,b| a.name <=> b.name }
+  ARRAY.sort { |a, b| a.name <=> b.name }
 end
 
 def fast
-  ARRAY.sort_by { |a| a.name }
+  ARRAY.sort_by(&:name)
 end
 
 Benchmark.ips do |x|
