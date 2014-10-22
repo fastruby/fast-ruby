@@ -14,7 +14,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('slow') { slow }
-  x.report('fast') { fast }
+  x.report('Enumerable#sort')    { slow }
+  x.report('Enumerable#sort_by') { fast }
   x.compare!
 end

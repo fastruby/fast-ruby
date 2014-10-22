@@ -11,7 +11,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('slow') { slow }
-  x.report('fast') { fast }
+  x.report('String#downcase + ==') { slow }
+  x.report('String#casecmp') { fast }
   x.compare!
 end

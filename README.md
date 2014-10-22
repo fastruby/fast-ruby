@@ -183,19 +183,18 @@ Comparison:
 
 ##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
 
-
 ```
 $ ruby code/string/casecmp-vs-downcase-\=\=.rb
 Calculating -------------------------------------
-                slow     85467 i/100ms
-                fast     88685 i/100ms
+String#downcase + ==     87744 i/100ms
+      String#casecmp     77740 i/100ms
 -------------------------------------------------
-                slow  2673954.9 (±7.8%) i/s -   13332852 in   5.024332s
-                fast  3134680.4 (±12.0%) i/s -   15431190 in   5.013010s
+String#downcase + ==  2570883.2 (±8.8%) i/s -   12810624 in   5.026806s
+      String#casecmp  3264931.4 (±7.4%) i/s -   16247660 in   5.005434s
 
 Comparison:
-                fast:  3134680.4 i/s
-                slow:  2673954.9 i/s - 1.17x slower
+      String#casecmp:  3264931.4 i/s
+String#downcase + ==:  2570883.2 i/s - 1.27x slower
 ```
 
 ### Array
@@ -310,15 +309,15 @@ Comparison:
 ```
 $ ruby code/enumerable/sort-vs-sort_by.rb
 Calculating -------------------------------------
-                slow       825 i/100ms
-                fast      2028 i/100ms
+     Enumerable#sort      1080 i/100ms
+  Enumerable#sort_by      1949 i/100ms
 -------------------------------------------------
-                slow     9679.1 (±17.7%) i/s -      46200 in   5.007614s
-                fast    14108.6 (±29.1%) i/s -      64896 in   5.084319s
+     Enumerable#sort    11112.0 (±4.1%) i/s -      56160 in   5.062717s
+  Enumerable#sort_by    21105.0 (±6.8%) i/s -     107195 in   5.105145s
 
 Comparison:
-                fast:    14108.6 i/s
-                slow:     9679.1 i/s - 1.46x slower
+  Enumerable#sort_by:    21105.0 i/s
+     Enumerable#sort:    11112.0 i/s - 1.90x slower
 ```
 
 ### Hash
