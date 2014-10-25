@@ -1,5 +1,5 @@
-Fast Ruby :dash: :dash: :dash: :rocket:
-=======================================
+Fast Ruby :dash: :dash: :dash: :rocket: [![Build Status](https://travis-ci.org/JuanitoFatas/fast-ruby.svg?branch=travis)](https://travis-ci.org/JuanitoFatas/fast-ruby)
+=======================================================================================================================================================================
 
 In [Erik Michaels-Ober](https://github.com/sferik)'s great talk Writing Fast Ruby: [Video @ Baruco 2014](https://www.youtube.com/watch?v=fGFM_UrSp70), [Slide](https://speakerdeck.com/sferik/writing-fast-ruby), he presents us many idioms that leads to Faster Ruby. He inspired me and I want to document these to let more people know. I try to link to real commit for people to see this can really benefits in real world. **But this does not mean you can always replace one with another, depends on the context (e.g. `gsub` versus `tr`). :warning: Use with caution!**
 
