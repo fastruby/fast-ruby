@@ -240,21 +240,20 @@ Comparison:
 
 ```
 $ ruby -v code/enumerable/map-flatten-vs-flat_map.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
+ruby 2.2.0preview1 (2014-09-17 trunk 47616) [i686-linux]
 Calculating -------------------------------------
-Array#map.flatten(1)      8393 i/100ms
-   Array#map.flatten      8515 i/100ms
-      Array#flat_map      8821 i/100ms
+Array#map.flatten(1)      1779 i/100ms
+   Array#map.flatten      1793 i/100ms
+      Array#flat_map      3298 i/100ms
 -------------------------------------------------
-Array#map.flatten(1)    88898.4 (±3.1%) i/s -     444829 in   5.008949s
-   Array#map.flatten    88837.2 (±2.7%) i/s -     451295 in   5.083834s
-      Array#flat_map    93280.8 (±2.2%) i/s -     467513 in   5.014310s
+Array#map.flatten(1)    18348.4 (±4.4%) i/s -      92508 in   5.053578s
+   Array#map.flatten    17989.4 (±3.7%) i/s -      91443 in   5.090778s
+      Array#flat_map    33926.1 (±11.0%) i/s -     168198 in   5.045198s
 
 Comparison:
-      Array#flat_map:    93280.8 i/s
-Array#map.flatten(1):    88898.4 i/s - 1.05x slower
-   Array#map.flatten:    88837.2 i/s - 1.05x slower
+      Array#flat_map:    33926.1 i/s
+Array#map.flatten(1):    18348.4 i/s - 1.85x slower
+   Array#map.flatten:    17989.4 i/s - 1.89x slower
 ```
 
 ##### `Enumerable#reverse.each` vs `Enumerable#reverse_each` [code](code/enumerable/reverse-each-vs-reverse_each.rb)

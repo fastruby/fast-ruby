@@ -3,15 +3,15 @@ require 'benchmark/ips'
 ARRAY = (1..100).to_a
 
 def slow_flatten_1
-  [1, [[2, [[[3, [[[[4, [[[[[5]]]]]]]]]]]]]]].map(&:to_s).flatten(1)
+  ARRAY.map { |e| [e, e] }.flatten(1)
 end
 
 def slow_flatten
-  [1, [[2, [[[3, [[[[4, [[[[[5]]]]]]]]]]]]]]].map(&:to_s).flatten
+  ARRAY.map { |e| [e, e] }.flatten
 end
 
 def fast
-  [1, [[2, [[[3, [[[[4, [[[[[5]]]]]]]]]]]]]]].map(&:to_s).flat_map
+  ARRAY.flat_map { |e| [e, e] }
 end
 
 Benchmark.ips do |x|
