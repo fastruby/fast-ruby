@@ -239,21 +239,22 @@ Comparison:
 > -- @sferik [rails/rails@3413b88](https://github.com/rails/rails/commit/3413b88), [Replace map.flatten with flat_map](https://github.com/rails/rails/commit/817fe31196dd59ee31f71ef1740122b6759cf16d), [Replace map.flatten(1) with flat_map](https://github.com/rails/rails/commit/b11ebf1d80e4fb124f0ce0448cea30988256da59)
 
 ```
-$ ruby -v code/enumerable/map-flatten-vs-flat_map.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [i686-linux]
+ruby -v code/enumerable/map-flatten-vs-flat_map.rb
+ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+
 Calculating -------------------------------------
-Array#map.flatten(1)      1779 i/100ms
-   Array#map.flatten      1793 i/100ms
-      Array#flat_map      3298 i/100ms
+Array#map.flatten(1)      3796 i/100ms
+   Array#map.flatten      3829 i/100ms
+      Array#flat_map      5987 i/100ms
 -------------------------------------------------
-Array#map.flatten(1)    18348.4 (±4.4%) i/s -      92508 in   5.053578s
-   Array#map.flatten    17989.4 (±3.7%) i/s -      91443 in   5.090778s
-      Array#flat_map    33926.1 (±11.0%) i/s -     168198 in   5.045198s
+Array#map.flatten(1)    38832.0 (±3.3%) i/s -     197392 in   5.088969s
+   Array#map.flatten    38759.1 (±3.6%) i/s -     195279 in   5.045226s
+      Array#flat_map    63079.3 (±3.9%) i/s -     317311 in   5.038472s
 
 Comparison:
-      Array#flat_map:    33926.1 i/s
-Array#map.flatten(1):    18348.4 i/s - 1.85x slower
-   Array#map.flatten:    17989.4 i/s - 1.89x slower
+      Array#flat_map:    63079.3 i/s
+Array#map.flatten(1):    38832.0 i/s - 1.62x slower
+   Array#map.flatten:    38759.1 i/s - 1.63x slower
 ```
 
 ##### `Enumerable#reverse.each` vs `Enumerable#reverse_each` [code](code/enumerable/reverse-each-vs-reverse_each.rb)
