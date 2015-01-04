@@ -336,6 +336,22 @@ Comparison:
      Enumerable#sort:    12892.0 i/s - 2.13x slower
 ```
 
+##### `Enumerable#detect` vs `Enumerable#select.first` [code](code/enumerable/select-first-vs-detect.rb)
+
+```
+$ ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+Calculating -------------------------------------
+Enumerable#select.first    9.265k i/100ms
+      Enumerable#detect    37.176k i/100ms
+-------------------------------------------------
+Enumerable#select.first    94.906k (± 6.4%) i/s -      1.890M
+      Enumerable#detect    461.291k (± 4.9%) i/s -      9.220M
+
+Comparison:
+      Enumerable#detect:    461291.4 i/s
+Enumerable#select.first:    94906.2 i/s - 4.86x slower
+```
+
 ### Hash
 
 ##### `Hash#merge` vs `Hash#merge!` [code](code/hash/merge-vs-merge-bang.rb)
