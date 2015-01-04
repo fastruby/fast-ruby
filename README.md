@@ -280,7 +280,7 @@ Comparison:
   Array#reverse.each:   205046.1 i/s - 1.13x slower
 ```
 
-##### `Enumerable#each` vs `Enumerable#map + push` [code](code/enumerable/each-push-vs-map.rb)
+##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
 
 ```
 $ ruby -v code/enumerable/each-push-vs-map.rb
