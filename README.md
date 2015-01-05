@@ -1,3 +1,5 @@
+**GitHub currently disable the rendering of emoji in large document, that's why you see these strange `::` stuff.**
+
 Fast Ruby :dash: :dash: :dash: :rocket: [![Build Status](https://travis-ci.org/JuanitoFatas/fast-ruby.svg?branch=travis)](https://travis-ci.org/JuanitoFatas/fast-ruby)
 =======================================================================================================================================================================
 
