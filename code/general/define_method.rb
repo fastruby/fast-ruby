@@ -6,19 +6,17 @@ def method_names(number)
   end
 end
 
-methods = method_names(10)
-
 def slow
-  SampleClassB.def_methods(methods)
+  SampleClassB.def_methods(method_names(10))
 end
 
 def fast
-  SampleClassA.def_methods(methods)
+  SampleClassA.def_methods(method_names(10))
 end
 
 class SampleClassA
-  def self.def_methods(methods)
-    methods.each do |method_name|
+  def self.def_methods(_methods)
+    _methods.each do |method_name|
       define_method method_name do
         puts "win"
       end
@@ -27,8 +25,8 @@ class SampleClassA
 end
 
 class SampleClassB
-  def self.def_methods(methods)
-    methods.each do |method_name|
+  def self.def_methods(_methods)
+    _methods.each do |method_name|
       module_eval %{
         def #{method_name}
           puts "win"
