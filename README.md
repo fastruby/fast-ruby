@@ -210,6 +210,24 @@ String#downcase + ==:  3348751.8 i/s - 1.26x slower
 
 ### Array
 
+##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
+
+```
+$ ruby -v code/array/bsearch-vs-find.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+                find     1.000  i/100ms
+             bsearch    42.216k i/100ms
+-------------------------------------------------
+                find      0.184  (± 0.0%) i/s -      1.000  in   5.434758s
+             bsearch    577.301k (± 6.6%) i/s -      2.913M
+
+Comparison:
+             bsearch:   577300.7 i/s
+                find:        0.2 i/s - 3137489.63x slower
+```
+
 ##### `Array#shuffle.first` vs `Array#sample` [code](code/array/shuffle-first-vs-sample.rb)
 
 > `Array#shuffle` allocates an extra array. <br>
