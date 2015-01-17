@@ -552,6 +552,14 @@ Feel free to talk with me on Twitter! <3
 
 :gift_heart: :revolving_hearts: :gift_heart: :sparkling_heart: :blue_heart: :two_hearts: :heart: :heartpulse: :green_heart: :revolving_hearts: :heartbeat: :yellow_heart: :heartpulse: :heartbeat: :heart_decoration: :blue_heart: :hearts: :cupid: :hearts: :yellow_heart: :green_heart: :cupid: :heart: :heart: :yellow_heart: :purple_heart: :purple_heart: :heart_decoration: :sparkling_heart:
 
+## Also Checkout
+
+- [Benchmarking Ruby](https://speakerdeck.com/davystevenson/benchmarking-ruby)
+
+- [davy/benchmark-bigo](https://github.com/davy/benchmark-bigo) - Provides Big O notation benchmarking for Ruby
+
+- [The Ruby Challenge](https://therubychallenge.com/)
+
 ## License
 
 ![CC-BY-SA](CC-BY-SA.png)
