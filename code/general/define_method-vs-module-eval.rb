@@ -6,15 +6,7 @@ def method_names(number)
   end
 end
 
-def slow
-  SampleClassB.def_methods(method_names(10))
-end
-
-def fast
-  SampleClassA.def_methods(method_names(10))
-end
-
-class SampleClassA
+class DefineMethod
   def self.def_methods(_methods)
     _methods.each do |method_name|
       define_method method_name do
@@ -24,7 +16,7 @@ class SampleClassA
   end
 end
 
-class SampleClassB
+class ModuleEvalWithString
   def self.def_methods(_methods)
     _methods.each do |method_name|
       module_eval %{
@@ -36,9 +28,17 @@ class SampleClassB
   end
 end
 
+def fast
+  DefineMethod.def_methods(method_names(10))
+end
+
+def slow
+  ModuleEvalWithString.def_methods(method_names(10))
+end
+
 
 Benchmark.ips do |x|
-  x.report("module_eval with string") {fast}
-  x.report("define_method") {slow}
+  x.report("module_eval with string") { slow }
+  x.report("define_method")           { fast }
   x.compare!
 end
