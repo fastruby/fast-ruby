@@ -48,39 +48,55 @@ Idioms
 
 ```
 $ ruby -v code/general/assignment.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
- Parallel Assignment    113719 i/100ms
-Sequential Assignment   145620 i/100ms
-
+ Parallel Assignment     99.146k i/100ms
+Sequential Assignment   127.143k i/100ms
 -------------------------------------------------
-  Parallel Assignment 2927066.6 (±4.8%) i/s -   14669751 in   5.024304s
-Sequential Assignment 6660499.7 (±4.5%) i/s -   33346980 in   5.018252s
+ Parallel Assignment      2.522M (± 7.5%) i/s -     12.592M
+Sequential Assignment     5.686M (± 8.6%) i/s -     28.226M
 
 Comparison:
-Sequential Assignment:  6660499.7 i/s
-  Parallel Assignment:  2927066.6 i/s - 2.28x slower
+Sequential Assignment:  5685750.0 i/s
+ Parallel Assignment:   2521708.9 i/s - 2.25x slower
 ```
 
 ##### `begin...rescue` vs `respond_to?` for Control Flow [code](code/general/begin-rescue-vs-respond-to.rb)
 
 ```
 $ ruby -v code/general/begin-rescue-vs-respond-to.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-      begin...rescue     35978 i/100ms
-         respond_to?    131419 i/100ms
+      begin...rescue    29.452k i/100ms
+         respond_to?   106.528k i/100ms
 -------------------------------------------------
-      begin...rescue   474725.9 (±2.7%) i/s -    2374548 in   5.005720s
-         respond_to?  3970459.3 (±3.4%) i/s -   19844269 in   5.004508s
+      begin...rescue    371.591k (± 5.4%) i/s -      1.855M
+         respond_to?      3.277M (± 7.5%) i/s -     16.299M
 
 Comparison:
-         respond_to?:  3970459.3 i/s
-      begin...rescue:   474725.9 i/s - 8.36x slower
+         respond_to?:  3276972.3 i/s
+      begin...rescue:   371591.0 i/s - 8.82x slower
 ```
 
+##### `define_method` vs `module_eval` for Define Methods [code](code/general/begin-rescue-vs-respond-to.rb)
+
+```
+$ ruby -v code/general/begin-rescue-vs-respond-to.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+module_eval with string 125.000  i/100ms
+       define_method    138.000  i/100ms
+-------------------------------------------------
+module_eval with string   1.130k (±20.3%) i/s -      5.500k
+       define_method      1.346k (±25.9%) i/s -      6.348k
+
+Comparison:
+       define_method:        1345.6 i/s
+module_eval with string:     1129.7 i/s - 1.19x slower
+```
 
 ### String
 
