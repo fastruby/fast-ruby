@@ -80,7 +80,7 @@ Comparison:
       begin...rescue:   371591.0 i/s - 8.82x slower
 ```
 
-##### `define_method` vs `module_eval` for Define Methods [code](code/general/begin-rescue-vs-respond-to.rb)
+##### `define_method` vs `module_eval` for Defining Methods [code](code/general/define_method-vs-module-eval.rb)
 
 ```
 $ ruby -v code/general/begin-rescue-vs-respond-to.rb
