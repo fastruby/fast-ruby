@@ -1,8 +1,13 @@
-desc 'run benchmark in current ruby'
+desc "run benchmark in current ruby"
 task :run_benchmark do
-  Dir['code/*/*.rb'].each do |benchmark|
+  Dir["code/general/*.rb"].each do |benchmark|
     puts "$ ruby -v #{benchmark}"
-    system('ruby', '-v', benchmark)
+    system("ruby", "-v", benchmark)
+  end
+
+  Dir["code/*/*.rb"].reject { |path| path =~ /^code\/general/ }.each do |benchmark|
+    puts "$ ruby -v #{benchmark}"
+    system("ruby", "-v", benchmark)
   end
 end
 
