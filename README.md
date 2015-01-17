@@ -233,6 +233,23 @@ Comparison:
  Array#shuffle.first:   347632.6 i/s - 17.71x slower
 ```
 
+##### `Array#count` vs `Array#size` [code](code/array/count-vs-size.rb)
+
+```
+$ ruby -v code/array/count-vs-size.rb
+ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin14]
+
+Calculating -------------------------------------
+              #count   100.292k i/100ms
+               #size   107.879k i/100ms
+-------------------------------------------------
+              #count      5.140M (± 2.6%) i/s -     25.675M
+               #size      6.225M (± 2.3%) i/s -     31.177M
+
+Comparison:
+               #size:  6224559.7 i/s
+              #count:  5139525.9 i/s - 1.21x slower
+```
 
 ### Enumerable
 
