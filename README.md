@@ -7,12 +7,11 @@ In [Erik Michaels-Ober](https://github.com/sferik)'s great talk Writing Fast Rub
 
 Each idiom has a corresponding code example resides in [code](code).
 
-All results :running: with Ruby 2.2.0-preview1 on OS X 10.9.4. Your results may vary but you get the idea. : )
+All results listed in README.md :running: with Ruby 2.2.0p0 on OS X 10.10.1. Machine information: MacBook Pro (Retina, 15-inch, Mid 2014), 2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3. Your results may vary but you get the idea. : )
 
 **Let's write faster code, together! <3**
 
 :two_men_holding_hands: :two_women_holding_hands: :two_men_holding_hands: :two_men_holding_hands: :two_women_holding_hands: :couple: :two_women_holding_hands: :two_men_holding_hands: :two_women_holding_hands: :couple: :two_men_holding_hands: :couple: :dancers: :couple: :two_men_holding_hands: :two_men_holding_hands: :two_men_holding_hands: :two_men_holding_hands: :couple: :two_men_holding_hands: :two_women_holding_hands: :two_women_holding_hands: :couple: :couple: :two_men_holding_hands: :two_women_holding_hands: :two_men_holding_hands: :dancers: :couple:
-
 
 Measurement Tool
 -----------------
@@ -98,132 +97,6 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
-### String
-
-##### String Concatenation [code](code/string/concatenation.rb)
-
-```
-$ ruby  code/string/concatenation.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-            String#+    112031 i/100ms
-       String#concat    118035 i/100ms
-       String#append    120165 i/100ms
-         "foo" "bar"    143485 i/100ms
--------------------------------------------------
-            String#+  3172217.8 (±4.6%) i/s -   15908402 in   5.026528s
-       String#concat  3326443.4 (±3.9%) i/s -   16642935 in   5.011320s
-       String#append  3482180.3 (±4.3%) i/s -   17423925 in   5.014100s
-         "foo" "bar"  5727567.5 (±4.7%) i/s -   28697000 in   5.022824s
-
-Comparison:
-         "foo" "bar":  5727567.5 i/s
-       String#append:  3482180.3 i/s - 1.64x slower
-       String#concat:  3326443.4 i/s - 1.72x slower
-            String#+:  3172217.8 i/s - 1.81x slower
-```
-
-##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
-
-```
-$ ruby -v code/string/gsub-vs-sub.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-         String#gsub     43991 i/100ms
-          String#sub     52787 i/100ms
--------------------------------------------------
-         String#gsub   584475.4 (±5.3%) i/s -    2947397 in   5.058064s
-          String#sub   751518.3 (±4.2%) i/s -    3800664 in   5.066852s
-
-Comparison:
-          String#sub:   751518.3 i/s
-         String#gsub:   584475.4 i/s - 1.29x slower
-```
-
-##### `String#gsub` vs `String#tr` [code](code/string/gsub-vs-tr.rb)
-
-> [rails/rails#17257](https://github.com/rails/rails/pull/17257)
-
-```
-$ ruby -v code/string/gsub-vs-tr.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-         String#gsub     45306 i/100ms
-           String#tr     94363 i/100ms
--------------------------------------------------
-         String#gsub   603615.0 (±3.9%) i/s -    3035502 in   5.036649s
-           String#tr  2134064.7 (±3.2%) i/s -   10663019 in   5.002019s
-
-Comparison:
-           String#tr:  2134064.7 i/s
-         String#gsub:   603615.0 i/s - 3.54x slower
-```
-
-##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
-
-> :warning: <br>
-> Sometimes you cant replace regexp with `start_with?`, <br>
-> for example: `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
-> :warning: <br>
-> You can combine `start_with?` and `end_with?` to replace
-> `error.path =~ /^#{path}(\.rb)?$/` to this <br>
-> `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
-> —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
-
-```
-$ ruby -v code/string/start-string-checking-match-vs-start_with.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-           String#=~     50281 i/100ms
-  String#start_with?    106594 i/100ms
--------------------------------------------------
-           String#=~  1007225.5 (±30.3%) i/s -    4374447 in   5.006442s
-  String#start_with?  4088874.6 (±10.5%) i/s -   20252860 in   5.014760s
-
-Comparison:
-  String#start_with?:  4088874.6 i/s
-           String#=~:  1007225.5 i/s - 4.06x slower
-```
-
-```
-$ ruby -v code/string/end-string-checking-match-vs-start_with.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-           String#=~     43826 i/100ms
-    String#end_with?     84810 i/100ms
--------------------------------------------------
-           String#=~   926098.8 (±28.3%) i/s -    4075818 in   5.025425s
-    String#end_with?  2792475.3 (±12.5%) i/s -   13739220 in   5.004958s
-
-Comparison:
-    String#end_with?:  2792475.3 i/s
-           String#=~:   926098.8 i/s - 3.02x slower
-```
-
-
-##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
-
-```
-$ ruby -v code/string/casecmp-vs-downcase-\=\=.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-String#downcase + ==    112715 i/100ms
-      String#casecmp    121906 i/100ms
--------------------------------------------------
-String#downcase + ==  3348751.8 (±5.2%) i/s -   16794535 in   5.029945s
-      String#casecmp  4214478.7 (±4.7%) i/s -   21089738 in   5.016033s
-
-Comparison:
-      String#casecmp:  4214478.7 i/s
-String#downcase + ==:  3348751.8 i/s - 1.26x slower
-```
-
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
@@ -244,6 +117,24 @@ Comparison:
                 find:        0.2 i/s - 3137489.63x slower
 ```
 
+##### `Array#count` vs `Array#size` [code](code/array/count-vs-size.rb)
+
+```
+$ ruby -v code/array/count-vs-size.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+              #count   130.991k i/100ms
+               #size   135.312k i/100ms
+-------------------------------------------------
+              #count      6.697M (± 7.1%) i/s -     33.403M
+               #size      7.562M (± 9.1%) i/s -     37.481M
+
+Comparison:
+               #size:  7562457.4 i/s
+              #count:  6696763.0 i/s - 1.13x slower
+```
+
 ##### `Array#shuffle.first` vs `Array#sample` [code](code/array/shuffle-first-vs-sample.rb)
 
 > `Array#shuffle` allocates an extra array. <br>
@@ -253,39 +144,78 @@ Comparison:
 
 ```
 $ ruby -v code/array/shuffle-first-vs-sample.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
- Array#shuffle.first     29000 i/100ms
-        Array#sample    121248 i/100ms
+ Array#shuffle.first    25.406k i/100ms
+        Array#sample   125.101k i/100ms
 -------------------------------------------------
- Array#shuffle.first   347632.6 (±8.0%) i/s -    1740000 in   5.041768s
-        Array#sample  6155292.3 (±6.6%) i/s -   30675744 in   5.008394s
+ Array#shuffle.first    304.341k (± 4.3%) i/s -      1.524M
+        Array#sample      5.727M (± 8.6%) i/s -     28.523M
 
 Comparison:
-        Array#sample:  6155292.3 i/s
- Array#shuffle.first:   347632.6 i/s - 17.71x slower
+        Array#sample:  5727032.0 i/s
+ Array#shuffle.first:   304341.1 i/s - 18.82x slower
 ```
 
-##### `Array#count` vs `Array#size` [code](code/array/count-vs-size.rb)
+
+### Enumerable
+
+##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
 
 ```
-$ ruby -v code/array/count-vs-size.rb
+$ ruby -v code/enumerable/each-push-vs-map.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+   Array#each + push     9.025k i/100ms
+           Array#map    13.947k i/100ms
+-------------------------------------------------
+   Array#each + push     99.634k (± 3.2%) i/s -    505.400k
+           Array#map    158.091k (± 4.2%) i/s -    794.979k
+
+Comparison:
+           Array#map:   158090.9 i/s
+   Array#each + push:    99634.2 i/s - 1.59x slower
+```
+
+##### `Enumerable#each` vs `for` loop [code](code/array/each-vs-for-loop.rb)
+
+```
+$ ruby -v code/enumerable/each-vs-for-loop.rb
 ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin14]
 
 Calculating -------------------------------------
-              #count   100.292k i/100ms
-               #size   107.879k i/100ms
+            For loop    17.111k i/100ms
+               #each    18.464k i/100ms
 -------------------------------------------------
-              #count      5.140M (± 2.6%) i/s -     25.675M
-               #size      6.225M (± 2.3%) i/s -     31.177M
+            For loop    198.517k (± 5.3%) i/s -    992.438k
+               #each    208.157k (± 5.0%) i/s -      1.052M
 
 Comparison:
-               #size:  6224559.7 i/s
-              #count:  5139525.9 i/s - 1.21x slower
+               #each:   208157.4 i/s
+            For loop:   198517.3 i/s - 1.05x slower
 ```
 
-### Enumerable
+##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
+
+> [rails/rails#12065](https://github.com/rails/rails/pull/12065)
+
+```
+$ ruby -v code/array/each_with_index-vs-while-loop.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+     each_with_index    11.496k i/100ms
+          While Loop    20.179k i/100ms
+-------------------------------------------------
+     each_with_index    128.855k (± 7.5%) i/s -    643.776k
+          While Loop    242.344k (± 4.5%) i/s -      1.211M
+
+Comparison:
+          While Loop:   242343.6 i/s
+     each_with_index:   128854.9 i/s - 1.88x slower
+```
 
 ##### `Enumerable#map`...`Array#flatten` vs `Enumerable#flat_map` [code](code/enumerable/map-flatten-vs-flat_map.rb)
 
@@ -293,21 +223,21 @@ Comparison:
 
 ```
 ruby -v code/enumerable/map-flatten-vs-flat_map.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-Array#map.flatten(1)      3796 i/100ms
-   Array#map.flatten      3829 i/100ms
-      Array#flat_map      5987 i/100ms
+Array#map.flatten(1)     3.315k i/100ms
+   Array#map.flatten     3.283k i/100ms
+      Array#flat_map     5.350k i/100ms
 -------------------------------------------------
-Array#map.flatten(1)    38832.0 (±3.3%) i/s -     197392 in   5.088969s
-   Array#map.flatten    38759.1 (±3.6%) i/s -     195279 in   5.045226s
-      Array#flat_map    63079.3 (±3.9%) i/s -     317311 in   5.038472s
+Array#map.flatten(1)     33.801k (± 4.3%) i/s -    169.065k
+   Array#map.flatten     34.530k (± 6.0%) i/s -    173.999k
+      Array#flat_map     55.980k (± 5.0%) i/s -    283.550k
 
 Comparison:
-      Array#flat_map:    63079.3 i/s
-Array#map.flatten(1):    38832.0 i/s - 1.62x slower
-   Array#map.flatten:    38759.1 i/s - 1.63x slower
+      Array#flat_map:    55979.6 i/s
+   Array#map.flatten:    34529.6 i/s - 1.62x slower
+Array#map.flatten(1):    33800.6 i/s - 1.66x slower
 ```
 
 ##### `Enumerable#reverse.each` vs `Enumerable#reverse_each` [code](code/enumerable/reverse-each-vs-reverse_each.rb)
@@ -319,166 +249,74 @@ Array#map.flatten(1):    38832.0 i/s - 1.62x slower
 
 ```
 $ ruby -v code/enumerable/reverse-each-vs-reverse_each.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-  Array#reverse.each     18475 i/100ms
-  Array#reverse_each     20324 i/100ms
+  Array#reverse.each    16.746k i/100ms
+  Array#reverse_each    18.590k i/100ms
 -------------------------------------------------
-  Array#reverse.each   205046.1 (±4.0%) i/s -    1034600 in   5.054304s
-  Array#reverse_each   231763.2 (±2.3%) i/s -    1178792 in   5.088863s
+  Array#reverse.each    190.729k (± 4.8%) i/s -    954.522k
+  Array#reverse_each    216.060k (± 4.3%) i/s -      1.078M
 
 Comparison:
-  Array#reverse_each:   231763.2 i/s
-  Array#reverse.each:   205046.1 i/s - 1.13x slower
-```
-
-##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
-
-```
-$ ruby -v code/enumerable/each-push-vs-map.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-   Array#each + push     10308 i/100ms
-           Array#map     15125 i/100ms
--------------------------------------------------
-   Array#each + push   106052.2 (±4.2%) i/s -     536016 in   5.063496s
-           Array#map   166484.6 (±4.9%) i/s -     847000 in   5.100707s
-
-Comparison:
-           Array#map:   166484.6 i/s
-   Array#each + push:   106052.2 i/s - 1.57x slower
-```
-
-##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
-
-> [rails/rails#12065](https://github.com/rails/rails/pull/12065)
-
-```
-$ ruby -v code/array/each_with_index-vs-while-loop.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-     each_with_index     13880 i/100ms
-          While Loop     23616 i/100ms
--------------------------------------------------
-     each_with_index   146266.8 (±2.7%) i/s -     735640 in   5.033031s
-          While Loop   274998.8 (±3.0%) i/s -    1393344 in   5.071824s
-
-Comparison:
-          While Loop:   274998.8 i/s
-     each_with_index:   146266.8 i/s - 1.88x slower
-```
-
-##### `Enumerable#each` vs `for` loop [code](code/array/each-vs-for-loop.rb)
-
-```
-$ ruby -v code/enumerable/each-vs-for-loop.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin14]
-
-Calculating -------------------------------------
-            For loop    14.635k i/100ms
-               #each    15.235k i/100ms
--------------------------------------------------
-            For loop    169.627k (± 1.3%) i/s -    848.830k
-               #each    176.092k (± 1.5%) i/s -    883.630k
-
-Comparison:
-               #each:   176092.0 i/s
-            For loop:   169627.2 i/s - 1.04x slower
-```
-
-
-##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
-
-```
-$ ruby -v code/enumerable/sort-vs-sort_by.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-     Enumerable#sort      1266 i/100ms
-  Enumerable#sort_by      2688 i/100ms
--------------------------------------------------
-     Enumerable#sort    12892.0 (±2.8%) i/s -      64566 in   5.012285s
-  Enumerable#sort_by    27421.4 (±3.3%) i/s -     137088 in   5.004812s
-
-Comparison:
-  Enumerable#sort_by:    27421.4 i/s
-     Enumerable#sort:    12892.0 i/s - 2.13x slower
+  Array#reverse_each:   216060.5 i/s
+  Array#reverse.each:   190729.1 i/s - 1.13x slower
 ```
 
 ##### `Enumerable#detect` vs `Enumerable#select.first` [code](code/enumerable/select-first-vs-detect.rb)
 
 ```
 $ ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
 Calculating -------------------------------------
-Enumerable#select.first    9.265k i/100ms
-      Enumerable#detect    37.176k i/100ms
+Enumerable#select.first  8.515k i/100ms
+   Enumerable#detect    33.885k i/100ms
 -------------------------------------------------
-Enumerable#select.first    94.906k (± 6.4%) i/s -      1.890M
-      Enumerable#detect    461.291k (± 4.9%) i/s -      9.220M
+Enumerable#select.first  89.757k (± 5.0%) i/s -      1.797M
+   Enumerable#detect    434.304k (± 5.2%) i/s -      8.675M
 
 Comparison:
-      Enumerable#detect:    461291.4 i/s
-Enumerable#select.first:    94906.2 i/s - 4.86x slower
+   Enumerable#detect:   434304.2 i/s
+Enumerable#select.first:    89757.4 i/s - 4.84x slower
 ```
+
+##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
+
+```
+$ ruby -v code/enumerable/sort-vs-sort_by.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+     Enumerable#sort     1.158k i/100ms
+  Enumerable#sort_by     2.401k i/100ms
+-------------------------------------------------
+     Enumerable#sort     12.140k (± 4.9%) i/s -     61.374k
+  Enumerable#sort_by     24.169k (± 4.0%) i/s -    122.451k
+
+Comparison:
+  Enumerable#sort_by:    24168.9 i/s
+     Enumerable#sort:    12139.8 i/s - 1.99x slower
+```
+
 
 ### Hash
-
-##### `Hash#merge` vs `Hash#merge!` [code](code/hash/merge-vs-merge-bang.rb)
-
-```
-$ ruby -v code/hash/merge-vs-merge-bang.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-          Hash#merge        51 i/100ms
-         Hash#merge!      1141 i/100ms
--------------------------------------------------
-          Hash#merge      496.7 (±7.2%) i/s -       2499 in   5.054120s
-         Hash#merge!    11656.2 (±3.5%) i/s -      59332 in   5.096368s
-
-Comparison:
-         Hash#merge!:    11656.2 i/s
-          Hash#merge:      496.7 i/s - 23.47x slower
-```
-
-
-##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
-
-```
-$ ruby -v code/hash/merge-bang-vs-\[\]=.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-         Hash#merge!      1276 i/100ms
-            Hash#[]=      3303 i/100ms
--------------------------------------------------
-         Hash#merge!    12913.5 (±3.6%) i/s -      65076 in   5.046038s
-            Hash#[]=    34812.0 (±11.2%) i/s -     175059 in   5.079305s
-
-Comparison:
-            Hash#[]=:    34812.0 i/s
-         Hash#merge!:    12913.5 i/s - 2.70x slower
-```
 
 ##### `Hash#fetch` with argument vs `Hash#fetch` + block [code](code/hash/fetch-vs-fetch-with-block.rb)
 
 ```
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-    Hash#fetch + arg     19954 i/100ms
-  Hash#fetch + block    146532 i/100ms
+    Hash#fetch + arg    15.650k i/100ms
+  Hash#fetch + block   130.271k i/100ms
 -------------------------------------------------
-    Hash#fetch + arg   230612.5 (±3.8%) i/s -    1157332 in   5.026216s
-  Hash#fetch + block  6496408.6 (±3.5%) i/s -   32530104 in   5.014893s
+    Hash#fetch + arg    184.562k (± 5.2%) i/s -    923.350k
+  Hash#fetch + block      5.880M (± 7.5%) i/s -     29.311M
 
 Comparison:
-  Hash#fetch + block:  6496408.6 i/s
-    Hash#fetch + arg:   230612.5 i/s - 28.17x slower
+  Hash#fetch + block:  5880209.2 i/s
+    Hash#fetch + arg:   184562.0 i/s - 31.86x slower
 ```
 
 ##### `Hash#each_key` instead of `Hash#keys.each` [code](code/hash/keys-each-vs-each_key.rb)
@@ -490,39 +328,58 @@ Comparison:
 
 ```
 $ ruby -v code/hash/keys-each-vs-each_key.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-      Hash#keys.each     66419 i/100ms
-       Hash#each_key     73281 i/100ms
+      Hash#keys.each    56.690k i/100ms
+       Hash#each_key    59.658k i/100ms
 -------------------------------------------------
-      Hash#keys.each  1031745.2 (±3.9%) i/s -    5180682 in   5.029275s
-       Hash#each_key  1215805.3 (±3.5%) i/s -    6082323 in   5.009353s
+      Hash#keys.each    869.262k (± 5.0%) i/s -      4.365M
+       Hash#each_key      1.049M (± 6.0%) i/s -      5.250M
 
 Comparison:
-       Hash#each_key:  1215805.3 i/s
-      Hash#keys.each:  1031745.2 i/s - 1.18x slower
+       Hash#each_key:  1049161.6 i/s
+      Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
+
+##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
+
+```
+$ ruby -v code/hash/merge-bang-vs-\[\]=.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+         Hash#merge!     1.023k i/100ms
+            Hash#[]=     2.844k i/100ms
+-------------------------------------------------
+         Hash#merge!     10.653k (± 4.9%) i/s -     53.196k
+            Hash#[]=     28.287k (±12.4%) i/s -    142.200k
+
+Comparison:
+            Hash#[]=:    28287.1 i/s
+         Hash#merge!:    10653.3 i/s - 2.66x slower
+```
+
+##### `Hash#merge` vs `Hash#merge!` [code](code/hash/merge-vs-merge-bang.rb)
+
+```
+$ ruby -v code/hash/merge-vs-merge-bang.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+          Hash#merge    39.000  i/100ms
+         Hash#merge!     1.008k i/100ms
+-------------------------------------------------
+          Hash#merge    409.610  (± 7.6%) i/s -      2.067k
+         Hash#merge!      9.830k (± 5.8%) i/s -     49.392k
+
+Comparison:
+         Hash#merge!:     9830.3 i/s
+          Hash#merge:      409.6 i/s - 24.00x slower
+```
+
 
 ### Proc & Block
-
-##### `Proc#call` vs `yield` [code](code/proc-and-block/proc-call-vs-yield.rb)
-
-```
-$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
-
-Calculating -------------------------------------
-          block.call     84982 i/100ms
-               yield    149488 i/100ms
--------------------------------------------------
-          block.call  1584410.0 (±4.3%) i/s -    7988308 in   5.051477s
-               yield  6544207.5 (±5.5%) i/s -   32737872 in   5.019144s
-
-Comparison:
-               yield:  6544207.5 i/s
-          block.call:  1584410.0 i/s - 4.13x slower
-```
 
 ##### Block vs `Symbol#to_proc` [code](code/proc-and-block/block-vs-to_proc.rb)
 
@@ -532,19 +389,166 @@ Comparison:
 
 ```
 $ ruby -v code/proc-and-block/block-vs-to_proc.rb
-ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin13]
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-               Block      5609 i/100ms
-      Symbol#to_proc      6599 i/100ms
+               Block     4.632k i/100ms
+      Symbol#to_proc     5.225k i/100ms
 -------------------------------------------------
-               Block    55716.2 (±6.8%) i/s -     280450 in   5.059515s
-      Symbol#to_proc    67124.3 (±6.6%) i/s -     336549 in   5.038400s
+               Block     47.914k (± 6.3%) i/s -    240.864k
+      Symbol#to_proc     54.791k (± 4.1%) i/s -    276.925k
 
 Comparison:
-      Symbol#to_proc:    67124.3 i/s
-               Block:    55716.2 i/s - 1.20x slower
+      Symbol#to_proc:    54791.1 i/s
+               Block:    47914.3 i/s - 1.14x slower
 ```
+
+##### `Proc#call` vs `yield` [code](code/proc-and-block/proc-call-vs-yield.rb)
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+          block.call    70.663k i/100ms
+               yield   125.061k i/100ms
+-------------------------------------------------
+          block.call      1.309M (± 5.7%) i/s -      6.572M
+               yield      6.103M (± 7.7%) i/s -     30.390M
+
+Comparison:
+               yield:  6102822.9 i/s
+          block.call:  1309452.1 i/s - 4.66x slower
+```
+
+
+### String
+
+##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
+
+```
+$ ruby -v code/string/casecmp-vs-downcase-\=\=.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+String#downcase + ==   101.900k i/100ms
+      String#casecmp   109.828k i/100ms
+-------------------------------------------------
+String#downcase + ==      2.915M (± 5.4%) i/s -     14.572M
+      String#casecmp      3.708M (± 6.1%) i/s -     18.561M
+
+Comparison:
+      String#casecmp:  3708258.7 i/s
+String#downcase + ==:  2914767.7 i/s - 1.27x slower
+```
+
+##### String Concatenation [code](code/string/concatenation.rb)
+
+```
+$ ruby  code/string/concatenation.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+            String#+    96.314k i/100ms
+       String#concat    99.850k i/100ms
+       String#append   100.728k i/100ms
+         "foo" "bar"   121.936k i/100ms
+-------------------------------------------------
+            String#+      2.731M (± 4.6%) i/s -     13.677M
+       String#concat      2.847M (± 5.2%) i/s -     14.279M
+       String#append      2.972M (± 6.1%) i/s -     14.807M
+         "foo" "bar"      4.951M (± 6.2%) i/s -     24.753M
+
+Comparison:
+         "foo" "bar":  4950955.3 i/s
+       String#append:  2972048.5 i/s - 1.67x slower
+       String#concat:  2846666.4 i/s - 1.74x slower
+            String#+:  2730980.7 i/s - 1.81x slower
+```
+
+##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
+
+> :warning: <br>
+> Sometimes you cant replace regexp with `start_with?`, <br>
+> for example: `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
+> :warning: <br>
+> You can combine `start_with?` and `end_with?` to replace
+> `error.path =~ /^#{path}(\.rb)?$/` to this <br>
+> `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
+> —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
+
+```
+$ ruby -v code/string/start-string-checking-match-vs-start_with.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+           String#=~    55.411k i/100ms
+  String#start_with?   113.854k i/100ms
+-------------------------------------------------
+           String#=~    910.625k (± 4.6%) i/s -      4.544M
+  String#start_with?      3.983M (± 5.5%) i/s -     19.924M
+
+Comparison:
+  String#start_with?:  3983284.9 i/s
+           String#=~:   910625.0 i/s - 4.37x slower
+```
+
+```
+$ ruby -v code/string/end-string-checking-match-vs-start_with.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+           String#=~    52.811k i/100ms
+    String#end_with?   100.071k i/100ms
+-------------------------------------------------
+           String#=~    854.830k (± 5.8%) i/s -      4.278M
+    String#end_with?      2.837M (± 5.5%) i/s -     14.210M
+
+Comparison:
+    String#end_with?:  2836536.9 i/s
+           String#=~:   854830.3 i/s - 3.32x slower
+```
+
+##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
+
+```
+$ ruby -v code/string/gsub-vs-sub.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+         String#gsub    35.724k i/100ms
+          String#sub    42.426k i/100ms
+-------------------------------------------------
+         String#gsub    486.614k (± 5.4%) i/s -      2.429M
+          String#sub    611.259k (± 4.6%) i/s -      3.055M
+
+Comparison:
+          String#sub:   611259.4 i/s
+         String#gsub:   486613.5 i/s - 1.26x slower
+```
+
+##### `String#gsub` vs `String#tr` [code](code/string/gsub-vs-tr.rb)
+
+> [rails/rails#17257](https://github.com/rails/rails/pull/17257)
+
+```
+$ ruby -v code/string/gsub-vs-tr.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+         String#gsub    38.268k i/100ms
+           String#tr    83.210k i/100ms
+-------------------------------------------------
+         String#gsub    516.604k (± 4.4%) i/s -      2.602M
+           String#tr      1.862M (± 4.0%) i/s -      9.320M
+
+Comparison:
+           String#tr:  1861860.4 i/s
+         String#gsub:   516604.2 i/s - 3.60x slower
+```
+
+
+
 
 ## Submit New Entry
 
@@ -558,6 +562,7 @@ Code example is wrong? :cry: Got better example? :heart_eyes: Excellent!
 
 Thank you in advance! :wink: :beer:
 
+
 ## One more thing
 
 [Share this with your #Rubyfriends! <3](https://twitter.com/intent/tweet?url=http%3A%2F%2Fgit.io%2F4U3xdw&text=Fast%20Ruby%20--%20Common%20Ruby%20Idioms%20inspired%20by%20%40sferik&original_referer=&via=juanitofatas&hashtags=#RubyFriends)
@@ -568,6 +573,7 @@ Feel free to talk with me on Twitter! <3
 
 :gift_heart: :revolving_hearts: :gift_heart: :sparkling_heart: :blue_heart: :two_hearts: :heart: :heartpulse: :green_heart: :revolving_hearts: :heartbeat: :yellow_heart: :heartpulse: :heartbeat: :heart_decoration: :blue_heart: :hearts: :cupid: :hearts: :yellow_heart: :green_heart: :cupid: :heart: :heart: :yellow_heart: :purple_heart: :purple_heart: :heart_decoration: :sparkling_heart:
 
+
 ## Also Checkout
 
 - [Benchmarking Ruby](https://speakerdeck.com/davystevenson/benchmarking-ruby)
@@ -575,6 +581,7 @@ Feel free to talk with me on Twitter! <3
 - [davy/benchmark-bigo](https://github.com/davy/benchmark-bigo) - Provides Big O notation benchmarking for Ruby
 
 - [The Ruby Challenge](https://therubychallenge.com/)
+
 
 ## License
 
