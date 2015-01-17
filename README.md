@@ -337,6 +337,25 @@ Comparison:
      each_with_index:   146266.8 i/s - 1.88x slower
 ```
 
+##### `Enumerable#each` vs `for` loop [code](code/array/each-vs-for-loop.rb)
+
+```
+$ ruby -v code/enumerable/each-vs-for-loop.rb
+ruby 2.2.0preview1 (2014-09-17 trunk 47616) [x86_64-darwin14]
+
+Calculating -------------------------------------
+            For loop    14.635k i/100ms
+               #each    15.235k i/100ms
+-------------------------------------------------
+            For loop    169.627k (± 1.3%) i/s -    848.830k
+               #each    176.092k (± 1.5%) i/s -    883.630k
+
+Comparison:
+               #each:   176092.0 i/s
+            For loop:   169627.2 i/s - 1.04x slower
+```
+
+
 ##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
 
 ```
