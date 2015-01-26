@@ -82,7 +82,7 @@ Comparison:
 ##### `define_method` vs `module_eval` for Defining Methods [code](code/general/define_method-vs-module-eval.rb)
 
 ```
-$ ruby -v code/general/begin-rescue-vs-respond-to.rb
+$ ruby -v code/general/define_method-vs-module-eval.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
