@@ -298,6 +298,24 @@ Comparison:
      Enumerable#sort:    12139.8 i/s - 1.99x slower
 ```
 
+#### `Enumerable#inject` vs `Enumerable#each_with_object` [code](code/enumerable/inject-vs-each_with_object.rb)
+
+```
+$ ruby -v code/enumerable/inject-vs-each_with_object.rb
+ruby 2.1.3p242 (2014-09-19 revision 47630) [x86_64-darwin13.0]
+Calculating -------------------------------------
+   Enumerable#inject      1908 i/100ms
+Enumerable#each_with_object
+                          1778 i/100ms
+-------------------------------------------------
+   Enumerable#inject    21165.8 (±30.1%) i/s -      93492 in   5.058766s
+Enumerable#each_with_object
+                        21465.0 (±31.6%) i/s -      94234 in   5.087178s
+
+Comparison:
+Enumerable#each_with_object:    21465.0 i/s
+   Enumerable#inject:    21165.8 i/s - 1.01x slower
+```
 
 ### Hash
 
@@ -377,7 +395,6 @@ Comparison:
          Hash#merge!:     9830.3 i/s
           Hash#merge:      409.6 i/s - 24.00x slower
 ```
-
 
 ### Proc & Block
 
