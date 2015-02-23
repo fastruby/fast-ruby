@@ -197,7 +197,7 @@ Comparison:
             For loop:   198517.3 i/s - 1.05x slower
 ```
 
-##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
+##### `Enumerable#each_with_index` vs `while` loop [code](code/enumerable/each_with_index-vs-while-loop.rb)
 
 > [rails/rails#12065](https://github.com/rails/rails/pull/12065)
 
