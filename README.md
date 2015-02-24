@@ -197,7 +197,7 @@ Comparison:
             For loop:   198517.3 i/s - 1.05x slower
 ```
 
-##### `Enumerable#each_with_index` vs `while` loop [code](code/array/each_with_index-vs-while-loop.rb)
+##### `Enumerable#each_with_index` vs `while` loop [code](code/enumerable/each_with_index-vs-while-loop.rb)
 
 > [rails/rails#12065](https://github.com/rails/rails/pull/12065)
 
@@ -547,8 +547,24 @@ Comparison:
          String#gsub:   516604.2 i/s - 3.60x slower
 ```
 
+##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
+> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
 
+```
+$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+Calculating -------------------------------------
+   getter_and_setter    61.240k i/100ms
+       attr_accessor    66.535k i/100ms
+-------------------------------------------------
+   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
+       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
+
+Comparison:
+       attr_accessor:  1865408.4 i/s
+   getter_and_setter:  1660021.9 i/s - 1.12x slower
+```
 
 ## Submit New Entry
 
