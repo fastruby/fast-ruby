@@ -179,7 +179,7 @@ Comparison:
    Array#each + push:    99634.2 i/s - 1.59x slower
 ```
 
-##### `Enumerable#each` vs `for` loop [code](code/array/each-vs-for-loop.rb)
+##### `Enumerable#each` vs `for` loop [code](code/enumerable/each-vs-for-loop.rb)
 
 ```
 $ ruby -v code/enumerable/each-vs-for-loop.rb
