@@ -301,6 +301,31 @@ Comparison:
 
 ### Hash
 
+##### `Hash#[]` vs `Hash#dup` [code](code/hash/bracket-vs-dup.rb)
+
+Source: http://tenderlovemaking.com/2015/02/11/weird-stuff-with-hashes.html
+
+> Does this mean that you should switch to Hash[]?
+> Only if your benchmarks can prove that it’s a bottleneck.
+> Please please please don’t change all of your code because
+> this shows it’s faster. Make sure to measure your app performance first.
+
+```
+$ ruby -v code/hash/bracket-vs-dup.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+              Hash[]    29.403k i/100ms
+            Hash#dup    16.195k i/100ms
+-------------------------------------------------
+              Hash[]    343.987k (± 8.7%) i/s -      1.735M
+            Hash#dup    163.516k (±10.2%) i/s -    825.945k
+
+Comparison:
+              Hash[]:   343986.5 i/s
+            Hash#dup:   163516.3 i/s - 2.10x slower
+```
+
 ##### `Hash#fetch` with argument vs `Hash#fetch` + block [code](code/hash/fetch-vs-fetch-with-block.rb)
 
 ```
