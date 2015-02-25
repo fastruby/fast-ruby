@@ -2,12 +2,12 @@ require 'benchmark/ips'
 
 HASH = Hash[*('a'..'z').to_a]
 
-def slow
-  HASH.dup
-end
-
 def fast
   Hash[HASH]
+end
+
+def slow
+  HASH.dup
 end
 
 Benchmark.ips do |x|
