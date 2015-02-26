@@ -280,6 +280,28 @@ Comparison:
 Enumerable#select.first:    89757.4 i/s - 4.84x slower
 ```
 
+##### `Enumerable#select.last` vs `Enumerable#reverse.detect` [code](code/enumerable/select-last-vs-reverse-detect.rb)
+
+```
+$ ruby -v code/enumerable/select-last-vs-reverse-detect.rb
+ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-darwin12.0]
+Calculating -------------------------------------
+Enumerable#select.last
+                          7042 i/100ms
+Enumerable#reverse.detect
+                         42562 i/100ms
+-------------------------------------------------
+Enumerable#select.last
+                        74391.9 (±10.0%) i/s -     373226 in   5.068891s
+Enumerable#reverse.detect
+                       752939.4 (±11.5%) i/s -    3745456 in   5.040947s
+
+Comparison:
+Enumerable#reverse.detect:   752939.4 i/s
+Enumerable#select.last:       74391.9 i/s - 10.12x slower
+```
+
+
 ##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
 
 ```
