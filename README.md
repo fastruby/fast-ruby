@@ -158,6 +158,23 @@ Comparison:
  Array#shuffle.first:   304341.1 i/s - 18.82x slower
 ```
 
+##### `Array#reverse.index` vs `Array#size - Array#index - 1` [code](code/array/reverse-index-vs-size.rb)
+
+```
+$ ruby -v code/array/reverse-index-vs-size.rb
+ruby 2.1.5p273 (2014-11-13 revision 48405) [x86_64-darwin14.0]
+
+Calculating -------------------------------------
+     reverse + index    14.587k i/100ms
+    size - index - 1    97.213k i/100ms
+-------------------------------------------------
+     reverse + index    160.685k (± 6.5%) i/s -    802.285k
+    size - index - 1      2.370M (± 9.6%) i/s -     11.763M
+
+Comparison:
+    size - index - 1:  2370032.0 i/s
+     reverse + index:   160685.2 i/s - 14.75x slower
+```
 
 ### Enumerable
 
