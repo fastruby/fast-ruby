@@ -1,4 +1,5 @@
 bundler_args: --retry=3 --jobs=3
+cache: bundler
 language: ruby
 rvm:
   - 2.0
