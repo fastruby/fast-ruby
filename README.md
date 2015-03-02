@@ -1,4 +1,4 @@
-**GitHub currently disable the rendering of emoji in large document, that's why you see these strange `::` stuff.**
+**GitHub currently disable the rendering of emoji in large document, that's why you see these strange `::` stuff (they are emojis!).**
 
 Fast Ruby :dash: :dash: :dash: :rocket: [![Build Status](https://travis-ci.org/JuanitoFatas/fast-ruby.svg?branch=travis)](https://travis-ci.org/JuanitoFatas/fast-ruby)
 =======================================================================================================================================================================
@@ -16,22 +16,22 @@ All results listed in README.md :running: with Ruby 2.2.0p0 on OS X 10.10.1. Mac
 Measurement Tool
 -----------------
 
-Use [benchmark-ips](https://github.com/evanphx/benchmark-ips).
+Use [benchmark-ips](https://github.com/evanphx/benchmark-ips) (2.0+).
 
 ### Template
 
 ```ruby
 require 'benchmark/ips'
 
-def slow
-end
-
 def fast
 end
 
+def slow
+end
+
 Benchmark.ips do |x|
-  x.report('slow') { slow }
-  x.report('fast') { fast }
+  x.report('fast code description') { fast }
+  x.report('slow code description') { slow }
   x.compare!
 end
 ```
@@ -609,9 +609,16 @@ Comparison:
    getter_and_setter:  1660021.9 i/s - 1.12x slower
 ```
 
+
+## Less idiomatic but with significant performance ruby
+
+Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-diffrence
+
+
 ## Submit New Entry
 
 Please! [Edit this README.md](https://github.com/JuanitoFatas/fast-ruby/edit/master/README.md) then [Submit a Awesome Pull Request](https://github.com/JuanitoFatas/fast-ruby/pulls)!
+
 
 ## Something went wrong
 
@@ -637,9 +644,19 @@ Feel free to talk with me on Twitter! <3
 
 - [Benchmarking Ruby](https://speakerdeck.com/davystevenson/benchmarking-ruby)
 
-- [davy/benchmark-bigo](https://github.com/davy/benchmark-bigo) - Provides Big O notation benchmarking for Ruby
+  Talk by Davy Stevenson @ RubyConf 2014.
+
+- [davy/benchmark-bigo](https://github.com/davy/benchmark-bigo)
+
+  Provides Big O notation benchmarking for Ruby.
 
 - [The Ruby Challenge](https://therubychallenge.com/)
+
+  Talk by Prem Sichanugrist @ Ruby Kaigi 2014.
+
+- [Fasterer](https://github.com/DamirSvrtan/fasterer)
+
+  Make your Rubies go faster with this command line tool.
 
 
 ## License
@@ -647,3 +664,12 @@ Feel free to talk with me on Twitter! <3
 ![CC-BY-SA](CC-BY-SA.png)
 
 This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+
+## Code License
+
+### CC0 1.0 Universal
+
+To the extent possible under law, @JuanitoFatas has waived all copyright and related or neighboring rights to "fast-ruby".
+
+This work belongs to the community.
