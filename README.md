@@ -158,7 +158,7 @@ Comparison:
  Array#shuffle.first:   304341.1 i/s - 18.82x slower
 ```
 
-#### `Array#first` vs `Array#[](0)` [code](code/array/array_first-vs-index.rb)
+##### `Array#first` vs `Array#[](0)` [code](code/array/array_first-vs-index.rb)
 
 ```
 $ ruby -v code/array/array-first-vs-index.rb 
@@ -180,7 +180,7 @@ slow code description:  5316505.9 i/s - 1.26x slower
 
 ```
 
-#### `Array#last` vs `Array#[](-1)` [code](code/array/array_last-vs-index.rb)
+##### `Array#last` vs `Array#[](-1)` [code](code/array/array_last-vs-index.rb)
 
 
 ```
