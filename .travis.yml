@@ -1,19 +1,22 @@
-bundler_args: --retry=3 --jobs=3
+sudo: false
 cache: bundler
+bundler_args: --retry=3 --jobs=3
 language: ruby
 rvm:
   - 2.0
   - 2.1
-  - 2.2
+  - 2.2.0
+  - 2.2.1
   - ruby-head
   - jruby
   - jruby-head
   - rbx-2
 matrix:
   allow_failures:
+    - rvm: 2.2.0
     - rvm: ruby-head
     - rvm: jruby
     - rvm: juby-head
     - rvm: rbx-2
   fast_finish: true
-sudo: false
+
