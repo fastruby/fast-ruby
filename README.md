@@ -158,6 +158,42 @@ Comparison:
  Array#shuffle.first:   304341.1 i/s - 18.82x slower
 ```
 
+##### `Array#[](0)` vs `Array#first` [code](code/array/array_first-vs-index.rb)
+
+```
+$ ruby -v code/array/array-first-vs-index.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+           Array#[0]   152.751k i/100ms
+         Array#first   148.088k i/100ms
+-------------------------------------------------
+           Array#[0]      8.614M (± 7.0%) i/s -     42.923M
+         Array#first      7.465M (±10.7%) i/s -     36.874M
+
+Comparison:
+           Array#[0]:  8613583.7 i/s
+         Array#first:  7464526.6 i/s - 1.15x slower
+```
+
+##### `Array#[](-1)` vs `Array#last` [code](code/array/array_last-vs-index.rb)
+
+```
+$ ruby -v code/array/array-last-vs-index.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+            Array#[-1]   151.940k i/100ms
+          Array#last   153.371k i/100ms
+-------------------------------------------------
+            Array#[-1]      8.582M (± 4.6%) i/s -     42.847M
+          Array#last      7.639M (± 5.7%) i/s -     38.189M
+
+Comparison:
+            Array#[-1]:  8582074.3 i/s
+          Array#last:  7639254.5 i/s - 1.12x slower
+```
+
 
 ### Enumerable
 
