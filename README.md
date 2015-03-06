@@ -1,13 +1,13 @@
-**GitHub currently disable the rendering of emoji in large document, that's why you see these strange `::` stuff (they are emojis!).**
+**GitHub currently disables the rendering of emoji in large document, that's why you see the strange `::` stuff (they are emojis!).**
 
 Fast Ruby :dash: :dash: :dash: :rocket: [![Build Status](https://travis-ci.org/JuanitoFatas/fast-ruby.svg?branch=travis)](https://travis-ci.org/JuanitoFatas/fast-ruby)
 =======================================================================================================================================================================
 
-In [Erik Michaels-Ober](https://github.com/sferik)'s great talk Writing Fast Ruby: [Video @ Baruco 2014](https://www.youtube.com/watch?v=fGFM_UrSp70), [Slide](https://speakerdeck.com/sferik/writing-fast-ruby), he presents us many idioms that leads to Faster Ruby. He inspired me and I want to document these to let more people know. I try to link to real commit for people to see this can really benefits in real world. **But this does not mean you can always replace one with another, depends on the context (e.g. `gsub` versus `tr`). :warning: Use with caution!**
+In [Erik Michaels-Ober](https://github.com/sferik)'s great talk, 'Writing Fast Ruby': [Video @ Baruco 2014](https://www.youtube.com/watch?v=fGFM_UrSp70), [Slide](https://speakerdeck.com/sferik/writing-fast-ruby), he presented us with many idioms that lead to faster running Ruby code. He inspired me to document these to let more people know. I try to link to real commits so people can see that this can really have benefits in the real world. **This does not mean you can always blindly replace one with another.  It depends on the context (e.g. `gsub` versus `tr`). :warning: Use with caution!**
 
-Each idiom has a corresponding code example resides in [code](code).
+Each idiom has a corresponding code example that resides in [code](code).
 
-All results listed in README.md :running: with Ruby 2.2.0p0 on OS X 10.10.1. Machine information: MacBook Pro (Retina, 15-inch, Mid 2014), 2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3. Your results may vary but you get the idea. : )
+All results listed in README.md are :running: with Ruby 2.2.0p0 on OS X 10.10.1. Machine information: MacBook Pro (Retina, 15-inch, Mid 2014), 2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3. Your results may vary, but you get the idea. : )
 
 **Let's write faster code, together! <3**
 
