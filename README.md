@@ -457,6 +457,25 @@ Comparison:
           Hash#merge:      409.6 i/s - 24.00x slower
 ```
 
+##### `Hash#sort_by` vs `Hash#sort` [code](code/hash/hash-key-sort_by-vs-sort.rb)
+
+To sort hash by key.
+
+```
+$ ruby -v code/hash/hash-key-sort_by-vs-sort.rb
+ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin14]
+
+Calculating -------------------------------------
+      sort_by + to_h    11.468k i/100ms
+         sort + to_h     8.107k i/100ms
+-------------------------------------------------
+      sort_by + to_h    122.176k (± 6.0%) i/s -    619.272k
+         sort + to_h     81.973k (± 4.7%) i/s -    413.457k
+
+Comparison:
+      sort_by + to_h:   122176.2 i/s
+         sort + to_h:    81972.8 i/s - 1.49x slower
+```
 
 ### Proc & Block
 
