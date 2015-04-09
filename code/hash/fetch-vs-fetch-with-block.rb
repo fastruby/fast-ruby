@@ -1,17 +1,17 @@
-require 'benchmark/ips'
+require "benchmark/ips"
 
-HASH = { :writing => :fast_ruby }
-
-def slow
-  HASH.fetch(:writing, [*1..100])
-end
+HASH = { writing: :fast_ruby }
 
 def fast
-  HASH.fetch(:writing) { [*1..100] }
+  HASH.fetch(:writing) { "fast ruby" }
+end
+
+def slow
+  HASH.fetch(:writing, "fast ruby")
 end
 
 Benchmark.ips do |x|
-  x.report('Hash#fetch + arg')   { slow }
-  x.report('Hash#fetch + block') { fast }
+  x.report("Hash#fetch + block") { fast }
+  x.report("Hash#fetch + arg")   { slow }
   x.compare!
 end

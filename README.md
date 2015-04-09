@@ -384,18 +384,18 @@ Comparison:
 
 ```
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin14]
 
 Calculating -------------------------------------
-    Hash#fetch + arg    15.650k i/100ms
-  Hash#fetch + block   130.271k i/100ms
+  Hash#fetch + block   139.880k i/100ms
+    Hash#fetch + arg   119.645k i/100ms
 -------------------------------------------------
-    Hash#fetch + arg    184.562k (± 5.2%) i/s -    923.350k
-  Hash#fetch + block      5.880M (± 7.5%) i/s -     29.311M
+  Hash#fetch + block      6.116M (± 8.9%) i/s -     30.354M
+    Hash#fetch + arg      4.473M (± 9.9%) i/s -     22.134M
 
 Comparison:
-  Hash#fetch + block:  5880209.2 i/s
-    Hash#fetch + arg:   184562.0 i/s - 31.86x slower
+  Hash#fetch + block:  6116059.5 i/s
+    Hash#fetch + arg:  4472636.0 i/s - 1.37x slower
 ```
 
 ##### `Hash#each_key` instead of `Hash#keys.each` [code](code/hash/keys-each-vs-each_key.rb)
