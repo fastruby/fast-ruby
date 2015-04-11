@@ -101,6 +101,8 @@ module_eval with string:     1129.7 i/s - 1.19x slower
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
 
+**WARNING:** `bsearch` ONLY works on *sorted array*. More details please see [#29](https://github.com/JuanitoFatas/fast-ruby/issues/29).
+
 ```
 $ ruby -v code/array/bsearch-vs-find.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
