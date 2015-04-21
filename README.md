@@ -176,7 +176,7 @@ Comparison:
          Array#first:  7464526.6 i/s - 1.15x slower
 ```
 
-##### `Array#[](-1)` vs `Array#last` [code](code/array/array_last-vs-index.rb)
+##### `Array#[](-1)` vs `Array#last` [code](code/array/array-last-vs-index.rb)
 
 ```
 $ ruby -v code/array/array-last-vs-index.rb
