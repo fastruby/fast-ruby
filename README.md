@@ -225,6 +225,42 @@ allows one to define and raise exceptions with predefined messages.
 
 ```
 
+##### Hash vs OpenStruct on access assuming you already have a Hash or an OpenStruct [code](code/general/hash-vs-openstruct-on-access.rb)
+
+```
+$ ruby -v code/general/hash-vs-openstruct-on-access.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
+
+Calculating -------------------------------------
+                Hash   128.344k i/100ms
+          OpenStruct   110.723k i/100ms
+-------------------------------------------------
+                Hash      5.279M (± 7.0%) i/s -     26.311M
+          OpenStruct      3.048M (± 7.0%) i/s -     15.169M
+
+Comparison:
+                Hash:  5278844.0 i/s
+          OpenStruct:  3048139.8 i/s - 1.73x slower
+```
+
+##### Hash vs OpenStruct (creation) [code](code/general/hash-vs-openstruct.rb)
+
+```
+$ ruby -v code/general/hash-vs-openstruct.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
+
+Calculating -------------------------------------
+                Hash    75.510k i/100ms
+          OpenStruct     9.126k i/100ms
+-------------------------------------------------
+                Hash      1.604M (±11.0%) i/s -      7.929M
+          OpenStruct     96.855k (± 9.9%) i/s -    483.678k
+
+Comparison:
+                Hash:  1604259.1 i/s
+          OpenStruct:    96855.3 i/s - 16.56x slower
+```
+
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
