@@ -5,14 +5,16 @@ language: ruby
 rvm:
   - 2.0
   - 2.1
-  - 2.2.0
+  - 2.2.2
   - 2.2.1
+  - 2.2.0
   - ruby-head
   - jruby
   - jruby-head
   - rbx-2
 matrix:
   allow_failures:
+    - rvm: 2.2.1
     - rvm: 2.2.0
     - rvm: ruby-head
     - rvm: jruby
