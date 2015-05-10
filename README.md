@@ -95,6 +95,40 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
+##### `hash` vs `openstruct on access` assuming you already have a hash or an openstruct [code](code/general/hash-vs-openstruct-on-access.rb)
+
+```
+$ ruby -v code/general/hash-vs-openstruct-on-access.rb
+ruby-2.1.3 [ x86_64 ]
+Calculating -------------------------------------
+                Hash   145.150k i/100ms
+          OpenStruct   118.906k i/100ms
+-------------------------------------------------
+                Hash      5.545M (± 5.1%) i/s -     27.724M
+          OpenStruct      3.354M (± 1.8%) i/s -     16.766M
+
+Comparison:
+                Hash:  5545294.1 i/s
+          OpenStruct:  3354079.9 i/s - 1.65x slower
+```
+
+##### `hash` vs `openstruct` just creation [code](code/general/hash-vs-openstruct.rb)
+
+```
+$ ruby -v code/general/hash-vs-openstruct.rb
+ruby-2.1.3 [ x86_64 ]
+Calculating -------------------------------------
+                Hash    99.739k i/100ms
+          OpenStruct     9.422k i/100ms
+-------------------------------------------------
+                Hash      2.201M (± 8.6%) i/s -     10.971M
+          OpenStruct    100.191k (± 9.9%) i/s -    499.366k
+
+Comparison:
+                Hash:  2200984.7 i/s
+          OpenStruct:   100190.6 i/s - 21.97x slower
+```
+
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
