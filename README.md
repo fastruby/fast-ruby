@@ -36,6 +36,28 @@ end
 
 Idioms
 ------
+### Method
+#### call vs send vs method_missing	[code](code/method/call-vs-send-vs-method_missing.rb)
+
+```
+$ ruby -v code/method/call-vs-send-vs-method_missing.rb
+ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-darwin14.0]
+
+Calculating -------------------------------------
+              call    72.324k i/100ms
+              send    70.775k i/100ms
+    method_missing    63.545k i/100ms
+-------------------------------------------------
+              call      2.566M (± 9.6%) i/s -     12.729M
+              send      2.527M (± 9.3%) i/s -     12.527M
+    method_missing      1.924M (± 8.8%) i/s -      9.595M
+
+Comparison:
+              call:  2566314.9 i/s
+              send:  2527436.5 i/s - 1.02x slower
+    method_missing:  1923544.5 i/s - 1.33x slower
+```
+
 
 ### General
 
