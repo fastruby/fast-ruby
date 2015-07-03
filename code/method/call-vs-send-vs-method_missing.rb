@@ -1,33 +1,32 @@
-require 'benchmark/ips'
+require "benchmark/ips"
 
 class MethodCall
+  def method
+  end
 
-	def method
-	end
-
-	def method_missing(mt,*args)
-		method
-	end
+  def method_missing(_method,*args)
+  	method
+  end
 end
 
-def fast
-  mt = MethodCall.new
-  mt.method
+def fastest
+  method = MethodCall.new
+  method.method
 end
 
 def slow
-  mt = MethodCall.new
-  mt.send(:method)
+  method = MethodCall.new
+  method.send(:method)
 end
 
-def slow_1
-  mt = MethodCall.new
-  mt.youknow
+def slowest
+  method = MethodCall.new
+  method.not_exist
 end
 
 Benchmark.ips do |x|
-  x.report("call")   { fast }
-  x.report("send") { slow }
-  x.report("method_missing") { slow_1 }
+  x.report("call")           { fastest }
+  x.report("send")           { slow    }
+  x.report("method_missing") { slowest }
   x.compare!
 end

@@ -36,28 +36,6 @@ end
 
 Idioms
 ------
-### Method
-#### call vs send vs method_missing	[code](code/method/call-vs-send-vs-method_missing.rb)
-
-```
-$ ruby -v code/method/call-vs-send-vs-method_missing.rb
-ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-darwin14.0]
-
-Calculating -------------------------------------
-              call    72.324k i/100ms
-              send    70.775k i/100ms
-    method_missing    63.545k i/100ms
--------------------------------------------------
-              call      2.566M (± 9.6%) i/s -     12.729M
-              send      2.527M (± 9.3%) i/s -     12.527M
-    method_missing      1.924M (± 8.8%) i/s -      9.595M
-
-Comparison:
-              call:  2566314.9 i/s
-              send:  2527436.5 i/s - 1.02x slower
-    method_missing:  1923544.5 i/s - 1.33x slower
-```
-
 
 ### General
 
@@ -116,6 +94,30 @@ Comparison:
        define_method:        1345.6 i/s
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
+
+#### Method Invocation
+
+##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
+
+```
+$ ruby -v code/method/call-vs-send-vs-method_missing.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+                call   115.094k i/100ms
+                send   105.258k i/100ms
+      method_missing   100.762k i/100ms
+-------------------------------------------------
+                call      3.811M (± 5.9%) i/s -     18.991M
+                send      3.244M (± 7.2%) i/s -     16.210M
+      method_missing      2.729M (± 9.8%) i/s -     13.401M
+
+Comparison:
+                call:  3811183.4 i/s
+                send:  3244239.1 i/s - 1.17x slower
+      method_missing:  2728893.0 i/s - 1.40x slower
+```
+
 
 ### Array
 
