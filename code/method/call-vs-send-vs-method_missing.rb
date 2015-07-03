@@ -5,7 +5,7 @@ class MethodCall
   end
 
   def method_missing(_method,*args)
-  	method
+    method
   end
 end
 
