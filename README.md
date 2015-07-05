@@ -732,6 +732,36 @@ Comparison:
          String#gsub:   516604.2 i/s - 3.60x slower
 ```
 
+##### `String#sub!` vs `String#gsub!` vs `String#[]=` [code](code/string/sub!-vs-gsub!-vs-[]=.rb)
+
+```
+$ ruby -v code/string/sub\!-vs-gsub\!-vs-\[\]\=.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+  String#['string']=    74.512k i/100ms
+ String#sub!'string'    52.801k i/100ms
+String#gsub!'string'    34.480k i/100ms
+  String#[/regexp/]=    55.325k i/100ms
+ String#sub!/regexp/    45.770k i/100ms
+String#gsub!/regexp/    27.665k i/100ms
+-------------------------------------------------
+  String#['string']=      1.215M (± 6.2%) i/s -      6.110M
+ String#sub!'string'    752.731k (± 6.2%) i/s -      3.749M
+String#gsub!'string'    481.183k (± 4.4%) i/s -      2.414M
+  String#[/regexp/]=    840.615k (± 5.3%) i/s -      4.205M
+ String#sub!/regexp/    663.075k (± 7.8%) i/s -      3.295M
+String#gsub!/regexp/    342.004k (± 7.5%) i/s -      1.715M
+
+Comparison:
+  String#['string']=:  1214845.5 i/s
+  String#[/regexp/]=:   840615.2 i/s - 1.45x slower
+ String#sub!'string':   752731.4 i/s - 1.61x slower
+ String#sub!/regexp/:   663075.3 i/s - 1.83x slower
+String#gsub!'string':   481183.5 i/s - 2.52x slower
+String#gsub!/regexp/:   342003.8 i/s - 3.55x slower
+```
+
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
 > https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
