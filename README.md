@@ -379,6 +379,33 @@ Comparison:
 
 ### Hash
 
+#### `Hash#[]` vs `Hash.fetch` [code](code/hash/bracket-vs-fetch.rb)
+
+If you use Ruby 2.2, `Symbol` could be more performant than `String` as `Hash` keys.
+Read more regarding this: [Symbol GC in Ruby 2.2](http://www.sitepoint.com/symbol-gc-ruby-2-2/) and [Unraveling String Key Performance in Ruby 2.2](http://www.sitepoint.com/unraveling-string-key-performance-ruby-2-2/).
+
+```
+$ ruby -v code/hash/bracket-vs-fetch.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+     Hash#[], symbol   143.850k i/100ms
+  Hash#fetch, symbol   137.425k i/100ms
+     Hash#[], string   143.083k i/100ms
+  Hash#fetch, string   120.417k i/100ms
+-------------------------------------------------
+     Hash#[], symbol      7.531M (± 6.6%) i/s -     37.545M
+  Hash#fetch, symbol      6.644M (± 8.2%) i/s -     32.982M
+     Hash#[], string      6.657M (± 7.7%) i/s -     33.195M
+  Hash#fetch, string      3.981M (± 8.7%) i/s -     19.748M
+
+Comparison:
+     Hash#[], symbol:  7531355.8 i/s
+     Hash#[], string:  6656818.8 i/s - 1.13x slower
+  Hash#fetch, symbol:  6643665.5 i/s - 1.13x slower
+  Hash#fetch, string:  3981166.5 i/s - 1.89x slower
+```
+
 ##### `Hash#[]` vs `Hash#dup` [code](code/hash/bracket-vs-dup.rb)
 
 Source: http://tenderlovemaking.com/2015/02/11/weird-stuff-with-hashes.html
