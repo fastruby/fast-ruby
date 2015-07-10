@@ -19,7 +19,7 @@ Use [benchmark-ips](https://github.com/evanphx/benchmark-ips) (2.0+).
 ### Template
 
 ```ruby
-require 'benchmark/ips'
+require "benchmark/ips"
 
 def fast
 end
@@ -28,8 +28,8 @@ def slow
 end
 
 Benchmark.ips do |x|
-  x.report('fast code description') { fast }
-  x.report('slow code description') { slow }
+  x.report("fast code description") { fast }
+  x.report("slow code description") { slow }
   x.compare!
 end
 ```
