@@ -734,6 +734,8 @@ Comparison:
 
 ##### `String#sub!` vs `String#gsub!` vs `String#[]=` [code](code/string/sub!-vs-gsub!-vs-[]=.rb)
 
+Note that `String#[]` will throw an `IndexError` when given string or regexp not matched.
+
 ```
 $ ruby -v code/string/sub\!-vs-gsub\!-vs-\[\]\=.rb
 ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
