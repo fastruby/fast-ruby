@@ -784,6 +784,29 @@ Comparison:
 ```
 
 
+### Range
+
+#### `cover?` vs `include?`
+
+`cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+        Range#cover?    95.445k i/100ms
+      Range#include?     9.326k i/100ms
+-------------------------------------------------
+        Range#cover?      2.327M (± 4.7%) i/s -     11.644M
+      Range#include?     99.652k (± 5.4%) i/s -    503.604k
+
+Comparison:
+        Range#cover?:  2327220.4 i/s
+      Range#include?:    99651.6 i/s - 23.35x slower
+```
+
+
 ## Less idiomatic but with significant performance ruby
 
 Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-diffrence
