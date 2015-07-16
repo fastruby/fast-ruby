@@ -786,7 +786,7 @@ Comparison:
 
 ### Range
 
-#### `cover?` vs `include?`
+#### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
