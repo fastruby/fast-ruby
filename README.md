@@ -154,6 +154,41 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
+##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
+
+```
+ruby -v code/general/raise-vs-e2mmap.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin13]
+Calculating -------------------------------------
+Ruby exception: E2MM#Raise
+                         2.265k i/100ms
+Ruby exception: Kernel#raise
+                        36.824k i/100ms
+-------------------------------------------------
+Ruby exception: E2MM#Raise
+                         24.457k (± 3.1%) i/s -    122.310k
+Ruby exception: Kernel#raise
+                        522.974k (± 2.7%) i/s -      2.615M
+
+Comparison:
+Ruby exception: Kernel#raise:   522973.5 i/s
+Ruby exception: E2MM#Raise:    24456.7 i/s - 21.38x slower
+
+Calculating -------------------------------------
+Custom exception: E2MM#Raise
+                         2.302k i/100ms
+Custom exception: Kernel#raise
+                        36.686k i/100ms
+-------------------------------------------------
+Custom exception: E2MM#Raise
+                         24.219k (± 4.0%) i/s -    122.006k
+Custom exception: Kernel#raise
+                        510.499k (± 4.4%) i/s -      2.568M
+
+Comparison:
+Custom exception: Kernel#raise:   510498.7 i/s
+Custom exception: E2MM#Raise:    24219.0 i/s - 21.08x slower
+```
 
 ### Array
 
