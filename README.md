@@ -102,6 +102,45 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
+##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
+
+Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
+
+```
+$ ruby -v code/general/raise-vs-e2mmap.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
+
+Calculating -------------------------------------
+Ruby exception: E2MM#Raise
+                         2.865k i/100ms
+Ruby exception: Kernel#raise
+                        42.215k i/100ms
+-------------------------------------------------
+Ruby exception: E2MM#Raise
+                         27.270k (± 8.8%) i/s -    137.520k
+Ruby exception: Kernel#raise
+                        617.446k (± 7.9%) i/s -      3.082M
+
+Comparison:
+Ruby exception: Kernel#raise:   617446.2 i/s
+Ruby exception: E2MM#Raise:    27269.8 i/s - 22.64x slower
+
+Calculating -------------------------------------
+Custom exception: E2MM#Raise
+                         2.807k i/100ms
+Custom exception: Kernel#raise
+                        45.313k i/100ms
+-------------------------------------------------
+Custom exception: E2MM#Raise
+                         29.005k (± 7.2%) i/s -    145.964k
+Custom exception: Kernel#raise
+                        589.149k (± 7.8%) i/s -      2.945M
+
+Comparison:
+Custom exception: Kernel#raise:   589148.7 i/s
+Custom exception: E2MM#Raise:    29004.8 i/s - 20.31x slower
+```
+
 #### Method Invocation
 
 ##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
@@ -162,6 +201,9 @@ Function with splat arguments
 Comparison:
 Function with single Array argument:  5580972.6 i/s
 Function with splat arguments:    54427.7 i/s - 102.54x slower
+
+Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html)
+allows one to define and raise exceptions with predefined messages.
 
 ```
 
