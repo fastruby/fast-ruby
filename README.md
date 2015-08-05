@@ -136,25 +136,6 @@ Comparison:
              &method:   467095.4 i/s - 4.00x slower
 ```
 
-##### `define_method` vs `module_eval` for Defining Methods [code](code/general/define_method-vs-module-eval.rb)
-
-```
-$ ruby -v code/general/define_method-vs-module-eval.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-
-Calculating -------------------------------------
-module_eval with string 125.000  i/100ms
-       define_method    138.000  i/100ms
--------------------------------------------------
-module_eval with string   1.130k (±20.3%) i/s -      5.500k
-       define_method      1.346k (±25.9%) i/s -      6.348k
-
-Comparison:
-       define_method:        1345.6 i/s
-module_eval with string:     1129.7 i/s - 1.19x slower
-```
-
-
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
