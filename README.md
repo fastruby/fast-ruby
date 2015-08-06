@@ -11,6 +11,11 @@ You can checkout [the travis build](https://travis-ci.org/JuanitoFatas/fast-ruby
 
 **Let's write faster code, together! <3**
 
+Analyze your code
+-----------------
+
+Checkout the [fasterer](https://github.com/DamirSvrtan/fasterer) project - it's a static analysis that checks speed idioms written in this repo.
+
 Measurement Tool
 -----------------
 
