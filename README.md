@@ -797,7 +797,7 @@ Comparison:
 
 ## Less idiomatic but with significant performance ruby
 
-Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-diffrence
+Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-difference
 
 
 ## Submit New Entry
