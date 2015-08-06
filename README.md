@@ -169,18 +169,18 @@ Comparison:
 
 ```
 $ ruby -v code/array/count-vs-size.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
-              #count   130.991k i/100ms
-               #size   135.312k i/100ms
+             #length   133.526k i/100ms
+              #count   127.400k i/100ms
 -------------------------------------------------
-              #count      6.697M (± 7.1%) i/s -     33.403M
-               #size      7.562M (± 9.1%) i/s -     37.481M
+             #length      8.793M (± 5.5%) i/s -     43.930M
+              #count      7.339M (± 5.2%) i/s -     36.691M
 
 Comparison:
-               #size:  7562457.4 i/s
-              #count:  6696763.0 i/s - 1.13x slower
+             #length:  8793196.2 i/s
+              #count:  7339410.7 i/s - 1.20x slower
 ```
 
 ##### `Array#shuffle.first` vs `Array#sample` [code](code/array/shuffle-first-vs-sample.rb)
