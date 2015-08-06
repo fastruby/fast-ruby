@@ -46,22 +46,24 @@ Idioms
 
 ##### Parallel Assignment vs Sequential Assignment [code](code/general/assignment.rb)
 
+[Read the rationale here](https://github.com/JuanitoFatas/fast-ruby/pull/50#issue-98586885).
+
 ```
 $ ruby -v code/general/assignment.rb
-ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin13]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
- Parallel Assignment   103.520k i/100ms
+ Parallel Assignment   149.201k i/100ms
 Sequential Assignment
-                       105.474k i/100ms
+                       142.545k i/100ms
 -------------------------------------------------
- Parallel Assignment      7.049M (± 2.7%) i/s -     35.300M
+ Parallel Assignment      7.687M (± 6.9%) i/s -     38.345M
 Sequential Assignment
-                          6.159M (± 2.3%) i/s -     30.798M
+                          6.320M (± 8.5%) i/s -     31.360M
 
 Comparison:
- Parallel Assignment:  7048523.9 i/s
-Sequential Assignment:  6159203.7 i/s - 1.14x slower
+ Parallel Assignment:  7686954.1 i/s
+Sequential Assignment:  6320425.6 i/s - 1.22x slower
 ```
 
 ##### `begin...rescue` vs `respond_to?` for Control Flow [code](code/general/begin-rescue-vs-respond-to.rb)
