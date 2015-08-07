@@ -690,8 +690,8 @@ Comparison:
 ##### `String#match` vs `String#=~` [code ](code/string/match-vs-=~.rb)
 
 > :warning: <br>
-> Sometimes you cant replace `match` with `=~`, <br />
-> This is only useful for cases where you are checkin <br />
+> Sometimes you can't replace `match` with `=~`, <br>
+> This is only useful for cases where you are checking <br>
 > for a match and not using the resultant match object.
 
 ```
