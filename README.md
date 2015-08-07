@@ -687,6 +687,29 @@ Comparison:
            String#=~:   854830.3 i/s - 3.32x slower
 ```
 
+##### `String#match` vs `String#=~` [code ](code/string/match-vs-=~.rb)
+
+> :warning: <br>
+> Sometimes you cant replace `match` with `=~`, <br />
+> This is only useful for cases where you are checkin <br />
+> for a match and not using the resultant match object.
+
+```
+$ ruby -v code/string/match-vs-=~.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+Calculating -------------------------------------
+           String#=~    69.889k i/100ms
+        String#match    66.715k i/100ms
+-------------------------------------------------
+           String#=~      1.854M (±12.2%) i/s -      9.155M
+        String#match      1.594M (±11.0%) i/s -      7.939M
+
+Comparison:
+           String#=~:  1853861.7 i/s
+        String#match:  1593971.6 i/s - 1.16x slower
+```
+
+
 ##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
 
 ```
