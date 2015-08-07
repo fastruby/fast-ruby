@@ -408,7 +408,7 @@ Comparison:
 
 ### Hash
 
-#### `Hash#[]` vs `Hash.fetch` [code](code/hash/bracket-vs-fetch.rb)
+##### `Hash#[]` vs `Hash.fetch` [code](code/hash/bracket-vs-fetch.rb)
 
 If you use Ruby 2.2, `Symbol` could be more performant than `String` as `Hash` keys.
 Read more regarding this: [Symbol GC in Ruby 2.2](http://www.sitepoint.com/symbol-gc-ruby-2-2/) and [Unraveling String Key Performance in Ruby 2.2](http://www.sitepoint.com/unraveling-string-key-performance-ruby-2-2/).
