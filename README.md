@@ -786,27 +786,35 @@ Comparison:
            String#=~:   891124.1 i/s - 3.30x slower
 ```
 
-##### `String#match` vs `String#=~` [code ](code/string/match-vs-=~.rb)
+##### `Regexp#===` vs `String#match` vs `String#=~` [code ](code/string/===-vs-=~-vs-match.rb)
 
 > :warning: <br>
 > Sometimes you can't replace `match` with `=~`, <br>
 > This is only useful for cases where you are checking <br>
-> for a match and not using the resultant match object.
+> for a match and not using the resultant match object. <br>
+> :warning: <br>
+> `Regexp#===` is also faster than `String#match` but you need to switch the order of arguments.
 
 ```
-$ ruby -v code/string/match-vs-=~.rb
+$ ruby -v code/string/===-vs-=~-vs-match.rb.rb
 ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
 Calculating -------------------------------------
-           String#=~    69.889k i/100ms
-        String#match    66.715k i/100ms
+           String#=~    98.184k i/100ms
+          Regexp#===    92.382k i/100ms
+        String#match    83.601k i/100ms
 -------------------------------------------------
-           String#=~      1.854M (±12.2%) i/s -      9.155M
-        String#match      1.594M (±11.0%) i/s -      7.939M
+           String#=~      2.442M (± 7.6%) i/s -     12.175M
+          Regexp#===      2.259M (± 7.9%) i/s -     11.271M
+        String#match      1.840M (± 7.3%) i/s -      9.196M
 
 Comparison:
-           String#=~:  1853861.7 i/s
-        String#match:  1593971.6 i/s - 1.16x slower
+           String#=~:  2442335.1 i/s
+          Regexp#===:  2259277.3 i/s - 1.08x slower
+        String#match:  1839815.4 i/s - 1.33x slower
 ```
+
+See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) for discussions.
 
 
 ##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
