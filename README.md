@@ -165,22 +165,27 @@ Comparison:
                 find:        0.2 i/s - 3137489.63x slower
 ```
 
-##### `Array#count` vs `Array#size` [code](code/array/count-vs-size.rb)
+##### `Array#length` vs `Array#size` vs `Array#count` [code](code/array/length-vs-size-vs-count.rb)
+
+Use `#length` when you only want to know how many elements in the array, `#count` could also archieve this. However `#count` should be use for counting specific elements in array. [Note `#size` is an alias of `#length`](https://github.com/ruby/ruby/blob/f8fb526ad9e9f31453bffbc908b6a986736e21a7/array.c#L5817-L5818).
 
 ```
-$ ruby -v code/array/count-vs-size.rb
+$ ruby -v code/array/length-vs-size-vs-count.rb
 ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
-             #length   133.526k i/100ms
-              #count   127.400k i/100ms
+        Array#length   172.998k i/100ms
+          Array#size   168.130k i/100ms
+         Array#count   164.911k i/100ms
 -------------------------------------------------
-             #length      8.793M (± 5.5%) i/s -     43.930M
-              #count      7.339M (± 5.2%) i/s -     36.691M
+        Array#length     11.394M (± 6.1%) i/s -     56.743M
+          Array#size     11.303M (± 6.5%) i/s -     56.324M
+         Array#count      9.195M (± 8.6%) i/s -     45.680M
 
 Comparison:
-             #length:  8793196.2 i/s
-              #count:  7339410.7 i/s - 1.20x slower
+        Array#length: 11394036.7 i/s
+          Array#size: 11302701.1 i/s - 1.01x slower
+         Array#count:  9194976.2 i/s - 1.24x slower
 ```
 
 ##### `Array#shuffle.first` vs `Array#sample` [code](code/array/shuffle-first-vs-sample.rb)
