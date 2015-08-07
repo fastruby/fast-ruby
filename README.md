@@ -644,7 +644,7 @@ Comparison:
             String#+:  2730980.7 i/s - 1.81x slower
 ```
 
-##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-start_with.rb)
+##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](end-string-checking-match-vs-end_with.rb)
 
 > :warning: <br>
 > Sometimes you cant replace regexp with `start_with?`, <br>
@@ -657,34 +657,34 @@ Comparison:
 
 ```
 $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
-           String#=~    55.411k i/100ms
-  String#start_with?   113.854k i/100ms
+           String#=~    56.672k i/100ms
+  String#start_with?   118.308k i/100ms
 -------------------------------------------------
-           String#=~    910.625k (± 4.6%) i/s -      4.544M
-  String#start_with?      3.983M (± 5.5%) i/s -     19.924M
+           String#=~    919.574k (± 6.4%) i/s -      4.590M
+  String#start_with?      4.177M (± 6.4%) i/s -     20.822M
 
 Comparison:
-  String#start_with?:  3983284.9 i/s
-           String#=~:   910625.0 i/s - 4.37x slower
+  String#start_with?:  4177162.6 i/s
+           String#=~:   919574.2 i/s - 4.54x slower
 ```
 
 ```
-$ ruby -v code/string/end-string-checking-match-vs-start_with.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+$ ruby -v code/string/end-string-checking-match-vs-end_with.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
-           String#=~    52.811k i/100ms
-    String#end_with?   100.071k i/100ms
+           String#=~    53.194k i/100ms
+    String#end_with?   105.871k i/100ms
 -------------------------------------------------
-           String#=~    854.830k (± 5.8%) i/s -      4.278M
-    String#end_with?      2.837M (± 5.5%) i/s -     14.210M
+           String#=~    891.124k (± 7.2%) i/s -      4.468M
+    String#end_with?      2.942M (± 7.6%) i/s -     14.610M
 
 Comparison:
-    String#end_with?:  2836536.9 i/s
-           String#=~:   854830.3 i/s - 3.32x slower
+    String#end_with?:  2942017.4 i/s
+           String#=~:   891124.1 i/s - 3.30x slower
 ```
 
 ##### `String#match` vs `String#=~` [code ](code/string/match-vs-=~.rb)
