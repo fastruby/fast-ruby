@@ -542,26 +542,28 @@ Comparison:
           Hash#merge:      409.6 i/s - 24.00x slower
 ```
 
-##### `Hash#merge({})` vs `Hash#dup#merge!({})` vs `{}#merge!(Hash)` [code](code/hash/merge-vs-dup-merge-bang-vs-merge-bang.rb)
+##### `{}#merge!(Hash)` vs `Hash#merge({})` vs `Hash#dup#merge!({})` [code](code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb)
 
-When we don't want to modify the original hash, and we want duplicates to be created
+> When we don't want to modify the original hash, and we want duplicates to be created
+> See [#42](https://github.com/JuanitoFatas/fast-ruby/pull/42#issue-93502261) for more details.
 
 ```
-$ ruby -v code/hash/merge-vs-dup-merge-bang-vs-merge-bang.rb 
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
+$ ruby -v code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
 Calculating -------------------------------------
-      Hash#merge({})   603.000  i/100ms
- Hash#dup#merge!({})   650.000  i/100ms
-     {}#merge!(Hash)     1.763k i/100ms
+     {}#merge!(Hash)     1.082k i/100ms
+      Hash#merge({})   422.000  i/100ms
+ Hash#dup#merge!({})   419.000  i/100ms
 -------------------------------------------------
-      Hash#merge({})      6.593k (± 7.6%) i/s -     33.165k
- Hash#dup#merge!({})      6.591k (± 5.2%) i/s -     33.150k
-     {}#merge!(Hash)     17.654k (± 3.0%) i/s -     89.913k
+     {}#merge!(Hash)     11.161k (± 5.1%) i/s -     56.264k
+      Hash#merge({})      4.449k (± 3.8%) i/s -     22.366k
+ Hash#dup#merge!({})      4.340k (± 6.2%) i/s -     21.788k
 
 Comparison:
-     {}#merge!(Hash):    17654.0 i/s
-      Hash#merge({}):     6592.7 i/s - 2.68x slower
- Hash#dup#merge!({}):     6591.2 i/s - 2.68x slower
+     {}#merge!(Hash):    11161.3 i/s
+      Hash#merge({}):     4449.4 i/s - 2.51x slower
+ Hash#dup#merge!({}):     4340.3 i/s - 2.57x slower
 ```
 
 ##### `Hash#sort_by` vs `Hash#sort` [code](code/hash/hash-key-sort_by-vs-sort.rb)
