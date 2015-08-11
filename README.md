@@ -462,21 +462,25 @@ Comparison:
 
 ##### `Hash#fetch` with argument vs `Hash#fetch` + block [code](code/hash/fetch-vs-fetch-with-block.rb)
 
-```
-$ ruby -v code/hash/fetch-vs-fetch-with-block.rb
-ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin14]
+> Note that the speedup in the block version comes from avoiding repeated
+> construction of the argument. If the argument is a constant, number symbol or
+> something of that sort the argument version is actually slightly faster
 
+$ ruby -v code/hash/fetch-vs-fetch-with-block.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin13]
 Calculating -------------------------------------
-  Hash#fetch + block   139.880k i/100ms
-    Hash#fetch + arg   119.645k i/100ms
+  Hash#fetch + const   129.868k i/100ms
+  Hash#fetch + block   125.254k i/100ms
+    Hash#fetch + arg   121.155k i/100ms
 -------------------------------------------------
-  Hash#fetch + block      6.116M (± 8.9%) i/s -     30.354M
-    Hash#fetch + arg      4.473M (± 9.9%) i/s -     22.134M
+  Hash#fetch + const      7.031M (± 7.0%) i/s -     34.934M
+  Hash#fetch + block      6.815M (± 4.2%) i/s -     34.069M
+    Hash#fetch + arg      4.753M (± 5.6%) i/s -     23.746M
 
 Comparison:
-  Hash#fetch + block:  6116059.5 i/s
-    Hash#fetch + arg:  4472636.0 i/s - 1.37x slower
-```
+  Hash#fetch + const:  7030600.4 i/s
+  Hash#fetch + block:  6814826.7 i/s - 1.03x slower
+    Hash#fetch + arg:  4752567.2 i/s - 1.48x slower
 
 ##### `Hash#each_key` instead of `Hash#keys.each` [code](code/hash/keys-each-vs-each_key.rb)
 
