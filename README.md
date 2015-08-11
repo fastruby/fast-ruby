@@ -465,6 +465,7 @@ Comparison:
 > Note that the speedup in the block version comes from avoiding repeated
 > construction of the argument. If the argument is a constant, number symbol or
 > something of that sort the argument version is actually slightly faster
+> See also [#39 (comment)](https://github.com/JuanitoFatas/fast-ruby/issues/39#issuecomment-103989335)
 
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin13]
