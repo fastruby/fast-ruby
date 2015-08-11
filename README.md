@@ -462,11 +462,12 @@ Comparison:
 
 ##### `Hash#fetch` with argument vs `Hash#fetch` + block [code](code/hash/fetch-vs-fetch-with-block.rb)
 
-> Note that the speedup in the block version comes from avoiding repeated
-> construction of the argument. If the argument is a constant, number symbol or
-> something of that sort the argument version is actually slightly faster
+> Note that the speedup in the block version comes from avoiding repeated <br>
+> construction of the argument. If the argument is a constant, number symbol or <br>
+> something of that sort the argument version is actually slightly faster <br>
 > See also [#39 (comment)](https://github.com/JuanitoFatas/fast-ruby/issues/39#issuecomment-103989335)
 
+```
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin13]
 Calculating -------------------------------------
@@ -482,6 +483,7 @@ Comparison:
   Hash#fetch + const:  7030600.4 i/s
   Hash#fetch + block:  6814826.7 i/s - 1.03x slower
     Hash#fetch + arg:  4752567.2 i/s - 1.48x slower
+```
 
 ##### `Hash#each_key` instead of `Hash#keys.each` [code](code/hash/keys-each-vs-each_key.rb)
 
@@ -544,7 +546,7 @@ Comparison:
 
 ##### `{}#merge!(Hash)` vs `Hash#merge({})` vs `Hash#dup#merge!({})` [code](code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb)
 
-> When we don't want to modify the original hash, and we want duplicates to be created
+> When we don't want to modify the original hash, and we want duplicates to be created <br>
 > See [#42](https://github.com/JuanitoFatas/fast-ruby/pull/42#issue-93502261) for more details.
 
 ```
