@@ -1,19 +1,19 @@
 require 'benchmark/ips'
 
 def fast
-  a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8
+  _a, _b, _c, _d, _e, _f, _g, _h = 1, 2, 3, 4, 5, 6, 7, 8
   nil
 end
 
 def slow
-  a = 1
-  b = 2
-  c = 3
-  d = 4
-  e = 5
-  f = 6
-  g = 7
-  h = 8
+  _a = 1
+  _b = 2
+  _c = 3
+  _d = 4
+  _e = 5
+  _f = 6
+  _g = 7
+  _h = 8
   nil
 end
 
