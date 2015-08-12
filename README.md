@@ -884,6 +884,10 @@ Feel free to talk with me on Twitter! <3
 
 ## Also Checkout
 
+- [Derailed Benchmarks](https://github.com/schneems/derailed_benchmarks)
+
+  Go faster, off the Rails - Benchmarks for your whole Rails app
+
 - [Benchmarking Ruby](https://speakerdeck.com/davystevenson/benchmarking-ruby)
 
   Talk by Davy Stevenson @ RubyConf 2014.
