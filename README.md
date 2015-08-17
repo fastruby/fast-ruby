@@ -615,19 +615,20 @@ Comparison:
 ##### `Proc#call` vs `yield` [code](code/proc-and-block/proc-call-vs-yield.rb)
 
 ```
-$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-
+$ ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin13]
 Calculating -------------------------------------
-          block.call    70.663k i/100ms
-               yield   125.061k i/100ms
+          block.call    55.809k i/100ms
+       block + yield    56.025k i/100ms
+               yield    89.387k i/100ms
 -------------------------------------------------
-          block.call      1.309M (± 5.7%) i/s -      6.572M
-               yield      6.103M (± 7.7%) i/s -     30.390M
+          block.call      1.069M (±21.2%) i/s -      4.967M
+       block + yield      1.172M (±16.8%) i/s -      5.715M
+               yield      4.087M (±11.0%) i/s -     20.201M
 
 Comparison:
-               yield:  6102822.9 i/s
-          block.call:  1309452.1 i/s - 4.66x slower
+               yield:  4087005.2 i/s
+       block + yield:  1171912.2 i/s - 3.49x slower
+          block.call:  1068741.4 i/s - 3.82x slower
 ```
 
 
