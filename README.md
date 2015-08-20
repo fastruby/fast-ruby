@@ -390,19 +390,22 @@ Enumerable#select.last:     119386.8 i/s - 10.58x slower
 ##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
 
 ```
-$ ruby -v code/enumerable/sort-vs-sort_by.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ ruby -v code/enumerable/sort-vs-sort_by.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
-     Enumerable#sort     1.158k i/100ms
-  Enumerable#sort_by     2.401k i/100ms
+Enumerable#sort_by (Symbol#to_proc) 2.680k i/100ms
+  Enumerable#sort_by                2.462k i/100ms
+     Enumerable#sort                1.320k i/100ms
 -------------------------------------------------
-     Enumerable#sort     12.140k (± 4.9%) i/s -     61.374k
-  Enumerable#sort_by     24.169k (± 4.0%) i/s -    122.451k
+Enumerable#sort_by (Symbol#to_proc) 25.916k (± 4.4%) i/s -    131.320k
+  Enumerable#sort_by                24.650k (± 5.1%) i/s -    125.562k
+     Enumerable#sort                14.018k (± 5.6%) i/s -     69.960k
 
 Comparison:
-  Enumerable#sort_by:    24168.9 i/s
-     Enumerable#sort:    12139.8 i/s - 1.99x slower
+Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
+  Enumerable#sort_by:                   24650.2 i/s - 1.05x slower
+     Enumerable#sort:                   14018.3 i/s - 1.85x slower
 ```
 
 
