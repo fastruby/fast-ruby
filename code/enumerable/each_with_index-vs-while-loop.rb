@@ -14,6 +14,7 @@ def fast
     ARRAY[index] + index
     index += 1
   end
+  ARRAY
 end
 
 Benchmark.ips do |x|
