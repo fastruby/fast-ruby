@@ -291,19 +291,19 @@ Comparison:
 > [rails/rails#12065](https://github.com/rails/rails/pull/12065)
 
 ```
-$ ruby -v code/array/each_with_index-vs-while-loop.rb
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
-     each_with_index    11.496k i/100ms
-          While Loop    20.179k i/100ms
+     each_with_index    13.138k i/100ms
+          While Loop    23.385k i/100ms
 -------------------------------------------------
-     each_with_index    128.855k (± 7.5%) i/s -    643.776k
-          While Loop    242.344k (± 4.5%) i/s -      1.211M
+     each_with_index    140.303k (± 5.3%) i/s -    709.452k
+          While Loop    276.221k (± 5.3%) i/s -      1.380M
 
 Comparison:
-          While Loop:   242343.6 i/s
-     each_with_index:   128854.9 i/s - 1.88x slower
+          While Loop:   276221.4 i/s
+     each_with_index:   140302.7 i/s - 1.97x slower
 ```
 
 ##### `Enumerable#map`...`Array#flatten` vs `Enumerable#flat_map` [code](code/enumerable/map-flatten-vs-flat_map.rb)

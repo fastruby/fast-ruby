@@ -1,12 +1,6 @@
-require 'benchmark/ips'
+require "benchmark/ips"
 
 ARRAY = [*1..100]
-
-def slow
-  ARRAY.each_with_index do |number, index|
-    number + index
-  end
-end
 
 def fast
   index = 0
@@ -17,8 +11,14 @@ def fast
   ARRAY
 end
 
+def slow
+  ARRAY.each_with_index do |number, index|
+    number + index
+  end
+end
+
 Benchmark.ips do |x|
-  x.report('each_with_index') { slow  }
-  x.report('While Loop')      { fast  }
+  x.report("While Loop")      { fast }
+  x.report("each_with_index") { slow }
   x.compare!
 end
