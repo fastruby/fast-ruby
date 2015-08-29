@@ -156,6 +156,9 @@ module_eval with string:     1129.7 i/s - 1.19x slower
 
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
 
+Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html)
+allows one to define and raise exceptions with predefined messages.
+
 ```
 ruby -v code/general/raise-vs-e2mmap.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin13]
