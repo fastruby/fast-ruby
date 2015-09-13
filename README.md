@@ -249,7 +249,7 @@ Comparison:
 
 ##### `Array #+` vs `Array#concat` [code](code/array/array-concat-vs-plus.rb)
 
-#concat and + are different method since concat will modified self while + will generating a new array without modifying the original arrays. But sometimes if you just want the sum of several arrays and don't care the modification of the original array, #concat not only faster but save more memory.
+addition (+) and #concat are different method since concat will modified self while + will generating a new array without modifying the original arrays. But sometimes if you just want the sum of several arrays and don't care the modification of the original array, #concat not only faster but save more memory.
 
 ```
 $ ruby -v array-concat-vs-plus.rb
