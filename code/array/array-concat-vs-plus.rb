@@ -1,6 +1,6 @@
 require 'benchmark/ips'
 
-data = Array.new
+data = [ nil ]
 
 Benchmark.ips do |x|
   x.report('array.concat(array)')   { data.concat(data) }
