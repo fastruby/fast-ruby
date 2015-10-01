@@ -842,18 +842,24 @@ Comparison:
 
 ```
 $ ruby -v code/range/cover-vs-include.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
 
 Calculating -------------------------------------
-        Range#cover?    95.445k i/100ms
-      Range#include?     9.326k i/100ms
+        range#cover?    85.467k i/100ms
+      range#include?     7.720k i/100ms
+       range#member?     7.783k i/100ms
+       plain compare   102.189k i/100ms
 -------------------------------------------------
-        Range#cover?      2.327M (± 4.7%) i/s -     11.644M
-      Range#include?     99.652k (± 5.4%) i/s -    503.604k
+        range#cover?      1.816M (± 5.6%) i/s -      9.060M
+      range#include?     83.344k (± 5.0%) i/s -    416.880k
+       range#member?     82.654k (± 5.0%) i/s -    412.499k
+       plain compare      2.581M (± 6.2%) i/s -     12.876M
 
 Comparison:
-        Range#cover?:  2327220.4 i/s
-      Range#include?:    99651.6 i/s - 23.35x slower
+       plain compare:  2581211.8 i/s
+        range#cover?:  1816038.5 i/s - 1.42x slower
+      range#include?:    83343.9 i/s - 30.97x slower
+       range#member?:    82654.1 i/s - 31.23x slower
 ```
 
 
