@@ -143,6 +143,28 @@ Comparison:
              &method:   467095.4 i/s - 4.00x slower
 ```
 
+##### Function with single Array argument vs splat arguments [code](code/general/array-argument-vs-splat-arguments.rb)
+
+```
+$ ruby -v array-argument-vs-splat-argument.rb
+ruby 2.1.7p400 (2015-08-18 revision 51632) [x86_64-linux-gnu]
+Calculating -------------------------------------
+Function with single Array argument
+                       157.231k i/100ms
+Function with splat arguments
+                         4.983k i/100ms
+-------------------------------------------------
+Function with single Array argument
+                          5.581M (± 2.0%) i/s -     27.987M
+Function with splat arguments
+                         54.428k (± 3.3%) i/s -    274.065k
+
+Comparison:
+Function with single Array argument:  5580972.6 i/s
+Function with splat arguments:    54427.7 i/s - 102.54x slower
+
+```
+
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
