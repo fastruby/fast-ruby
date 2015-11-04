@@ -814,7 +814,7 @@ Comparison:
         String#match:  1839815.4 i/s - 1.33x slower
 ```
 
-See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) for discussions.
+See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) and [#62](https://github.com/JuanitoFatas/fast-ruby/pull/62) for discussions.
 
 
 ##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
