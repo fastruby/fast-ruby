@@ -365,6 +365,25 @@ Comparison:
           Array#last:  7639254.5 i/s - 1.12x slower
 ```
 
+##### `Array #+` vs `Array#concat` [code](code/array/array-concat-vs-plus.rb)
+
+addition (+) and #concat are different method since concat will modified self while + will generating a new array without modifying the original arrays. But sometimes if you just want the sum of several arrays and don't care the modification of the original array, #concat not only faster but save more memory.
+
+```
+$ ruby -v array-concat-vs-plus.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+Calculating -------------------------------------
+ array.concat(array)   118.049k i/100ms
+       array + array   115.523k i/100ms
+-------------------------------------------------
+ array.concat(array)      7.600M (± 4.3%) i/s -     38.012M
+       array + array      6.201M (± 4.1%) i/s -     30.960M
+
+Comparison:
+ array.concat(array):  7599665.3 i/s
+       array + array:  6201415.1 i/s - 1.23x slower
+```
+
 
 ### Enumerable
 
