@@ -837,6 +837,25 @@ String#gsub!'string':   481183.5 i/s - 2.52x slower
 String#gsub!/regexp/:   342003.8 i/s - 3.55x slower
 ```
 
+##### `String#sub` vs `String#chomp` [code](code/string/sub-vs-chomp.rb)
+
+Note that this can only be used for removing characters from the end of a string.
+
+```
+$ ruby -v code/string/sub-vs-chomp.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin13]
+Calculating -------------------------------------
+  String#sub/regexp/    38.068k i/100ms
+String#chomp'string'    78.284k i/100ms
+-------------------------------------------------
+  String#sub/regexp/    560.625k (±17.1%) i/s -      2.703M
+String#chomp'string'      2.704M (±18.6%) i/s -     12.839M
+
+Comparison:
+String#chomp'string':  2703881.6 i/s
+  String#sub/regexp/:   560625.4 i/s - 4.82x slower
+```
+
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
 > https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
