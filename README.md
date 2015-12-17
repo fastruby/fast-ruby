@@ -351,6 +351,27 @@ Comparison:
 
 ```
 $ ruby -v code/array/array-last-vs-index.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
+
+Calculating -------------------------------------
+        Set#include?    52.470k i/100ms
+  SortedSet#include?    52.462k i/100ms
+      Array#include?    44.830k i/100ms
+-------------------------------------------------
+        Set#include?      1.669M (±11.1%) i/s -      8.238M
+  SortedSet#include?      1.646M (± 8.7%) i/s -      8.184M
+      Array#include?    984.252k (± 9.4%) i/s -      4.931M
+
+Comparison:
+        Set#include?:  1669039.8 i/s
+  SortedSet#include?:  1645635.4 i/s - 1.01x slower
+      Array#include?:   984252.1 i/s - 1.70x slower
+```
+
+##### `Array#include?` vs `Set#include?` [code](code/array/array-include-vs-set-include.rb)
+
+```
+$ ruby -v code/array/array-include-vs-set-include.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
