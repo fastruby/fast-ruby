@@ -526,6 +526,25 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
      Enumerable#sort:                   14018.3 i/s - 1.85x slower
 ```
 
+##### `Enumerable#find_index` vs `Enumerable#index.find` [code](code/enumerable/index-find-vs-find-index.rb)
+
+```
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
+Calculating -------------------------------------
+Enumerable#index + #find
+                        11.584k i/100ms
+Enumerable#find_index
+                        15.118k i/100ms
+-------------------------------------------------
+Enumerable#index + #find
+                        136.488k (± 7.9%) i/s -    683.456k
+Enumerable#find_index
+                        189.411k (± 5.9%) i/s -    952.434k
+
+Comparison:
+Enumerable#find_index:   189410.7 i/s
+Enumerable#index + #find:   136487.6 i/s - 1.39x slower
+```
 
 ### Hash
 
