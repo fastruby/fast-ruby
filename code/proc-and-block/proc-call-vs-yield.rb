@@ -1,14 +1,14 @@
 require 'benchmark/ips'
 
-def slow &block
+def slow(&block)
   block.call
 end
 
-def slow2 &block
+def slow2(&block)
   yield
 end
 
-def slow3 &block
+def slow3(&block)
 
 end
 

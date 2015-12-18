@@ -735,7 +735,7 @@ Comparison:
 
 ##### `Proc#call` and block arguments vs `yield`[code](code/proc-and-block/proc-call-vs-yield.rb)
 
-[In MRI Ruby, block arguments are converted to Procs, which incurs a heap allocation](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711).
+In MRI Ruby, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
