@@ -365,6 +365,22 @@ Comparison:
           Array#last:  7639254.5 i/s - 1.12x slower
 ```
 
+##### `Array#insert` vs `Array#unshift` [code](code/array/insert-vs-unshift.rb)
+
+```
+$ ruby -v code/array/insert-vs-unshift.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin10.0]
+Calculating -------------------------------------
+       Array#unshift     4.000  i/100ms
+        Array#insert     1.000  i/100ms
+-------------------------------------------------
+       Array#unshift     44.947  (± 6.7%) i/s -    224.000
+        Array#insert      0.171  (± 0.0%) i/s -      1.000  in   5.841595s
+
+Comparison:
+       Array#unshift:       44.9 i/s
+        Array#insert:        0.2 i/s - 262.56x slower
+```
 
 ### Enumerable
 
