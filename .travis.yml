@@ -16,6 +16,6 @@ matrix:
     - rvm: 2.2.4
     - rvm: ruby-head
     - rvm: jruby-9.0.4.0
-    - rvm: juby-head
+    - rvm: jruby-head
     - rvm: rbx-2
   fast_finish: true
