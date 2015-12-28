@@ -3,7 +3,7 @@ require 'benchmark/ips'
 SLUG = 'YourSubclassType'
 
 def slow
-  SLUG.sub(/Type$/, '')
+  SLUG.sub(/Type\z/, '')
 end
 
 def fast

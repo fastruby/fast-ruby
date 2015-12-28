@@ -969,17 +969,17 @@ Note that this can only be used for removing characters from the end of a string
 
 ```
 $ ruby -v code/string/sub-vs-chomp.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin13]
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin13]
 Calculating -------------------------------------
-  String#sub/regexp/    38.068k i/100ms
-String#chomp'string'    78.284k i/100ms
+  String#sub/regexp/    42.816k i/100ms
+String#chomp'string'    94.851k i/100ms
 -------------------------------------------------
-  String#sub/regexp/    560.625k (±17.1%) i/s -      2.703M
-String#chomp'string'      2.704M (±18.6%) i/s -     12.839M
+  String#sub/regexp/    660.509k (± 8.0%) i/s -      3.297M
+String#chomp'string'      2.803M (± 8.0%) i/s -     13.943M
 
 Comparison:
-String#chomp'string':  2703881.6 i/s
-  String#sub/regexp/:   560625.4 i/s - 4.82x slower
+String#chomp'string':  2803443.5 i/s
+  String#sub/regexp/:   660508.7 i/s - 4.24x slower
 ```
 
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
