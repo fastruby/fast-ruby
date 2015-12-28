@@ -203,7 +203,7 @@ Comparison:
 ##### Function with single Array argument vs splat arguments [code](code/general/array-argument-vs-splat-arguments.rb)
 
 ```
-$ ruby -v array-argument-vs-splat-argument.rb
+$ ruby -v code/general/array-argument-vs-splat-arguments.rb
 ruby 2.1.7p400 (2015-08-18 revision 51632) [x86_64-linux-gnu]
 Calculating -------------------------------------
 Function with single Array argument
@@ -445,7 +445,7 @@ Comparison:
 > -- @sferik [rails/rails@3413b88](https://github.com/rails/rails/commit/3413b88), [Replace map.flatten with flat_map](https://github.com/rails/rails/commit/817fe31196dd59ee31f71ef1740122b6759cf16d), [Replace map.flatten(1) with flat_map](https://github.com/rails/rails/commit/b11ebf1d80e4fb124f0ce0448cea30988256da59)
 
 ```
-ruby -v code/enumerable/map-flatten-vs-flat_map.rb
+$ ruby -v code/enumerable/map-flatten-vs-flat_map.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
@@ -489,7 +489,8 @@ Comparison:
 ##### `Enumerable#detect` vs `Enumerable#select.first` [code](code/enumerable/select-first-vs-detect.rb)
 
 ```
-$ ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+$ ruby -v code/enumerable/select-first-vs-detect.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
 Enumerable#select.first  8.515k i/100ms
@@ -524,7 +525,7 @@ Enumerable#select.last:     119386.8 i/s - 10.58x slower
 ##### `Enumerable#sort` vs `Enumerable#sort_by` [code](code/enumerable/sort-vs-sort_by.rb)
 
 ```
- ruby -v code/enumerable/sort-vs-sort_by.rb
+$ ruby -v code/enumerable/sort-vs-sort_by.rb
 ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
 
 Calculating -------------------------------------
@@ -798,7 +799,7 @@ String#downcase + ==:  2914767.7 i/s - 1.27x slower
 ##### String Concatenation [code](code/string/concatenation.rb)
 
 ```
-$ ruby  code/string/concatenation.rb
+$ ruby -v code/string/concatenation.rb
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 
 Calculating -------------------------------------
