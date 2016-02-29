@@ -1004,6 +1004,24 @@ Comparison:
          String#gsub:   516604.2 i/s - 3.60x slower
 ```
 
+##### `Mutable` vs `Immutable` [code](code/string/mutable_vs_immutable_strings.rb)
+
+```
+$ ruby -v code/string/mutable_vs_immutable_strings.rb
+ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin14]
+Warming up --------------------------------------
+              freeze   111.292k i/100ms
+              normal   106.928k i/100ms
+Calculating -------------------------------------
+              freeze      5.282M (±14.2%) i/s -     25.931M
+              normal      4.549M (±14.3%) i/s -     22.348M
+
+Comparison:
+              freeze:  5281661.4 i/s
+              normal:  4548975.9 i/s - same-ish: difference falls within error
+```
+
+
 ##### `String#sub!` vs `String#gsub!` vs `String#[]=` [code](code/string/sub!-vs-gsub!-vs-[]=.rb)
 
 Note that `String#[]` will throw an `IndexError` when given string or regexp not matched.
