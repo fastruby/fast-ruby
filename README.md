@@ -1008,17 +1008,15 @@ Comparison:
 
 ```
 $ ruby -v code/string/mutable_vs_immutable_strings.rb
-ruby 2.2.1p85 (2015-02-26 revision 49769) [x86_64-darwin14]
-Warming up --------------------------------------
-              freeze   111.292k i/100ms
-              normal   106.928k i/100ms
+ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-darwin14]
+
 Calculating -------------------------------------
-              freeze      5.282M (±14.2%) i/s -     25.931M
-              normal      4.549M (±14.3%) i/s -     22.348M
+      Without Freeze      7.279M (± 6.6%) i/s -     36.451M in   5.029785s
+         With Freeze      9.329M (± 7.9%) i/s -     46.370M in   5.001345s
 
 Comparison:
-              freeze:  5281661.4 i/s
-              normal:  4548975.9 i/s - same-ish: difference falls within error
+         With Freeze:  9329054.3 i/s
+      Without Freeze:  7279203.1 i/s - 1.28x slower
 ```
 
 

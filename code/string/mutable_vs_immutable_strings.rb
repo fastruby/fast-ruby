@@ -1,12 +1,17 @@
-require 'benchmark/ips'
+require "benchmark/ips"
 
-IMMUTABLE_TEST = "writing_fast_ruby".freeze
-mutable_test = "writing_fast_ruby"
+# Allocates new string over and over again
+def without_freeze
+  "To freeze or not to freeze"
+end
 
-hash = {"writing_fast_ruby" => "is_cool"}
+# Keeps and reuses shared string
+def with_feeze
+  "To freeze or not to freeze".freeze
+end
 
 Benchmark.ips do |x|
-  x.report("freeze") { hash[IMMUTABLE_TEST] }
-  x.report("normal") { hash[mutable_test] }
+  x.report("Without Freeze") { without_freeze }
+  x.report("With Freeze") { with_feeze }
   x.compare!
 end
