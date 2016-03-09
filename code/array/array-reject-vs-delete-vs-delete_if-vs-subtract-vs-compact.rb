@@ -2,6 +2,11 @@ require 'benchmark/ips'
 
 ARRAY = [nil]*1000
 
+def compact
+  ARRAY.compact
+end
+
+
 def reject
   ARRAY.reject { |o| o.nil? }
 end
@@ -19,6 +24,7 @@ def subtract
 end
 
 Benchmark.ips do |x|
+  x.report('A.compact') { compact }
   x.report('A.reject{|o|o.nil?}') { reject }
   x.report('A.delete(nil)') { delete }
   x.report('A.delete_if(&:nil?)') { delete_if }
