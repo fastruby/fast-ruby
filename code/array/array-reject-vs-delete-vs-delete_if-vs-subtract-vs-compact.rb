@@ -1,33 +1,56 @@
 require 'benchmark/ips'
 
-ARRAY = [nil]*1000
+ARRAY = Array.new(100_000){ rand(2).nonzero? }
 
-def compact
-  ARRAY.compact
+ARRAY1 = ARRAY.dup
+ARRAY2 = ARRAY.dup
+ARRAY3 = ARRAY.dup
+ARRAY4 = ARRAY.dup
+ARRAY5 = ARRAY.dup
+ARRAY6 = ARRAY.dup
+ARRAY7 = ARRAY.dup
+ARRAY8 = ARRAY.dup
+
+def compact!
+  ARRAY1.compact!
 end
 
+def compact
+  ARRAY2.compact
+end
+
+def reject!
+  ARRAY3.reject!(&:nil?)
+end
 
 def reject
-  ARRAY.reject { |o| o.nil? }
+  ARRAY4.reject(&:nil?)
 end
 
 def delete
-  ARRAY.delete(nil)
+  ARRAY5.delete(nil)
 end
 
 def delete_if
-  ARRAY.delete_if(&:nil?)
+  ARRAY6.delete_if(&:nil?)
 end
 
 def subtract
-  ARRAY - [nil]
+  ARRAY7 - [nil]
+end
+
+def grep_v
+  ARRAY8.grep_v(nil)
 end
 
 Benchmark.ips do |x|
+  x.report('A.compact!') { compact! }
   x.report('A.compact') { compact }
-  x.report('A.reject{|o|o.nil?}') { reject }
+  x.report('A.reject(&:nil?)') { reject }
+  x.report('A.reject!(&:nil?)') { reject! }
   x.report('A.delete(nil)') { delete }
   x.report('A.delete_if(&:nil?)') { delete_if }
   x.report('A - [nil]') { subtract }
+  x.report('A.grep_v(nil)') { grep_v }
   x.compare!
 end
