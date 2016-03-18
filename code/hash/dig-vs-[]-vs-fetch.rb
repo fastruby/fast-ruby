@@ -11,8 +11,12 @@ Benchmark.ips do |x|
     h[:a][:b][:c][:d][:e]
   end
 
-  x.report 'Hash#[] fallback' do
+  x.report 'Hash#[] ||' do
     ((((h[:a] || {})[:b] || {})[:c] || {})[:d] || {})[:e]
+  end
+
+  x.report 'Hash#[] &&' do
+    h[:a] && h[:a][:b] && h[:a][:b][:c] && h[:a][:b][:c][:d] && h[:a][:b][:c][:d][:e]
   end
 
   x.report 'Hash#fetch' do
