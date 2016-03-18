@@ -597,24 +597,27 @@ Comparison:
 $ ruby -v code/hash/dig-vs-\[\]-vs-fetch.rb
 ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
 Warming up --------------------------------------
-            Hash#dig   144.192k i/100ms
-             Hash#[]   148.853k i/100ms
-    Hash#[] fallback   149.761k i/100ms
-          Hash#fetch   132.257k i/100ms
- Hash#fetch fallback   120.420k i/100ms
+            Hash#dig   142.217k i/100ms
+             Hash#[]   153.313k i/100ms
+          Hash#[] ||   145.380k i/100ms
+          Hash#[] &&   121.401k i/100ms
+          Hash#fetch   137.236k i/100ms
+ Hash#fetch fallback   120.010k i/100ms
 Calculating -------------------------------------
-            Hash#dig      6.253M (± 5.9%) i/s -     31.145M
-             Hash#[]      6.733M (± 5.9%) i/s -     33.641M
-    Hash#[] fallback      6.209M (± 5.7%) i/s -     31.001M
-          Hash#fetch      4.500M (± 5.0%) i/s -     22.484M
- Hash#fetch fallback      3.330M (± 4.7%) i/s -     16.618M
+            Hash#dig      6.216M (± 6.2%) i/s -     31.003M
+             Hash#[]      6.676M (± 6.3%) i/s -     33.269M
+          Hash#[] ||      6.160M (± 6.2%) i/s -     30.675M
+          Hash#[] &&      3.096M (± 5.4%) i/s -     15.539M
+          Hash#fetch      4.425M (± 5.5%) i/s -     22.095M
+ Hash#fetch fallback      3.279M (± 5.3%) i/s -     16.441M
 
 Comparison:
-             Hash#[]:  6732624.6 i/s
-            Hash#dig:  6252809.1 i/s - same-ish: difference falls within error
-    Hash#[] fallback:  6209365.5 i/s - same-ish: difference falls within error
-          Hash#fetch:  4499831.0 i/s - 1.50x slower
- Hash#fetch fallback:  3330397.7 i/s - 2.02x slower
+             Hash#[]:  6676415.9 i/s
+            Hash#dig:  6215966.7 i/s - same-ish: difference falls within error
+          Hash#[] ||:  6160177.6 i/s - same-ish: difference falls within error
+          Hash#fetch:  4424551.0 i/s - 1.51x slower
+ Hash#fetch fallback:  3278599.3 i/s - 2.04x slower
+          Hash#[] &&:  3096090.4 i/s - 2.16x slower
 ```
 
 ##### `Hash[]` vs `Hash#dup` [code](code/hash/bracket-vs-dup.rb)
