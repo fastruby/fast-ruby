@@ -575,6 +575,10 @@ Comparison:
 
 ##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-fetch.rb)
 
+[Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
+and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
+See [#102 (comment)](https://github.com/JuanitoFatas/fast-ruby/pull/102#issuecomment-198827506) for more info.
+
 ```
 $ ruby -v code/hash/dig-vs-\[\]-vs-fetch.rb
 ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
