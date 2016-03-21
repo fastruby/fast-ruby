@@ -220,9 +220,6 @@ Comparison:
 Function with single Array argument:  5580972.6 i/s
 Function with splat arguments:    54427.7 i/s - 102.54x slower
 
-Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html)
-allows one to define and raise exceptions with predefined messages.
-
 ```
 
 ##### Hash vs OpenStruct on access assuming you already have a Hash or an OpenStruct [code](code/general/hash-vs-openstruct-on-access.rb)
