@@ -540,6 +540,27 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
      Enumerable#sort:                   14018.3 i/s - 1.85x slower
 ```
 
+##### `Enumerable#inject Symbol` vs `Enumerable#inject Proc` [code](code/enumerable/inject-symbol-vs-block.rb)
+
+Of note, `to_proc` for 1.8.7 is considerable slower than the block format
+
+```
+$ ruby -v code/enumerable/inject-sum-vs-block.rb 
+ruby 2.2.4p230 (2015-12-16 revision 53155) [x86_64-darwin14]
+Warming up --------------------------------------
+       inject symbol     1.893k i/100ms
+      inject to_proc     1.583k i/100ms
+        inject block     1.390k i/100ms
+Calculating -------------------------------------
+       inject symbol     19.001k (± 3.8%) i/s -     96.543k
+      inject to_proc     15.958k (± 3.5%) i/s -     80.733k
+        inject block     14.063k (± 3.9%) i/s -     70.890k
+
+Comparison:
+       inject symbol:    19001.5 i/s
+      inject to_proc:    15958.3 i/s - 1.19x slower
+        inject block:    14063.1 i/s - 1.35x slower
+```
 
 ### Hash
 
