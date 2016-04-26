@@ -707,21 +707,21 @@ Comparison:
 
 ```
 $ ruby -v code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
 
 Calculating -------------------------------------
-     {}#merge!(Hash)     1.082k i/100ms
-      Hash#merge({})   422.000  i/100ms
- Hash#dup#merge!({})   419.000  i/100ms
+{}#merge!(Hash) do end     2.006k i/100ms
+        Hash#merge({})   762.000  i/100ms
+   Hash#dup#merge!({})   736.000  i/100ms
 -------------------------------------------------
-     {}#merge!(Hash)     11.161k (± 5.1%) i/s -     56.264k
-      Hash#merge({})      4.449k (± 3.8%) i/s -     22.366k
- Hash#dup#merge!({})      4.340k (± 6.2%) i/s -     21.788k
+{}#merge!(Hash) do end     20.055k (± 2.0%) i/s -    100.300k in   5.003322s
+        Hash#merge({})      7.676k (± 1.2%) i/s -     38.862k in   5.063382s
+   Hash#dup#merge!({})      7.440k (± 1.1%) i/s -     37.536k in   5.045851s
 
 Comparison:
-     {}#merge!(Hash):    11161.3 i/s
-      Hash#merge({}):     4449.4 i/s - 2.51x slower
- Hash#dup#merge!({}):     4340.3 i/s - 2.57x slower
+{}#merge!(Hash) do end:    20054.8 i/s
+        Hash#merge({}):     7676.3 i/s - 2.61x slower
+   Hash#dup#merge!({}):     7439.9 i/s - 2.70x slower
 ```
 
 ##### `Hash#sort_by` vs `Hash#sort` [code](code/hash/hash-key-sort_by-vs-sort.rb)
