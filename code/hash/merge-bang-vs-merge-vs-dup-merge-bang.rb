@@ -5,7 +5,7 @@ ORIGINAL_HASH = { foo: "foo" }
 
 def fast
   ENUM.inject([]) do |accumulator, element|
-    accumulator << { bar: element }.merge!(ORIGINAL_HASH)
+    accumulator << ({ bar: element }.merge!(ORIGINAL_HASH){ |_key, left, _right| left })
   end
 end
 
@@ -22,7 +22,7 @@ def slow_dup
 end
 
 Benchmark.ips do |x|
-  x.report("{}#merge!(Hash)") { fast }
+  x.report("{}#merge!(Hash) do end") { fast }
   x.report("Hash#merge({})") { slow }
   x.report("Hash#dup#merge!({})") { slow_dup }
   x.compare!
