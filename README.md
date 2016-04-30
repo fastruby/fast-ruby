@@ -912,22 +912,27 @@ Comparison:
 See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) and [#62](https://github.com/JuanitoFatas/fast-ruby/pull/62) for discussions.
 
 
-##### `String#gsub` vs `String#sub` [code](code/string/gsub-vs-sub.rb)
+##### `String#gsub` vs `String#sub` vs `String#[]=` [code](code/string/gsub-vs-sub.rb)
 
 ```
 $ ruby -v code/string/gsub-vs-sub.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
 
+Warming up --------------------------------------
+         String#gsub    48.360k i/100ms
+          String#sub    45.739k i/100ms
+String#dup["string"]=   59.896k i/100ms
 Calculating -------------------------------------
-         String#gsub    35.724k i/100ms
-          String#sub    42.426k i/100ms
--------------------------------------------------
-         String#gsub    486.614k (± 5.4%) i/s -      2.429M
-          String#sub    611.259k (± 4.6%) i/s -      3.055M
+         String#gsub    647.666k (± 3.3%) i/s -      3.240M in   5.008504s
+          String#sub    756.665k (± 2.0%) i/s -      3.796M in   5.019235s
+String#dup["string"]=   917.873k (± 1.8%) i/s -      4.612M in   5.026253s
 
 Comparison:
-          String#sub:   611259.4 i/s
-         String#gsub:   486613.5 i/s - 1.26x slower
+String#dup["string"]=:   917873.1 i/s
+          String#sub:    756664.7 i/s - 1.21x slower
+         String#gsub:    647665.6 i/s - 1.42x slower
+
+
 ```
 
 ##### `String#gsub` vs `String#tr` [code](code/string/gsub-vs-tr.rb)
