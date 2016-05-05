@@ -818,24 +818,27 @@ String#downcase + ==:  2914767.7 i/s - 1.27x slower
 
 ```
 $ ruby -v code/string/concatenation.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
 
+Warming up --------------------------------------
+            String#+   149.298k i/100ms
+       String#concat   151.505k i/100ms
+       String#append   153.389k i/100ms
+         "foo" "bar"   195.552k i/100ms
+  "#{'foo'}#{'bar'}"   193.784k i/100ms
 Calculating -------------------------------------
-            String#+    96.314k i/100ms
-       String#concat    99.850k i/100ms
-       String#append   100.728k i/100ms
-         "foo" "bar"   121.936k i/100ms
--------------------------------------------------
-            String#+      2.731M (± 4.6%) i/s -     13.677M
-       String#concat      2.847M (± 5.2%) i/s -     14.279M
-       String#append      2.972M (± 6.1%) i/s -     14.807M
-         "foo" "bar"      4.951M (± 6.2%) i/s -     24.753M
+            String#+      2.977M (± 1.1%) i/s -     14.930M in   5.015179s
+       String#concat      3.017M (± 1.3%) i/s -     15.150M in   5.023063s
+       String#append      3.076M (± 1.2%) i/s -     15.492M in   5.037683s
+         "foo" "bar"      5.370M (± 1.0%) i/s -     26.986M in   5.026271s
+  "#{'foo'}#{'bar'}"      5.182M (± 4.6%) i/s -     25.967M in   5.022093s
 
 Comparison:
-         "foo" "bar":  4950955.3 i/s
-       String#append:  2972048.5 i/s - 1.67x slower
-       String#concat:  2846666.4 i/s - 1.74x slower
-            String#+:  2730980.7 i/s - 1.81x slower
+         "foo" "bar":  5369594.5 i/s
+  "#{'foo'}#{'bar'}":  5181745.7 i/s - same-ish: difference falls within error
+       String#append:  3075719.2 i/s - 1.75x slower
+       String#concat:  3016703.5 i/s - 1.78x slower
+            String#+:  2977282.7 i/s - 1.80x slower
 ```
 
 ##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](end-string-checking-match-vs-end_with.rb)
