@@ -664,6 +664,27 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
+##### `Enum#each` vs `Hash#each_key` vs `Hash#each_pair` [code](code/hash/each_vs_each_pair_vs_each_key.rb)
+
+```
+$ ruby -v code/hash/each_vs_each_pair_vs_each_key.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
+
+Warming up --------------------------------------
+           Enum#each    54.198k i/100ms
+Hash#each(each_pair)    72.037k i/100ms
+       Hash#each_key    61.871k i/100ms
+Calculating -------------------------------------
+           Enum#each    670.464k (± 1.3%) i/s -      3.360M in   5.012776s
+Hash#each(each_pair)    921.717k (± 1.2%) i/s -      4.610M in   5.002695s
+       Hash#each_key    804.125k (± 1.0%) i/s -      4.022M in   5.001765s
+
+Comparison:
+Hash#each(each_pair):   921717.3 i/s
+       Hash#each_key:   804124.9 i/s - 1.15x slower
+           Enum#each:   670464.5 i/s - 1.37x slower
+```
+
 ##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
 
 ```
