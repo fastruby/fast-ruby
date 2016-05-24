@@ -545,7 +545,7 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
 Of note, `to_proc` for 1.8.7 is considerable slower than the block format
 
 ```
-$ ruby -v code/enumerable/inject-sum-vs-block.rb 
+$ ruby -v code/enumerable/inject-sum-vs-block.rb
 ruby 2.2.4p230 (2015-12-16 revision 53155) [x86_64-darwin14]
 Warming up --------------------------------------
        inject symbol     1.893k i/100ms
@@ -882,6 +882,25 @@ Calculating -------------------------------------
 Comparison:
     String#end_with?:  2942017.4 i/s
            String#=~:   891124.1 i/s - 3.30x slower
+```
+
+##### `String#start_with?` vs `String#[].==` [code](code/string/start_with-vs-substring-==.rb)
+
+```
+$ ruby -v code/string/end-string-checking-match-vs-end_with.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+  String#start_with?      2.047M (± 4.5%) i/s -     10.242M in   5.015146s
+    String#[0, n] ==    711.802k (± 7.3%) i/s -      3.551M in   5.019543s
+   String#[RANGE] ==    651.751k (± 6.2%) i/s -      3.296M in   5.078772s
+   String#[0...n] ==    427.207k (± 5.7%) i/s -      2.136M in   5.019245s
+
+Comparison:
+  String#start_with?:  2046618.9 i/s
+    String#[0, n] ==:   711802.3 i/s - 2.88x slower
+   String#[RANGE] ==:   651751.2 i/s - 3.14x slower
+   String#[0...n] ==:   427206.8 i/s - 4.79x slower
 ```
 
 ##### `Regexp#===` vs `String#match` vs `String#=~` [code ](code/string/===-vs-=~-vs-match.rb)
