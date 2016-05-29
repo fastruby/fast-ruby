@@ -884,6 +884,24 @@ Comparison:
            String#=~:   891124.1 i/s - 3.30x slower
 ```
 
+##### `String#start_with?` vs `String#[].==` [code](code/string/start_with-vs-substring-==.rb)
+
+```
+ruby 2.2.4p230 (2015-12-16 revision 53155) [i386-cygwin]
+
+Calculating -------------------------------------
+  String#start_with?    739.364k (± 0.5%) i/s -      3.720M in   5.031116s
+    String#[0, n] ==    346.112k (± 0.2%) i/s -      1.753M in   5.063586s
+   String#[RANGE] ==    318.284k (± 0.2%) i/s -      1.612M in   5.066202s
+   String#[0...n] ==    220.535k (± 0.1%) i/s -      1.110M in   5.033769s
+
+Comparison:
+  String#start_with?:   739364.0 i/s
+    String#[0, n] ==:   346112.1 i/s - 2.14x slower
+   String#[RANGE] ==:   318283.6 i/s - 2.32x slower
+   String#[0...n] ==:   220534.9 i/s - 3.35x slower
+```
+
 ##### `Regexp#===` vs `String#match` vs `String#=~` [code ](code/string/===-vs-=~-vs-match.rb)
 
 > :warning: <br>
