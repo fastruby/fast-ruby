@@ -591,6 +591,39 @@ Comparison:
   Hash#fetch, string:  3981166.5 i/s - 1.89x slower
 ```
 
+##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-fetch.rb)
+
+[Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
+and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
+See [#102 (comment)](https://github.com/JuanitoFatas/fast-ruby/pull/102#issuecomment-198827506) for more info.
+
+```
+$ ruby -v code/hash/dig-vs-\[\]-vs-fetch.rb
+ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
+Warming up --------------------------------------
+            Hash#dig   142.217k i/100ms
+             Hash#[]   153.313k i/100ms
+          Hash#[] ||   145.380k i/100ms
+          Hash#[] &&   121.401k i/100ms
+          Hash#fetch   137.236k i/100ms
+ Hash#fetch fallback   120.010k i/100ms
+Calculating -------------------------------------
+            Hash#dig      6.216M (± 6.2%) i/s -     31.003M
+             Hash#[]      6.676M (± 6.3%) i/s -     33.269M
+          Hash#[] ||      6.160M (± 6.2%) i/s -     30.675M
+          Hash#[] &&      3.096M (± 5.4%) i/s -     15.539M
+          Hash#fetch      4.425M (± 5.5%) i/s -     22.095M
+ Hash#fetch fallback      3.279M (± 5.3%) i/s -     16.441M
+
+Comparison:
+             Hash#[]:  6676415.9 i/s
+            Hash#dig:  6215966.7 i/s - same-ish: difference falls within error
+          Hash#[] ||:  6160177.6 i/s - same-ish: difference falls within error
+          Hash#fetch:  4424551.0 i/s - 1.51x slower
+ Hash#fetch fallback:  3278599.3 i/s - 2.04x slower
+          Hash#[] &&:  3096090.4 i/s - 2.16x slower
+```
+
 ##### `Hash[]` vs `Hash#dup` [code](code/hash/bracket-vs-dup.rb)
 
 Source: http://tenderlovemaking.com/2015/02/11/weird-stuff-with-hashes.html
