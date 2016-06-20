@@ -160,6 +160,7 @@ Comparison:
 ```
 
 ##### Safe method navigation vs explicit presence check vs vs `#try!` [code](code/general/safe-navigation-vs-explicit-check.rb)
+Use of safe navigation operator on happy path is almost as efficient as regular method chaining
 
 ```
 $ ruby -v code/general/safe-navigation-vs-explicit-check.rb
