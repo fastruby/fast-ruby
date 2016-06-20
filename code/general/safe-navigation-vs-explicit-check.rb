@@ -1,21 +1,19 @@
 require "benchmark/ips"
-require 'active_support'
-require 'active_support/core_ext/object/try'
+require "active_support"
+require "active_support/core_ext/object/try"
 
+OBJ = Object.new
 
 def fast
-  o = Object.new
-  o &.itself &.itself
+  OBJ &.itself &.itself
 end
 
 def slow
-  o = Object.new
-  o && o.itself && o.itself.itself
+  OBJ && OBJ.itself && OBJ.itself.itself
 end
 
 def slowest
-  o = Object.new
-  o.try(:itself).try(:itself)
+  OBJ.try(:itself).try(:itself)
 end
 
 Benchmark.ips do |x|
