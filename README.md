@@ -159,27 +159,23 @@ Comparison:
          Kernel loop:        0.2 i/s - 2.41x slower
 ```
 
-##### Safe method navigation vs explicit presence check vs `#present?` vs `#try` [code](code/general/safe-navigation-vs-explicit-check.rb)
+##### Safe method navigation vs explicit presence check vs vs `#try!` [code](code/general/safe-navigation-vs-explicit-check.rb)
 
 ```
 $ ruby -v code/general/safe-navigation-vs-explicit-check.rb
 ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-linux]
 
 Calculating -------------------------------------
-      method calling      4.900M (± 2.0%) i/s -     24.497M in   5.001097s
 safe navigation operator
-                          4.739M (± 1.8%) i/s -     23.712M in   5.005530s
+                          4.727M (± 2.5%) i/s -     23.709M in   5.018641s
 explicit presence check
-                          4.386M (± 2.4%) i/s -     21.980M in   5.014657s
-           #present?      2.160M (± 2.0%) i/s -     10.824M in   5.014203s
-                #try      1.036M (± 1.2%) i/s -      5.216M in   5.035026s
+                          4.275M (± 2.6%) i/s -     21.417M in   5.012960s
+               #try!      1.029M (± 1.8%) i/s -      5.154M in   5.011945s
 
 Comparison:
-      method calling:  4900273.0 i/s
-safe navigation operator:  4738823.5 i/s - same-ish: difference falls within error
-explicit presence check:  4385820.2 i/s - 1.12x slower
-           #present?:  2159584.4 i/s - 2.27x slower
-                #try:  1036015.6 i/s - 4.73x slower
+safe navigation operator:  4727279.8 i/s
+explicit presence check:  4275422.6 i/s - 1.11x slower
+               #try!:  1028723.5 i/s - 4.60x slower
 ```
 
 #### Method Invocation
