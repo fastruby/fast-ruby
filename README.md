@@ -168,15 +168,15 @@ ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-linux]
 
 Calculating -------------------------------------
 safe navigation operator
-                          7.343M (± 3.8%) i/s -     36.667M in   5.002095s
+                          6.832M (± 4.3%) i/s -     34.164M in   5.010672s
 explicit presence check
-                          6.315M (± 3.5%) i/s -     31.541M in   5.001251s
-               #try!      1.108M (± 3.2%) i/s -      5.554M in   5.018483s
+                          5.859M (± 4.3%) i/s -     29.372M in   5.022765s
+               #try!      1.704M (± 3.5%) i/s -      8.542M in   5.018823s
 
 Comparison:
-safe navigation operator:  7342743.6 i/s
-explicit presence check:  6314913.5 i/s - 1.16x slower
-               #try!:  1107772.0 i/s - 6.63x slower
+safe navigation operator:  6831625.7 i/s
+explicit presence check:  5858661.3 i/s - 1.17x slower
+               #try!:  1704316.7 i/s - 4.01x slower
 ```
 
 #### Method Invocation

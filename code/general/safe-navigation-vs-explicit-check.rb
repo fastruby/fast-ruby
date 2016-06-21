@@ -13,7 +13,7 @@ def slow
 end
 
 def slowest
-  OBJ.try(:itself).try(:itself)
+  OBJ.try!(:itself).try!(:itself)
 end
 
 Benchmark.ips do |x|
