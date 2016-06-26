@@ -42,6 +42,16 @@ end
 Idioms
 ------
 
+### Index
+
+- [General](#general)
+- [Array](#array)
+- [Enumerable](#enumerable)
+- [Hash](#hash)
+- [Proc & Block](#proc--block)
+- [String](#string)
+- [Range](#range)
+
 ### General
 
 ##### Parallel Assignment vs Sequential Assignment [code](code/general/assignment.rb)
