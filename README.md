@@ -601,7 +601,7 @@ Comparison:
   Hash#fetch, string:  3981166.5 i/s - 1.89x slower
 ```
 
-##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-fetch.rb)
+##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-vs-fetch.rb)
 
 [Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
 and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
@@ -878,7 +878,7 @@ Comparison:
             String#+:  2977282.7 i/s - 1.80x slower
 ```
 
-##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](end-string-checking-match-vs-end_with.rb)
+##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-end_with.rb)
 
 > :warning: <br>
 > Sometimes you cant replace regexp with `start_with?`, <br>
