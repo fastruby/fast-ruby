@@ -1329,6 +1329,24 @@ Comparison:
          String#gsub:   516604.2 i/s - 3.60x slower
 ```
 
+##### `String#gsub` vs `String#tr` vs `String#del` [code](code/string/gsub-vs-tr-vs-del.rb)
+
+```
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-linux]
+
+Calculating -------------------------------------
+         String#gsub      1.342M (± 1.3%) i/s -      6.816M in   5.079675s
+           String#tr      2.627M (± 1.0%) i/s -     13.387M in   5.096083s
+       String#delete      2.924M (± 0.7%) i/s -     14.889M in   5.093070s
+ String#delete const      3.136M (± 2.6%) i/s -     15.866M in   5.064043s
+
+Comparison:
+ String#delete const:  3135559.1 i/s
+       String#delete:  2923531.8 i/s - 1.07x  slower
+           String#tr:  2627150.5 i/s - 1.19x  slower
+         String#gsub:  1342013.4 i/s - 2.34x  slower
+```
+
 ##### `Mutable` vs `Immutable` [code](code/string/mutable_vs_immutable_strings.rb)
 
 ```
