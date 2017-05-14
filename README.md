@@ -389,6 +389,26 @@ Comparison:
         Array#insert:        0.2 i/s - 262.56x slower
 ```
 
+##### Subset detection with `Array#-#empty?` vs `Array#&#==` vs `Array#all?#include?` [code](minus-empty-vs-interception-vs-include-all.rb)
+
+```
+$ ruby -v code/array/minus-empty-vs-interception-vs-include-all.rb
+ruby 2.1.5p273 (2014-11-13) [x86_64-linux-gnu]
+Warming up --------------------------------------
+    (a1 - a2).empty?     5.116k i/100ms
+    (a1 & a2) == a1      4.387k i/100ms
+ Array#all?#include?     8.673k i/100ms
+Calculating -------------------------------------
+    (a1 - a2).empty?     52.210k (± 3.8%) i/s -    260.916k in   5.005454s
+    (a1 & a2) == a1      43.958k (± 4.5%) i/s -    219.350k in   5.001017s
+ Array#all?#include?     90.781k (± 2.4%) i/s -    459.669k in   5.066504s
+
+Comparison:
+ Array#all?#include?:    90781.0 i/s
+    (a1 - a2).empty?:    52210.4 i/s - 1.74x  slower
+    (a1 & a2) == a1 :    43958.3 i/s - 2.07x  slower
+```
+
 ### Enumerable
 
 ##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
