@@ -719,6 +719,23 @@ Comparison:
          Hash#merge!:    10653.3 i/s - 2.66x slower
 ```
 
+##### `Hash#merge` vs `Hash#**other` [code](code/hash/merge-vs-double-splat-operator.rb)
+
+```
+$ ruby -v merge-vs-double-splat-operator.rb
+ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
+Warming up --------------------------------------
+        Hash#**other    64.624k i/100ms
+          Hash#merge    38.827k i/100ms
+Calculating -------------------------------------
+        Hash#**other    798.397k (± 6.9%) i/s -      4.007M in   5.053516s
+          Hash#merge    434.171k (± 4.5%) i/s -      2.174M in   5.018927s
+
+Comparison:
+        Hash#**other:   798396.6 i/s
+          Hash#merge:   434170.8 i/s - 1.84x  slower
+```
+
 ##### `Hash#merge` vs `Hash#merge!` [code](code/hash/merge-vs-merge-bang.rb)
 
 ```
