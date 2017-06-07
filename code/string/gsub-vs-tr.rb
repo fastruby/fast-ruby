@@ -1,3 +1,4 @@
+# gem install 'benchmark-ips'
 require 'benchmark/ips'
 
 SLUG = 'writing-fast-ruby'
