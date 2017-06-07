@@ -819,6 +819,23 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
+##### `Hash#[]` vs `Hash#include?`
+ruby -v code/hash/bracket-vs-include.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
+
+Warming up --------------------------------------
+           include?    125.124k i/100ms
+                 []    138.472k i/100ms
+Calculating -------------------------------------
+           include?      12.317M (±15.5%) i/s -     59.309M in   5.006898s
+                 []      16.105M (± 2.7%) i/s -     80.452M in   4.999492s
+
+Comparison:
+                 [] : 16104715.1 i/s
+           include? : 12316575.0 i/s - 1.31x slower
+
+```
+
 ### Proc & Block
 
 ##### Block vs `Symbol#to_proc` [code](code/proc-and-block/block-vs-to_proc.rb)
