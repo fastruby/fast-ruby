@@ -268,6 +268,27 @@ Comparison:
           OpenStruct:    96855.3 i/s - 16.56x slower
 ```
 
+##### Kernel#format vs Float#round().to_s [code](code/general/format-vs-round-and-to-s.rb)
+
+```
+$ ruby -v code/general/format-vs-round-and-t
+o-s.rb
+ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
+Warming up --------------------------------------
+         Float#round   106.645k i/100ms
+       Kernel#format    84.304k i/100ms
+            String#%    78.635k i/100ms
+Calculating -------------------------------------
+         Float#round      1.570M (± 3.2%) i/s - 7.892M in   5.030672s
+       Kernel#format      1.144M (± 3.0%) i/s - 5.733M in   5.015621s
+            String#%      1.047M (± 4.2%) i/s - 5.269M in   5.042970s
+
+Comparison:
+         Float#round:  1570411.4 i/s
+       Kernel#format:  1144036.6 i/s - 1.37x  slower
+            String#%:  1046689.1 i/s - 1.50x  slower
+```
+
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
