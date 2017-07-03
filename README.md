@@ -311,6 +311,46 @@ Comparison:
                 find:        0.2 i/s - 3137489.63x slower
 ```
 
+##### `Array#include?` vs `Array#index` [code](code/array/include-vs-index.rb)
+
+```
+Calculating -------------------------------------
+ Array#include?(all)      1.324M (± 7.6%) i/s -      6.598M in   5.023518s
+    Array#index(all)      1.367M (± 3.3%) i/s -      6.903M in   5.057104s
+Array#include?(bool)      5.100M (± 3.6%) i/s -     25.627M in   5.032745s
+   Array#index(bool)      4.998M (± 2.8%) i/s -     25.079M in   5.022616s
+Array#include?(float)   503.333k (±10.1%) i/s -      2.513M in   5.056501s
+  Array#index(float)      2.235M (± 1.7%) i/s -     11.197M in   5.011169s
+ Array#include?(int)    605.837k (± 2.0%) i/s -      3.064M in   5.060286s
+    Array#index(int)      2.825M (± 3.0%) i/s -     14.177M in   5.023919s
+Array#include?(objs)     57.449k (± 3.8%) i/s -    287.232k in   5.008360s
+   Array#index(objs)     53.416k (± 4.3%) i/s -    267.903k in   5.027501s
+ Array#include?(str)    465.575k (± 4.2%) i/s -      2.337M in   5.029908s
+    Array#index(str)    918.462k (± 4.2%) i/s -      4.601M in   5.022165s
+Array#include?(syms)      2.864M (± 4.3%) i/s -     14.408M in   5.043572s
+   Array#index(syms)      2.590M (± 1.5%) i/s -     13.075M in   5.049128s
+Array#include?(arrs)    104.700k (± 1.1%) i/s -    524.836k in   5.013319s
+   Array#index(arrs)     94.757k (± 4.1%) i/s -    477.360k in   5.046763s
+
+Comparison:
+Array#include?(bool):  5100176.8 i/s
+   Array#index(bool):  4997633.2 i/s - same-ish: difference falls within error
+Array#include?(syms):  2863760.4 i/s - 1.78x  slower
+    Array#index(int):  2824929.3 i/s - 1.81x  slower
+   Array#index(syms):  2590177.0 i/s - 1.97x  slower
+  Array#index(float):  2235024.6 i/s - 2.28x  slower
+    Array#index(all):  1366761.7 i/s - 3.73x  slower
+ Array#include?(all):  1323935.1 i/s - 3.85x  slower
+    Array#index(str):   918462.1 i/s - 5.55x  slower
+ Array#include?(int):   605836.9 i/s - 8.42x  slower
+Array#include?(float):  503333.5 i/s - 10.13x  slower
+ Array#include?(str):   465574.5 i/s - 10.95x  slower
+Array#include?(arrs):   104700.2 i/s - 48.71x  slower
+   Array#index(arrs):    94756.8 i/s - 53.82x  slower
+Array#include?(objs):    57449.3 i/s - 88.78x  slower
+   Array#index(objs):    53416.0 i/s - 95.48x  slower
+```
+
 ##### `Array#length` vs `Array#size` vs `Array#count` [code](code/array/length-vs-size-vs-count.rb)
 
 Use `#length` when you only want to know how many elements in the array, `#count` could also archieve this. However `#count` should be use for counting specific elements in array. [Note `#size` is an alias of `#length`](https://github.com/ruby/ruby/blob/f8fb526ad9e9f31453bffbc908b6a986736e21a7/array.c#L5817-L5818).
