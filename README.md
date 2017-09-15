@@ -268,6 +268,24 @@ Comparison:
           OpenStruct:    96855.3 i/s - 16.56x slower
 ```
 
+##### JSON vs Oj (generation) [code](code/general/json_generate_vs_oj_dump.rb)
+[oj](https://github.com/ohler55/oj) gem outperform by 9x - 10x the default json gem
+
+```
+ruby -v code/general/json_generate_vs_oj_dump.rb
+ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-darwin16]
+Warming up --------------------------------------
+            Oj::dump    67.324k i/100ms
+      JSON::generate     9.332k i/100ms
+Calculating -------------------------------------
+            Oj::dump    828.003k (±13.5%) i/s -      3.972M in   5.078892s
+      JSON::generate     83.332k (±20.9%) i/s -    391.944k in   5.066932s
+
+Comparison:
+            Oj::dump:   828002.8 i/s
+      JSON::generate:    83331.5 i/s - 9.94x  slower
+```
+
 ### Array
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
