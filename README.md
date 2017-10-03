@@ -868,6 +868,23 @@ Comparison:
           block.call:   842581.2 i/s - 4.54x slower
 ```
 
+##### `$block` vs `Proc.new` [code](code/proc-and-block/block-vs-proc-new.rb)
+
+```
+$ ruby -v code/proc-and-block/block-vs-proc-new.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
+Calculating -------------------------------------
+              &block    78.665k i/100ms
+            Proc.new    68.469k i/100ms
+-------------------------------------------------
+              &block      1.496M (±15.2%) i/s -      7.237M
+            Proc.new      1.308M (±18.1%) i/s -      6.162M
+
+Comparison:
+              &block:  1496458.2 i/s
+            Proc.new:  1308439.7 i/s - 1.14x slower
+
+```
 
 ### String
 
