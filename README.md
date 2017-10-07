@@ -622,6 +622,55 @@ Comparison:
   Hash#fetch, string:  3981166.5 i/s - 1.89x slower
 ```
 
+##### `Hash['key']` vs `Hash[:key]` [code](code/hash/string-keys-vs-symbol-keys.rb)
+
+In ruby 2.3.5 *generating* Hash with Symbol keys are a bit more performant than String keys. But the difference is insignificant for Hash with 1 pair of key/value.
+In ruby 2.4.2  Symbol keys are about 15%-19% faster. Using String keys can come with a small penalty, as seen below.
+
+```
+$ruby -v code/hash/string-keys-vs-symbol-keys.rb
+ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
+Generating simple Hashes with just 1 key/value using different types of keys
+Generating using implicit form
+Warming up --------------------------------------
+        {symbol: 42}   112.603k i/100ms
+     {:symbol => 42}   113.512k i/100ms
+     {'sym_str': 42}   111.994k i/100ms
+    {"string" => 42}   109.474k i/100ms
+    {'string' => 42}   110.688k i/100ms
+Calculating -------------------------------------
+        {symbol: 42}      1.731M (± 2.0%) i/s -      8.670M in   5.010332s
+     {:symbol => 42}      1.714M (± 2.0%) i/s -      8.627M in   5.034970s
+     {'sym_str': 42}      1.711M (± 3.5%) i/s -      8.624M in   5.046647s
+    {"string" => 42}      1.508M (± 9.3%) i/s -      7.554M in   5.064608s
+    {'string' => 42}      1.453M (± 5.7%) i/s -      7.305M in   5.045950s
+
+Comparison:
+        {symbol: 42}:  1731221.3 i/s
+     {:symbol => 42}:  1714113.4 i/s - same-ish: difference falls within error
+     {'sym_str': 42}:  1711084.8 i/s - same-ish: difference falls within error
+    {"string" => 42}:  1508413.1 i/s - 1.15x  slower
+    {'string' => 42}:  1452896.9 i/s - 1.19x  slower
+```
+
+However if you need to generate large Hash with 1000 key/value pairs the difference becomes more obvious. Hash with symbol keys is about 35% faster (in ruby 2.3.5 it is about 17% faster). [code](code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb)
+
+```
+$ruby -v code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb
+ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
+Warming up --------------------------------------
+         Symbol Keys   340.000  i/100ms
+         String Keys   248.000  i/100ms
+Calculating -------------------------------------
+         Symbol Keys      3.385k (± 5.2%) i/s -     17.000k in   5.036258s
+         String Keys      2.486k (± 3.9%) i/s -     12.648k in   5.095433s
+
+Comparison:
+         Symbol Keys:     3385.2 i/s
+         String Keys:     2485.9 i/s - 1.36x  slower
+```
+
+
 ##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-vs-fetch.rb)
 
 [Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
