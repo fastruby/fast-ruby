@@ -653,21 +653,34 @@ Comparison:
     {'string' => 42}:  1452896.9 i/s - 1.19x  slower
 ```
 
-However if you need to generate large Hash with 1000 key/value pairs the difference becomes more obvious. Hash with symbol keys is about 35% faster (in ruby 2.3.5 it is about 17% faster). [code](code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb)
+However if you need to generate large Hash with 1000 key/value pairs the difference becomes more obvious. Hash with symbol keys is about 35%-37% faster (in ruby 2.3.5 it is about 17% faster). Reading Hash with Symbol keys is also faster by about 23%. The bigger is your Hash the more apparent the difference. Depending on how values in pairs are generated, performance could be even better, upto 2x times. [code](code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb)
 
 ```
 $ruby -v code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb
 ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
+Creating large Hash
 Warming up --------------------------------------
-         Symbol Keys   340.000  i/100ms
-         String Keys   248.000  i/100ms
+         Symbol Keys   338.000  i/100ms
+         String Keys   253.000  i/100ms
 Calculating -------------------------------------
-         Symbol Keys      3.385k (± 5.2%) i/s -     17.000k in   5.036258s
-         String Keys      2.486k (± 3.9%) i/s -     12.648k in   5.095433s
+         Symbol Keys      3.420k (± 4.4%) i/s -     17.238k in   5.050034s
+         String Keys      2.502k (± 4.7%) i/s -     12.650k in   5.066595s
 
 Comparison:
-         Symbol Keys:     3385.2 i/s
-         String Keys:     2485.9 i/s - 1.36x  slower
+         Symbol Keys:     3420.2 i/s
+         String Keys:     2502.4 i/s - 1.37x  slower
+
+Reading large Hash
+Warming up --------------------------------------
+         Symbol Keys   219.892k i/100ms
+         String Keys   197.308k i/100ms
+Calculating -------------------------------------
+         Symbol Keys      5.469M (± 6.1%) i/s -     27.267M in   5.004309s
+         String Keys      4.447M (± 5.6%) i/s -     22.296M in   5.029068s
+
+Comparison:
+         Symbol Keys:  5469417.4 i/s
+         String Keys:  4447190.1 i/s - 1.23x  slower
 ```
 
 
