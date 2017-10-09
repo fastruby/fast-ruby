@@ -653,34 +653,40 @@ Comparison:
     {'string' => 42}:  1452896.9 i/s - 1.19x  slower
 ```
 
-However if you need to generate large Hash with 1000 key/value pairs the difference becomes more obvious. Hash with symbol keys is about 35%-37% faster (in ruby 2.3.5 it is about 17% faster). Reading Hash with Symbol keys is also faster by about 23%. The bigger is your Hash the more apparent the difference. Depending on how values in pairs are generated, performance could be even better, upto 2x times. [code](code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb)
+However if you need to generate large Hash with 1000 key/value pairs the difference becomes more obvious. Hash with symbol keys is about 32%-37% faster (in ruby 2.3.5 it is about 17% faster). Reading Hash with Symbol keys is also faster by about 23%. The bigger is your Hash the more apparent the difference. Depending on how values in pairs are generated, performance could be even better, upto 2x times. [code](code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb). However using 'string_key'.freeze  could result in comparable performance, on a large Hash.
 
 ```
-$ruby -v code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb
+ruby -v code/hash/string-keys-vs-symbol-keys-with-1000-pairs.rb                                                                                                                                                                                                                                   Mon Oct  9 10:14:49 2017
 ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
 Creating large Hash
 Warming up --------------------------------------
-         Symbol Keys   338.000  i/100ms
-         String Keys   253.000  i/100ms
+         Symbol Keys   326.000  i/100ms
+         String Keys   241.000  i/100ms
+         Frozen Keys   293.000  i/100ms
 Calculating -------------------------------------
-         Symbol Keys      3.420k (± 4.4%) i/s -     17.238k in   5.050034s
-         String Keys      2.502k (± 4.7%) i/s -     12.650k in   5.066595s
+         Symbol Keys      3.262k (± 3.7%) i/s -     16.300k in   5.003892s
+         String Keys      2.477k (± 4.4%) i/s -     12.532k in   5.069933s
+         Frozen Keys      3.023k (± 4.6%) i/s -     15.236k in   5.050441s
 
 Comparison:
-         Symbol Keys:     3420.2 i/s
-         String Keys:     2502.4 i/s - 1.37x  slower
+         Symbol Keys:     3262.0 i/s
+         Frozen Keys:     3023.2 i/s - same-ish: difference falls within error
+         String Keys:     2476.7 i/s - 1.32x  slower
 
 Reading large Hash
 Warming up --------------------------------------
-         Symbol Keys   219.892k i/100ms
-         String Keys   197.308k i/100ms
+         Symbol Keys   212.401k i/100ms
+         String Keys   190.175k i/100ms
+         Frozen Keys   205.491k i/100ms
 Calculating -------------------------------------
-         Symbol Keys      5.469M (± 6.1%) i/s -     27.267M in   5.004309s
-         String Keys      4.447M (± 5.6%) i/s -     22.296M in   5.029068s
+         Symbol Keys      5.281M (± 8.1%) i/s -     26.338M in   5.022333s
+         String Keys      4.276M (± 6.2%) i/s -     21.300M in   5.000911s
+         Frozen Keys      4.791M (± 6.0%) i/s -     24.042M in   5.036991s
 
 Comparison:
-         Symbol Keys:  5469417.4 i/s
-         String Keys:  4447190.1 i/s - 1.23x  slower
+         Symbol Keys:  5280882.7 i/s
+         Frozen Keys:  4791128.0 i/s - same-ish: difference falls within error
+         String Keys:  4275730.5 i/s - 1.24x  slower
 ```
 
 
