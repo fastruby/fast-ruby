@@ -1,8 +1,8 @@
 require "benchmark/ips"
 require "ostruct"
 
- HASH = { field_1: 1, field_2: 2}
- OPENSTRUCT = OpenStruct.new(field_1: 1, field_2: 2)
+HASH = { field_1: 1, field_2: 2}
+OPENSTRUCT = OpenStruct.new(field_1: 1, field_2: 2)
 
 def fast
   [HASH[:field_1], HASH[:field_2]]

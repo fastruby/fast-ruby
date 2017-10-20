@@ -2,16 +2,16 @@ require 'benchmark/ips'
 
 SLUG = 'YourSubclassType'
 
-def slow
-  SLUG.sub(/Type\z/, '')
-end
-
 def fast
   SLUG.chomp('Type')
 end
 
+def slow
+  SLUG.sub(/Type\z/, '')
+end
+
 Benchmark.ips(quiet: true) do |x|
-  x.report('String#sub/regexp/  ') { slow }
   x.report("String#chomp'string'") { fast }
+  x.report('String#sub/regexp/  ') { slow }
   x.compare!
 end

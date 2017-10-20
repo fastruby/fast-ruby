@@ -11,19 +11,19 @@ end
 
 def slow
   ENUM.inject([]) do |accumulator, element|
-    accumulator << ORIGINAL_HASH.merge(bar: element)
+    accumulator << ORIGINAL_HASH.dup.merge!(bar: element)
   end
 end
 
-def slow_dup
+def slower
   ENUM.inject([]) do |accumulator, element|
-    accumulator << ORIGINAL_HASH.dup.merge!(bar: element)
+    accumulator << ORIGINAL_HASH.merge(bar: element)
   end
 end
 
 Benchmark.ips(quiet: true) do |x|
   x.report("{}#merge!(Hash) do end") { fast }
-  x.report("Hash#merge({})        ") { slow }
-  x.report("Hash#dup#merge!({})   ") { slow_dup }
+  x.report("Hash#dup#merge!({})   ") { slow }
+  x.report("Hash#merge({})        ") { slower }
   x.compare!
 end
