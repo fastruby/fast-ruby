@@ -14,9 +14,9 @@ def fast
   ARRAY.flat_map { |e| [e, e] }
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#map.flatten(1)') { slow_flatten_1 }
-  x.report('Array#map.flatten')    { slow_flatten   }
-  x.report('Array#flat_map')       { fast           }
+  x.report('Array#map.flatten   ') { slow_flatten   }
+  x.report('Array#flat_map      ') { fast           }
   x.compare!
 end

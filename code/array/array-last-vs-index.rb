@@ -10,7 +10,7 @@ def slow
   ARRAY.last
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#[-1]') { fast }
   x.report('Array#last') { slow }
   x.compare!

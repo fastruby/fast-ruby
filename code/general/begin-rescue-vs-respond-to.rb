@@ -16,7 +16,7 @@ def fast
   end
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('begin...rescue') { slow }
   x.report('respond_to?')    { fast }
   x.compare!

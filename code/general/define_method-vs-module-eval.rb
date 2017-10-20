@@ -37,7 +37,7 @@ def slow
 end
 
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("module_eval with string") { slow }
   x.report("define_method")           { fast }
   x.compare!

@@ -11,8 +11,8 @@ def fast
   ARRAY.map { |i| i }
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#each + push') { slow }
-  x.report('Array#map')         { fast }
+  x.report('Array#map        ') { fast }
   x.compare!
 end

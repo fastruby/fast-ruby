@@ -15,10 +15,10 @@ def slow
   ARRAY.inject { |a, i| a + i }
 end
 
-Benchmark.ips do |x|
-  x.report('inject symbol') { fastest }
+Benchmark.ips(quiet: true) do |x|
+  x.report('inject symbol ') { fastest }
   x.report('inject to_proc') { fast }
-  x.report('inject block')   { slow }
+  x.report('inject block  ') { slow }
 
   x.compare!
 end

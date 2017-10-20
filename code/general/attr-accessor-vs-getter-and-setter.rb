@@ -25,7 +25,7 @@ def fast
   user.first_name
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('getter_and_setter') { slow }
   x.report('attr_accessor')     { fast }
   x.compare!

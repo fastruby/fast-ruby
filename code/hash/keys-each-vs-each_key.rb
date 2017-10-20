@@ -47,8 +47,8 @@ def fast
   HASH.each_key(&:to_sym)
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Hash#keys.each') { slow }
-  x.report('Hash#each_key')  { fast }
+  x.report('Hash#each_key ') { fast }
   x.compare!
 end

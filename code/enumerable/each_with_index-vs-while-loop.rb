@@ -17,8 +17,8 @@ def slow
   end
 end
 
-Benchmark.ips do |x|
-  x.report("While Loop")      { fast }
+Benchmark.ips(quiet: true) do |x|
+  x.report("While Loop     ") { fast }
   x.report("each_with_index") { slow }
   x.compare!
 end

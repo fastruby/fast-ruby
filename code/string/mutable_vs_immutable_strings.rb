@@ -10,8 +10,8 @@ def with_feeze
   "To freeze or not to freeze".freeze
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("Without Freeze") { without_freeze }
-  x.report("With Freeze") { with_feeze }
+  x.report("With Freeze   ") { with_feeze }
   x.compare!
 end

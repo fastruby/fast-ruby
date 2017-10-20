@@ -1,6 +1,6 @@
 require 'benchmark/ips'
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#unshift') do
     array = []
     100_000.times { |i| array.unshift(i) }

@@ -15,8 +15,8 @@ def slow
   M.func(*M::ITEMS)
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("Function with single Array argument") { fast }
-  x.report("Function with splat arguments") { slow }
+  x.report("Function with splat arguments      ") { slow }
   x.compare!
 end

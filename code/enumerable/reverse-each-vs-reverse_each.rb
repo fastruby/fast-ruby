@@ -10,7 +10,7 @@ def fast
   ARRAY.reverse_each{|x| x}
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#reverse.each') { slow }
   x.report('Array#reverse_each') { fast }
   x.compare!

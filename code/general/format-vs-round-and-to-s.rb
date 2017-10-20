@@ -14,9 +14,9 @@ def slow
   '%.2f' % NUM
 end
 
-Benchmark.ips do |x|
-  x.report('Float#round') { fast }
+Benchmark.ips(quiet: true) do |x|
+  x.report('Float#round  ') { fast }
   x.report('Kernel#format') { avg }
-  x.report('String#%') { slow }
+  x.report('String#%     ') { slow }
   x.compare!
 end

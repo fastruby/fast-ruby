@@ -10,8 +10,8 @@ def fast
   SLUG.tr('-', ' ')
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('String#gsub') { slow }
-  x.report('String#tr')   { fast }
+  x.report('String#tr  ') { fast }
   x.compare!
 end

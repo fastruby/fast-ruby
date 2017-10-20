@@ -10,8 +10,8 @@ def fast
   RANGE.map(&:to_s)
 end
 
-Benchmark.ips do |x|
-  x.report('Block')          { slow }
+Benchmark.ips(quiet: true) do |x|
+  x.report('Block         ') { slow }
   x.report('Symbol#to_proc') { fast }
   x.compare!
 end

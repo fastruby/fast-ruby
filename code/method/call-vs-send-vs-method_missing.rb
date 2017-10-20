@@ -24,9 +24,9 @@ def slowest
   method.not_exist
 end
 
-Benchmark.ips do |x|
-  x.report("call")           { fastest }
-  x.report("send")           { slow    }
+Benchmark.ips(quiet: true) do |x|
+  x.report("call          ") { fastest }
+  x.report("send          ") { slow    }
   x.report("method_missing") { slowest }
   x.compare!
 end

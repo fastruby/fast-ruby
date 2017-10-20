@@ -10,8 +10,8 @@ def slow
   ARRAY.select { |x| (x % 10).zero? }.last
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Enumerable#reverse.detect') { fast }
-  x.report('Enumerable#select.last')    { slow }
+  x.report('Enumerable#select.last   ') { slow }
   x.compare!
 end

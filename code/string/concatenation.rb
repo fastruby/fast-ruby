@@ -24,11 +24,11 @@ def fast_interpolation
   "#{'foo'}#{'bar'}"
 end
 
-Benchmark.ips do |x|
-  x.report('String#+')                 { slow_plus }
-  x.report('String#concat')            { slow_concat }
-  x.report('String#append')            { slow_append }
-  x.report('"foo" "bar"')              { fast }
-  x.report('"#{\'foo\'}#{\'bar\'}"')   { fast_interpolation }
+Benchmark.ips(quiet: true) do |x|
+  x.report('String#+              ') { slow_plus }
+  x.report('String#concat         ') { slow_concat }
+  x.report('String#append         ') { slow_append }
+  x.report('"foo" "bar"           ') { fast }
+  x.report('"#{\'foo\'}#{\'bar\'}"') { fast_interpolation }
   x.compare!
 end

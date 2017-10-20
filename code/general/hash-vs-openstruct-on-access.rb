@@ -12,8 +12,8 @@ def slow
   [OPENSTRUCT.field_1, OPENSTRUCT.field_2]
 end
 
-Benchmark.ips do |x|
-  x.report("Hash")       { fast }
+Benchmark.ips(quiet: true) do |x|
+  x.report("Hash      ") { fast }
   x.report("OpenStruct") { slow }
   x.compare!
 end

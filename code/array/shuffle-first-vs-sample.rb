@@ -10,8 +10,8 @@ def fast
   ARRAY.sample
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Array#shuffle.first') { slow }
-  x.report('Array#sample')        { fast }
+  x.report('Array#sample.      ') { fast }
   x.compare!
 end

@@ -33,12 +33,12 @@ def slow_5
 end
 
 
-Benchmark.ips do |x|
-  x.report("String#['string']=")   { fast   }
-  x.report("String#sub!'string'")  { slow_1 }
+Benchmark.ips(quiet: true) do |x|
+  x.report("String#['string']=. ") { fast   }
+  x.report("String#sub!'string' ") { slow_1 }
   x.report("String#gsub!'string'") { slow_2 }
-  x.report("String#[/regexp/]=")   { slow_3 }
-  x.report("String#sub!/regexp/")  { slow_4 }
+  x.report("String#[/regexp/]=  ") { slow_3 }
+  x.report("String#sub!/regexp/ ") { slow_4 }
   x.report("String#gsub!/regexp/") { slow_5 }
   x.compare!
 end
