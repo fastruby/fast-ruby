@@ -10,13 +10,6 @@ class User
   def last_name=(value)
     @last_name = value
   end
-
-end
-
-def slow
-  user = User.new
-  user.last_name = 'John'
-  user.last_name
 end
 
 def fast
@@ -25,8 +18,14 @@ def fast
   user.first_name
 end
 
-Benchmark.ips do |x|
-  x.report('getter_and_setter') { slow }
+def slow
+  user = User.new
+  user.last_name = 'John'
+  user.last_name
+end
+
+Benchmark.ips(quiet: true) do |x|
   x.report('attr_accessor')     { fast }
+  x.report('getter_and_setter') { slow }
   x.compare!
 end

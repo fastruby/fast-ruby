@@ -12,7 +12,7 @@ def slow
   [1, 2, 3].map(&method(:do_something))
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("normal")  { fast }
   x.report("&method") { slow }
   x.compare!

@@ -10,8 +10,8 @@ def slow
   HASH.sort.to_h
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("sort_by + to_h") { fast }
-  x.report("sort + to_h")    { slow }
+  x.report("sort + to_h   ") { slow }
   x.compare!
 end

@@ -9,7 +9,7 @@ class MethodCall
   end
 end
 
-def fastest
+def fast
   method = MethodCall.new
   method.method
 end
@@ -19,14 +19,14 @@ def slow
   method.send(:method)
 end
 
-def slowest
+def slower
   method = MethodCall.new
   method.not_exist
 end
 
-Benchmark.ips do |x|
-  x.report("call")           { fastest }
-  x.report("send")           { slow    }
-  x.report("method_missing") { slowest }
+Benchmark.ips(quiet: true) do |x|
+  x.report("call          ") { fast   }
+  x.report("send          ") { slow   }
+  x.report("method_missing") { slower }
   x.compare!
 end

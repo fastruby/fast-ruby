@@ -24,10 +24,10 @@ EQL_USING_RANGE = STRINGS.each_index.map do |i|
   "STRINGS[#{i}][0...PREFIX.length].eql?(PREFIX)"
 end.join(";")
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report("String#start_with?", START_WITH)
-  x.report("String#[0, n] ==", EQL_USING_LENGTH)
-  x.report("String#[RANGE] ==", EQL_USING_RANGE_PREALLOC)
-  x.report("String#[0...n] ==", EQL_USING_RANGE)
+  x.report("String#[0, n] ==  ", EQL_USING_LENGTH)
+  x.report("String#[RANGE] == ", EQL_USING_RANGE_PREALLOC)
+  x.report("String#[0...n] == ", EQL_USING_RANGE)
   x.compare!
 end

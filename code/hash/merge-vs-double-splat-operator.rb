@@ -10,8 +10,8 @@ def slow
   { one: 1 }.merge(h2)
 end
 
-Benchmark.ips do |x|
+Benchmark.ips(quiet: true) do |x|
   x.report('Hash#**other') { fast }
-  x.report('Hash#merge') { slow }
+  x.report('Hash#merge  ') { slow }
   x.compare!
 end

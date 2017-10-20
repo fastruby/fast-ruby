@@ -2,16 +2,16 @@ require 'benchmark/ips'
 
 SLUG = 'writing-fast-ruby'
 
-def slow
-  SLUG.gsub('-', ' ')
-end
-
 def fast
   SLUG.tr('-', ' ')
 end
 
-Benchmark.ips do |x|
+def slow
+  SLUG.gsub('-', ' ')
+end
+
+Benchmark.ips(quiet: true) do |x|
+  x.report('String#tr  ') { fast }
   x.report('String#gsub') { slow }
-  x.report('String#tr')   { fast }
   x.compare!
 end

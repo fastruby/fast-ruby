@@ -17,8 +17,8 @@ def slow
   nil
 end
 
-Benchmark.ips do |x|
-  x.report('Parallel Assignment')   { fast }
+Benchmark.ips(quiet: true) do |x|
+  x.report('Parallel Assignment  ') { fast }
   x.report('Sequential Assignment') { slow }
   x.compare!
 end

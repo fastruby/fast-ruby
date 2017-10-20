@@ -1,34 +1,35 @@
 require 'benchmark/ips'
 
+# 1 object
+def faster
+  'foo' 'bar'
+end
+
+def fast
+  "#{'foo'}#{'bar'}"
+end
+
 # 2 + 1 = 3 object
-def slow_plus
+def slow
+  'foo' << 'bar'
+end
+
+# 2 + 1 = 3 object
+def slower
   'foo' + 'bar'
 end
 
 # 2 + 1 = 3 object
-def slow_concat
+def slowest
   'foo'.concat 'bar'
 end
 
-# 2 + 1 = 3 object
-def slow_append
-  'foo' << 'bar'
-end
 
-# 1 object
-def fast
-  'foo' 'bar'
-end
-
-def fast_interpolation
-  "#{'foo'}#{'bar'}"
-end
-
-Benchmark.ips do |x|
-  x.report('String#+')                 { slow_plus }
-  x.report('String#concat')            { slow_concat }
-  x.report('String#append')            { slow_append }
-  x.report('"foo" "bar"')              { fast }
-  x.report('"#{\'foo\'}#{\'bar\'}"')   { fast_interpolation }
+Benchmark.ips(quiet: true) do |x|
+  x.report('"foo" "bar"           ') { faster  }
+  x.report('"#{\'foo\'}#{\'bar\'}"') { fast    }
+  x.report('String#append         ') { slow    }
+  x.report('String#+              ') { slower  }
+  x.report('String#concat         ') { slowest }
   x.compare!
 end

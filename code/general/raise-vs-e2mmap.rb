@@ -60,14 +60,14 @@ def fast_user_defined
   end
 end
 
-Benchmark.ips do |x|
-  x.report('Ruby exception: E2MM#Raise')   { slow_ruby_defined }
+Benchmark.ips(quiet: true) do |x|
   x.report('Ruby exception: Kernel#raise') { fast_ruby_defined }
+  x.report('Ruby exception: E2MM#Raise  ') { slow_ruby_defined }
   x.compare!
 end
 
-Benchmark.ips do |x|
-  x.report('Custom exception: E2MM#Raise')   { slow_user_defined }
+Benchmark.ips(quiet: true) do |x|
   x.report('Custom exception: Kernel#raise') { fast_user_defined }
+  x.report('Custom exception: E2MM#Raise  ') { slow_user_defined }
   x.compare!
 end
