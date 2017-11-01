@@ -1119,6 +1119,22 @@ String#chomp'string':  2803443.5 i/s
   String#sub/regexp/:   660508.7 i/s - 4.24x slower
 ```
 
+##### `String#to_sym` vs `:string` [code](code/string/to_sym-vs-colon.rb)
+```
+$ ruby -v code/string/to_sym-vs-colon.rb
+ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
+Warming up --------------------------------------
+  String#to_sym   246.054k i/100ms
+        :string   303.596k i/100ms
+Calculating -------------------------------------
+  String#to_sym      6.344M (± 4.9%) i/s -     31.741M in   5.016660s
+        :string     12.570M (± 5.6%) i/s -     62.844M in   5.017193s
+
+Comparison:
+        :string: 12570219.5 i/s
+  String#to_sym:  6343636.7 i/s - 1.98x  slower
+```
+
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
 > https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
