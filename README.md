@@ -985,25 +985,30 @@ Comparison:
 > This is only useful for cases where you are checking <br>
 > for a match and not using the resultant match object. <br>
 > :warning: <br>
-> `Regexp#===` is also faster than `String#match` but you need to switch the order of arguments.
+> `Regexp#===` is also faster than `String#match` but you need to switch the order of arguments.<br>
+> :warning: <br>
+> `String#include?` This is only useful for cases where you are checking substring inclusion
 
 ```
-$ ruby -v code/string/===-vs-=~-vs-match.rb.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+$ ruby -v code/string/===-vs-=~-vs-match.rb
+ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
 
+Warming up --------------------------------------
+     String#include?   238.465k i/100ms
+           String#=~   161.826k i/100ms
+          Regexp#===   147.986k i/100ms
+        String#match   136.749k i/100ms
 Calculating -------------------------------------
-           String#=~    98.184k i/100ms
-          Regexp#===    92.382k i/100ms
-        String#match    83.601k i/100ms
--------------------------------------------------
-           String#=~      2.442M (± 7.6%) i/s -     12.175M
-          Regexp#===      2.259M (± 7.9%) i/s -     11.271M
-        String#match      1.840M (± 7.3%) i/s -      9.196M
+     String#include?      5.961M (± 8.5%) i/s -     29.808M in   5.035615s
+           String#=~      2.843M (± 8.1%) i/s -     14.241M in   5.040590s
+          Regexp#===      2.689M (± 7.3%) i/s -     13.467M in   5.032779s
+        String#match      2.371M (± 5.2%) i/s -     11.897M in   5.031192s
 
 Comparison:
-           String#=~:  2442335.1 i/s
-          Regexp#===:  2259277.3 i/s - 1.08x slower
-        String#match:  1839815.4 i/s - 1.33x slower
+     String#include?:  5960785.4 i/s
+           String#=~:  2843384.2 i/s - 2.10x  slower
+          Regexp#===:  2689290.6 i/s - 2.22x  slower
+        String#match:  2370791.0 i/s - 2.51x  slower
 ```
 
 See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) and [#62](https://github.com/JuanitoFatas/fast-ruby/pull/62) for discussions.

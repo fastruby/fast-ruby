@@ -1,6 +1,10 @@
 require "benchmark/ips"
 
 def fastest
+  "foo".freeze.include? 'boo'
+end
+
+def faster
   "foo".freeze =~ /boo/
 end
 
@@ -13,7 +17,8 @@ def slow
 end
 
 Benchmark.ips do |x|
-  x.report("String#=~") { fastest }
+  x.report("String#include?") { fastest }
+  x.report("String#=~") { faster }
   x.report("Regexp#===") { fast }
   x.report("String#match") { slow }
   x.compare!
