@@ -76,6 +76,25 @@ Comparison:
 Sequential Assignment:  6320425.6 i/s - 1.22x slower
 ```
 
+##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
+
+> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
+
+```
+$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+Calculating -------------------------------------
+   getter_and_setter    61.240k i/100ms
+       attr_accessor    66.535k i/100ms
+-------------------------------------------------
+   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
+       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
+
+Comparison:
+       attr_accessor:  1865408.4 i/s
+   getter_and_setter:  1660021.9 i/s - 1.12x slower
+```
+
 ##### `begin...rescue` vs `respond_to?` for Control Flow [code](code/general/begin-rescue-vs-respond-to.rb)
 
 ```
@@ -1117,25 +1136,6 @@ String#chomp'string'      2.803M (± 8.0%) i/s -     13.943M
 Comparison:
 String#chomp'string':  2803443.5 i/s
   String#sub/regexp/:   660508.7 i/s - 4.24x slower
-```
-
-##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
-
-> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
-
-```
-$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-Calculating -------------------------------------
-   getter_and_setter    61.240k i/100ms
-       attr_accessor    66.535k i/100ms
--------------------------------------------------
-   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
-       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
-
-Comparison:
-       attr_accessor:  1865408.4 i/s
-   getter_and_setter:  1660021.9 i/s - 1.12x slower
 ```
 
 
