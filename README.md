@@ -1138,6 +1138,24 @@ String#chomp'string':  2803443.5 i/s
   String#sub/regexp/:   660508.7 i/s - 4.24x slower
 ```
 
+##### Remove extra spaces (or other contiguous characters) [code](code/string/remove-extra-spaces-or-other-chars.rb)
+
+The code is tested against contiguous spaces but should work for other chars too.
+
+```
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
+Warming up --------------------------------------
+ String#gsub/regex+/     1.644k i/100ms
+      String#squeeze    24.681k i/100ms
+Calculating -------------------------------------
+ String#gsub/regex+/     14.668k (± 5.1%) i/s -     73.980k in   5.056887s
+      String#squeeze    372.910k (± 8.4%) i/s -      1.851M in   5.011881s
+
+Comparison:
+      String#squeeze:   372910.3 i/s
+ String#gsub/regex+/:    14668.1 i/s - 25.42x  slower
+```
+
 
 ### Range
 
