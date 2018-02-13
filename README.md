@@ -188,6 +188,23 @@ Comparison:
          Kernel loop:        0.2 i/s - 2.41x slower
 ```
 
+##### `ancestors.include?` vs `<=` [code](code/general/inheritance-check.rb)
+
+```
+$ ruby -vW0 code/general/inheritance-check.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
+Warming up --------------------------------------
+  less than or equal    66.992k i/100ms
+  ancestors.include?    16.943k i/100ms
+Calculating -------------------------------------
+  less than or equal      1.250M (± 6.4%) i/s -      6.230M in   5.006896s
+  ancestors.include?    192.603k (± 4.8%) i/s -    965.751k in   5.025917s
+
+Comparison:
+  less than or equal:  1249606.0 i/s
+  ancestors.include?:   192602.9 i/s - 6.49x  slower
+```
+
 #### Method Invocation
 
 ##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
