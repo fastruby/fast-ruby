@@ -1143,6 +1143,7 @@ String#chomp'string':  2803443.5 i/s
 The code is tested against contiguous spaces but should work for other chars too.
 
 ```
+$ ruby -v code/string/remove-extra-spaces-or-other-chars.rb
 ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
 Warming up --------------------------------------
  String#gsub/regex+/     1.644k i/100ms
