@@ -1155,6 +1155,25 @@ String#chomp'string':  2803443.5 i/s
   String#sub/regexp/:   660508.7 i/s - 4.24x slower
 ```
 
+##### `String#unpack1` vs `String#unpack[0]` [code](code/string/unpack1-vs-unpack[0].rb)
+
+[Ruby 2.4.0 introduced `unpack1`](https://bugs.ruby-lang.org/issues/12752) to skip creating the intermediate array object.
+
+```
+$ ruby -v code/string/unpack1-vs-unpack\[0\].rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+      String#unpack1   224.291k i/100ms
+    String#unpack[0]   201.870k i/100ms
+Calculating -------------------------------------
+      String#unpack1      4.864M (± 4.2%) i/s -     24.448M in   5.035203s
+    String#unpack[0]      3.778M (± 4.0%) i/s -     18.976M in   5.031253s
+
+Comparison:
+      String#unpack1:  4864467.2 i/s
+    String#unpack[0]:  3777815.6 i/s - 1.29x  slower
+```
+
 ##### Remove extra spaces (or other contiguous characters) [code](code/string/remove-extra-spaces-or-other-chars.rb)
 
 The code is tested against contiguous spaces but should work for other chars too.
