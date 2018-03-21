@@ -46,10 +46,12 @@ Idioms
 
 - [General](#general)
 - [Array](#array)
+- [Date](#date)
 - [Enumerable](#enumerable)
 - [Hash](#hash)
 - [Proc & Block](#proc--block)
 - [String](#string)
+- [Time](#time)
 - [Range](#range)
 
 ### General
@@ -629,6 +631,27 @@ Comparison:
         inject block:    14063.1 i/s - 1.35x slower
 ```
 
+### Date
+
+##### `Date.iso8601` vs `Date.parse` [code](code/date/iso8601-vs-parse.rb)
+
+When expecting well-formatted data from e.g. an API, `iso8601` is faster and will raise an `ArgumentError` on malformed input.
+
+```
+$ ruby -v code/date/iso8601-vs-parse.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        Date.iso8601    28.880k i/100ms
+          Date.parse    15.805k i/100ms
+Calculating -------------------------------------
+        Date.iso8601    328.035k (± 4.7%) i/s -      1.646M in   5.029287s
+          Date.parse    175.546k (± 3.8%) i/s -    885.080k in   5.049444s
+
+Comparison:
+        Date.iso8601:   328035.3 i/s
+          Date.parse:   175545.9 i/s - 1.87x  slower
+```
+
 ### Hash
 
 ##### `Hash#[]` vs `Hash#fetch` [code](code/hash/bracket-vs-fetch.rb)
@@ -1193,6 +1216,26 @@ Comparison:
  String#gsub/regex+/:    14668.1 i/s - 25.42x  slower
 ```
 
+### Time
+
+##### `Time.iso8601` vs `Time.parse` [code](code/time/iso8601-vs-parse.rb)
+
+When expecting well-formatted data from e.g. an API, `iso8601` is faster and will raise an `ArgumentError` on malformed input.
+
+```
+$ ruby -v code/time/iso8601-vs-parse.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        Time.iso8601    10.234k i/100ms
+          Time.parse     4.228k i/100ms
+Calculating -------------------------------------
+        Time.iso8601    114.485k (± 3.5%) i/s -    573.104k in   5.012008s
+          Time.parse     43.711k (± 4.1%) i/s -    219.856k in   5.038349s
+
+Comparison:
+        Time.iso8601:   114485.1 i/s
+          Time.parse:    43710.9 i/s - 2.62x  slower
+```
 
 ### Range
 
