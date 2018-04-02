@@ -930,6 +930,24 @@ Comparison:
 
 ### String
 
+##### `String#dup` vs `String#+` [code](code/string/dup-vs-unary-plus.rb)
+
+Note that `String.new` is not the same as the options compared, since it is
+always `ASCII-8BIT` encoded instead of the script encoding (usually `UTF-8`).
+
+```
+$ ruby -v code/string/dup-vs-unary-plus.rb
+  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+
+  Calculating -------------------------------------
+             String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
+            String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
+
+  Comparison:
+             String#+@:  7697108.3 i/s
+            String#dup:  3566485.7 i/s - 2.16x  slower
+```
+
 ##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
 
 ```
