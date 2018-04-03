@@ -1182,23 +1182,42 @@ String#gsub!'string':   481183.5 i/s - 2.52x slower
 String#gsub!/regexp/:   342003.8 i/s - 3.55x slower
 ```
 
-##### `String#sub` vs `String#chomp` [code](code/string/sub-vs-chomp.rb)
+##### `String#sub` vs `String#delete_prefix` [code](code/string/sub-vs-delete_prefix.rb)
 
+[Ruby 2.5 introduced](https://bugs.ruby-lang.org/issues/12694) `String#delete_prefix`.
+Note that this can only be used for removing characters from the start of a string.
+
+```
+$ ruby -v code/string/sub-vs-delete_prefix.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-darwin17]
+Calculating -------------------------------------
+String#delete_prefix      4.112M (± 1.8%) i/s -     20.707M in   5.037928s
+          String#sub    814.725k (± 1.4%) i/s -      4.088M in   5.018962s
+
+Comparison:
+String#delete_prefix:  4111531.1 i/s
+          String#sub:   814725.3 i/s - 5.05x  slower
+```
+
+##### `String#sub` vs `String#chomp` vs `String#delete_suffix` [code](code/string/sub-vs-chomp-vs-delete_suffix.rb)
+
+[Ruby 2.5 introduced](https://bugs.ruby-lang.org/issues/13665) `String#delete_suffix`
+as a counterpart to `delete_prefix`. The performance gain over `chomp` is
+small and during some runs the difference falls within the error margin.
 Note that this can only be used for removing characters from the end of a string.
 
 ```
-$ ruby -v code/string/sub-vs-chomp.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin13]
+$ ruby -v code/string/sub-vs-chomp-vs-delete_suffix.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-darwin17]
 Calculating -------------------------------------
-  String#sub/regexp/    42.816k i/100ms
-String#chomp'string'    94.851k i/100ms
--------------------------------------------------
-  String#sub/regexp/    660.509k (± 8.0%) i/s -      3.297M
-String#chomp'string'      2.803M (± 8.0%) i/s -     13.943M
+        String#sub    838.415k (± 1.7%) i/s -      4.214M in   5.027412s
+      String#chomp      3.951M (± 2.1%) i/s -     19.813M in   5.017089s
+String#delete_suffix    4.202M (± 2.1%) i/s -     21.075M in   5.017429s
 
 Comparison:
-String#chomp'string':  2803443.5 i/s
-  String#sub/regexp/:   660508.7 i/s - 4.24x slower
+String#delete_suffix:  4202201.7 i/s
+        String#chomp:  3950921.9 i/s - 1.06x  slower
+          String#sub:   838415.3 i/s - 5.01x  slower
 ```
 
 ##### `String#unpack1` vs `String#unpack[0]` [code](code/string/unpack1-vs-unpack[0].rb)
