@@ -2,7 +2,12 @@ sudo: false
 cache: bundler
 bundler_args: --retry=3 --jobs=3
 language: ruby
+before_install:
+  # https://github.com/travis-ci/travis-ci/issues/8978#issuecomment-354036443
+  - gem update --system
+  - gem install bundler
 rvm:
+  - 2.5.1
   - 2.4.3
   - 2.3.0
   - 2.1.8
