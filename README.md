@@ -552,6 +552,30 @@ Comparison:
   Array#reverse.each:   190729.1 i/s - 1.13x slower
 ```
 
+##### `Enumerable#sort_by.first` vs `Enumerable#min_by` [code](code/enumerable/sort_by-first-vs-min_by.rb)
+`Enumerable#sort_by` performs a sort of the enumerable and allocates a
+new array the size of the enumerable.  `Enumerable#min_by` doesn't
+perform a sort or allocate an array the size of the enumerable.
+Similar comparisons hold for `Enumerable#sort_by.last` vs `
+`Enumerable#max_by`, `Enumerable#sort.first` vs `Enumerable#min`, and
+`Enumerable#sort.last` vs `Enumerable#max`.
+
+```
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+Warming up --------------------------------------
+   Enumerable#min_by    15.170k i/100ms
+Enumerable#sort_by...first
+                        10.413k i/100ms
+Calculating -------------------------------------
+   Enumerable#min_by    157.877k (± 0.9%) i/s -    804.010k in   5.093048s
+Enumerable#sort_by...first
+                        106.831k (± 1.3%) i/s -    541.476k in   5.069403s
+
+Comparison:
+   Enumerable#min_by:   157877.0 i/s
+Enumerable#sort_by...first:   106831.1 i/s - 1.48x  slower
+```
+
 ##### `Enumerable#detect` vs `Enumerable#select.first` [code](code/enumerable/select-first-vs-detect.rb)
 
 ```
