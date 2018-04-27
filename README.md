@@ -805,6 +805,58 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
+#### `Hash#key?` instead of `Hash#keys.include?` and `Hash#value?` instead of `Hash#values.include?` [code](code/hash/keys-include-vs-key.rb)
+
+> `Hash#keys.include?` allocates an array of keys and performs an O(n) search; <br>
+> `Hash#key?` performs an O(1) hash lookup without allocating a new array. <br>
+> `Hash#values.include?` allocates an array of values and performs an O(n) search; <br>
+> `Hash#value?` performs an O(n) search without allocating a new array.
+
+```
+$ ruby -v code/hash/keys-include-vs-key.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+
+Calculating -------------------------------------
+Hash#key? (key is present)
+                          5.809M (± 2.1%) i/s -     29.038M in   5.000966s
+Hash#keys.include? (key is present)
+                          8.914k (± 3.9%) i/s -     44.564k in   5.007900s
+
+Comparison:
+Hash#key? (key is present):  5809154.8 i/s
+Hash#keys.include? (key is present):     8913.6 i/s - 651.72x  slower
+
+Calculating -------------------------------------
+Hash#key? (key is absent)
+                          7.691M (± 1.9%) i/s -     38.520M in   5.010779s
+Hash#keys.include? (key is absent)
+                          2.991k (± 2.1%) i/s -     15.100k in   5.051475s
+
+Comparison:
+Hash#key? (key is absent):  7690551.0 i/s
+Hash#keys.include? (key is absent):     2990.5 i/s - 2571.62x  slower
+
+Calculating -------------------------------------
+Hash#value? (value is present)
+                         14.780k (± 0.9%) i/s -     74.970k in   5.072806s
+Hash#values.include? (value is present)
+                         14.019k (± 4.4%) i/s -     70.533k in   5.041592s
+
+Comparison:
+Hash#value? (value is present):    14780.1 i/s
+Hash#values.include? (value is present):    14019.0 i/s - 1.05x  slower
+
+Calculating -------------------------------------
+Hash#value? (value is absent)
+                          2.640k (± 2.1%) i/s -     13.200k in   5.002081s
+Hash#values.include? (value is absent)
+                          2.930k (± 6.1%) i/s -     14.994k in   5.144089s
+
+Comparison:
+Hash#values.include? (value is absent):     2930.0 i/s
+Hash#value? (value is absent):     2640.1 i/s - 1.11x  slower
+```
+
 ##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
 
 ```
@@ -1020,7 +1072,7 @@ Comparison:
 ##### `String#match` vs `String.match?` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-end_with.rb)
 
 The regular expression approaches become slower as the tested string becomes
-longer. For short strings, `String#match?` performs similarly to 
+longer. For short strings, `String#match?` performs similarly to
 `String#start_with?`/`String#end_with?`.
 
 > :warning: <br>
@@ -1040,7 +1092,7 @@ $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
              String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
          String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
     String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
-  
+
   Comparison:
     String#start_with?:  6314182.0 i/s
          String#match?:  5138115.1 i/s - 1.23x  slower
@@ -1055,7 +1107,7 @@ $ ruby -v code/string/end-string-checking-match-vs-end_with.rb
              String#=~    918.101k (± 6.0%) i/s -      4.650M in   5.084079s
          String#match?      3.009M (± 6.8%) i/s -     14.991M in   5.005691s
       String#end_with?      4.548M (± 9.3%) i/s -     22.684M in   5.034115s
-  
+
   Comparison:
       String#end_with?:  4547871.0 i/s
          String#match?:  3008554.5 i/s - 1.51x  slower
