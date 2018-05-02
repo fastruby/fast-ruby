@@ -805,25 +805,21 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
-#### `Hash#key?` vs. `Hash#[]` vs. `Hash#keys.include?` [code](code/hash/keys-include-vs-\[\]-vs-key.rb)
+#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-\[\]-vs-key.rb)
 
 > `Hash#keys.include?` allocates an array of keys and performs an O(n) search; <br>
-> `Hash#key?` performs an O(1) hash lookup without allocating a new array; <br>
-> `Hash#[]` performs an O(1) hash lookup as well.
+> `Hash#key?` performs an O(1) hash lookup without allocating a new array.
 
 ```
-$ ruby -v code/hash/keys-include-vs-\[\]-vs-key.rb
-ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+$ ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
 
 Calculating -------------------------------------
-  Hash#keys.include?      8.293k (± 6.1%) i/s -     41.964k in   5.083215s
-             Hash#[]      6.412M (± 3.1%) i/s -     32.160M in   5.020295s
-           Hash#key?      6.616M (± 5.0%) i/s -     33.178M in   5.030955s
+  Hash#keys.include?      8.612k (± 2.5%) i/s -     43.248k in   5.024749s
+           Hash#key?      6.366M (± 5.5%) i/s -     31.715M in   5.002276s
 
 Comparison:
-           Hash#key?:  6615589.2 i/s
-             Hash#[]:  6412217.3 i/s - same-ish: difference falls within error
-  Hash#keys.include?:     8293.2 i/s - 797.71x  slower
+           Hash#key?:  6365855.5 i/s
+  Hash#keys.include?:     8612.4 i/s - 739.15x  slower
 ```
 
 ##### `Hash#value?` instead of `Hash#values.include?` [code](code/hash/values-include-vs-value.rb)
