@@ -1303,6 +1303,27 @@ Comparison:
           Time.parse:    43710.9 i/s - 2.62x  slower
 ```
 
+##### `Time#+` vs `Time.at(Time#to_f+)` [code](code/time/plus-vs-to_f-plus.rb)
+
+This covers both high and low precision since high precision operations are more expensive. 
+Time#+ is slow because it calls Float#to_r and does a bunch of Bignum operations to avoid overflowing if the offset is ever insanely high.
+
+```
+$ ruby -v code/time/plus-vs-to_f-plus.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux]
+Calculating -------------------------------------
+    Time#to_f+ (low)      1.485k (± 1.5%) i/s -      7.548k in   5.084706s
+        Time#+ (low)    854.005  (± 4.2%) i/s -      4.300k in   5.046595s
+   Time#to_f+ (high)      1.051k (± 1.4%) i/s -      5.355k in   5.094035s
+       Time#+ (high)    836.424  (± 7.7%) i/s -      4.165k in   5.021368s
+
+Comparison:
+    Time#to_f+ (low):     1484.8 i/s
+   Time#to_f+ (high):     1051.4 i/s - 1.41x  slower
+        Time#+ (low):      854.0 i/s - 1.74x  slower (3.11x on i386-mingw32)
+       Time#+ (high):      836.4 i/s - 1.78x  slower (3.02x on i386-mingw32)
+```
+
 ### Range
 
 #### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
