@@ -556,7 +556,7 @@ Comparison:
 `Enumerable#sort_by` performs a sort of the enumerable and allocates a
 new array the size of the enumerable.  `Enumerable#min_by` doesn't
 perform a sort or allocate an array the size of the enumerable.
-Similar comparisons hold for `Enumerable#sort_by.last` vs `
+Similar comparisons hold for `Enumerable#sort_by.last` vs
 `Enumerable#max_by`, `Enumerable#sort.first` vs `Enumerable#min`, and
 `Enumerable#sort.last` vs `Enumerable#max`.
 
