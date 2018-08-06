@@ -17,8 +17,8 @@ end
 
 Benchmark.ips do |x|
   x.report('Array#push') { fast }
-  x.report('Array#insest with -1') { slower }
-  x.report('Array#insest with last index') { slowest }
+  x.report('Array#insert with -1') { slower }
+  x.report('Array#insert with last index') { slowest }
 
   x.compare!
 end

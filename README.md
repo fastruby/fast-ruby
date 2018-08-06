@@ -452,23 +452,23 @@ Comparison:
 ##### `Array#insert` vs `Array#push` [code](code/array/insert-vs-push.rb)
 
 ```
-$ ruby -v code/array/insert-vs-unshift.rb
+$ ruby -v code/array/insert-vs-push.rb
 ruby 2.3.7p456 (2018-03-28 revision 63024) [universal.x86_64-darwin17]
 Warming up --------------------------------------
           Array#push    11.000  i/100ms
-Array#insest with -1     7.000  i/100ms
-Array#insest with last index
+Array#insert with -1     7.000  i/100ms
+Array#insert with last index
                          5.000  i/100ms
 Calculating -------------------------------------
           Array#push    119.899  (± 1.7%) i/s -    605.000  in   5.047341s
-Array#insest with -1     70.499  (± 1.4%) i/s -    357.000  in   5.065172s
-Array#insest with last index
+Array#insert with -1     70.499  (± 1.4%) i/s -    357.000  in   5.065172s
+Array#insert with last index
                          54.794  (± 1.8%) i/s -    275.000  in   5.019497s
 
 Comparison:
           Array#push:      119.9 i/s
-Array#insest with -1:       70.5 i/s - 1.70x  slower
-Array#insest with last index:       54.8 i/s - 2.19x  slower
+Array#insert with -1:       70.5 i/s - 1.70x  slower
+Array#insert with last index:       54.8 i/s - 2.19x  slower
 ```
 
 
