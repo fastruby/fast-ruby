@@ -963,29 +963,59 @@ Comparison:
 
 ##### `Proc#call` and block arguments vs `yield`[code](code/proc-and-block/proc-call-vs-yield.rb)
 
-In MRI Ruby, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
+In MRI Ruby before 2.5, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
+ruby 2.4.4p296 (2018-03-28 revision 63013) [x86_64-darwin18]
 Calculating -------------------------------------
-          block.call    41.978k i/100ms
-       block + yield    42.674k i/100ms
-      block argument    41.722k i/100ms
-               yield    62.681k i/100ms
--------------------------------------------------
-          block.call    842.581k (±12.5%) i/s -      4.114M
-       block + yield    941.468k (±11.7%) i/s -      4.651M
-      block argument      1.043M (± 7.1%) i/s -      5.215M
-               yield      3.828M (±11.3%) i/s -     18.930M
+        block.call      1.967M (± 2.0%) i/s -      9.871M in   5.019328s
+     block + yield      2.147M (± 3.3%) i/s -     10.814M in   5.044319s
+      unused block      2.265M (± 1.9%) i/s -     11.333M in   5.004522s
+             yield     10.436M (± 1.6%) i/s -     52.260M in   5.008851s
 
 Comparison:
-               yield:  3828436.1 i/s
-      block argument:  1042509.6 i/s - 3.67x slower
-       block + yield:   941467.7 i/s - 4.07x slower
-          block.call:   842581.2 i/s - 4.54x slower
+             yield: 10436414.0 i/s
+      unused block:  2265399.0 i/s - 4.61x  slower
+     block + yield:  2146619.0 i/s - 4.86x  slower
+        block.call:  1967300.9 i/s - 5.30x  slower
 ```
 
+MRI Ruby 2.5 implements [Lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045):
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call      1.970M (± 2.3%) i/s -      9.863M in   5.009599s
+     block + yield      9.075M (± 2.6%) i/s -     45.510M in   5.018369s
+      unused block     11.176M (± 2.7%) i/s -     55.977M in   5.012741s
+             yield     10.588M (± 1.9%) i/s -     53.108M in   5.017755s
+
+Comparison:
+      unused block: 11176355.0 i/s
+             yield: 10588342.3 i/s - 1.06x  slower
+     block + yield:  9075355.5 i/s - 1.23x  slower
+        block.call:  1969834.0 i/s - 5.67x  slower
+```
+
+MRI Ruby 2.6 implements [an optimization for block.call where a block parameter is passed](https://bugs.ruby-lang.org/issues/14330):
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.6.1p33 (2019-01-30 revision 66950) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call     10.587M (± 1.2%) i/s -     52.969M in   5.003808s
+     block + yield     12.630M (± 0.3%) i/s -     63.415M in   5.020910s
+      unused block     15.981M (± 0.8%) i/s -     80.255M in   5.022305s
+             yield     15.352M (± 3.1%) i/s -     76.816M in   5.009404s
+
+Comparison:
+      unused block: 15980789.4 i/s
+             yield: 15351931.0 i/s - 1.04x  slower
+     block + yield: 12630378.1 i/s - 1.27x  slower
+        block.call: 10587315.1 i/s - 1.51x  slower
+```
 
 ### String
 
