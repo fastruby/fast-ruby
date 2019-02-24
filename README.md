@@ -937,6 +937,24 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
+##### `Hash#slice` vs `Hash#select{ includes? }` [code](code/hash/slice-vs-select-include.rb)
+
+Since ruby 2.5, Hash comes with a `slice` method to select hash members by keys.
+
+```
+$ ruby code/hash/slice-vs-select-include.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux]
+
+Calculating -------------------------------------
+          Hash#slice      3.124M (± 0.6%) i/s -     15.675M in   5.017984s
+Hash#select_if_includes
+                          1.342M (± 1.1%) i/s -      6.716M in   5.003901s
+
+Comparison:
+          Hash#slice:  3123803.2 i/s
+Hash#select_if_includes:  1342270.6 i/s - 2.33x  slower
+```
+
 ### Proc & Block
 
 ##### Block vs `Symbol#to_proc` [code](code/proc-and-block/block-vs-to_proc.rb)
