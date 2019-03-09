@@ -937,23 +937,32 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
-##### `Hash#slice` vs `Hash#select{ includes? }` [code](code/hash/slice-vs-select-include.rb)
+##### Native `Hash#slice` vs other slice implementations before native
+[code](code/hash/slice-native-vs-before-native.rb)
 
 Since ruby 2.5, Hash comes with a `slice` method to select hash members by keys.
 
 ```
-$ ruby code/hash/slice-vs-select-include.rb
+$ ruby -v code/hash/slice-native-vs-before-native.rb
 ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux]
-
+Warming up --------------------------------------
+Hash#native-slice      178.077k i/100ms
+Array#each             124.311k i/100ms
+Array#each_w/_object   110.818k i/100ms
+Hash#select-include     66.972k i/100ms
 Calculating -------------------------------------
-          Hash#slice      3.124M (± 0.6%) i/s -     15.675M in   5.017984s
-Hash#select_if_includes
-                          1.342M (± 1.1%) i/s -      6.716M in   5.003901s
+Hash#native-slice         2.540M (± 1.5%) i/s -     12.822M in   5.049955s
+Array#each                1.614M (± 1.0%) i/s -      8.080M in   5.007925s
+Array#each_w/_object      1.353M (± 2.6%) i/s -      6.760M in   5.000441s
+Hash#select-include     760.944k (± 0.9%) i/s -      3.817M in   5.017123s
 
 Comparison:
-          Hash#slice:  3123803.2 i/s
-Hash#select_if_includes:  1342270.6 i/s - 2.33x  slower
+Hash#native-slice   :  2539515.5 i/s
+Array#each          :  1613665.5 i/s - 1.57x  slower
+Array#each_w/_object:  1352851.8 i/s - 1.88x  slower
+Hash#select-include :   760944.2 i/s - 3.34x  slower
 ```
+
 
 ### Proc & Block
 
