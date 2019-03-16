@@ -207,7 +207,7 @@ Comparison:
   ancestors.include?:   192602.9 i/s - 6.49x  slower
 ```
 
-#### Method Invocation
+### Method Invocation
 
 ##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
 
@@ -309,8 +309,7 @@ Comparison:
 ##### Kernel#format vs Float#round().to_s [code](code/general/format-vs-round-and-to-s.rb)
 
 ```
-$ ruby -v code/general/format-vs-round-and-t
-o-s.rb
+$ ruby -v code/general/format-vs-round-and-to-s.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
          Float#round   106.645k i/100ms
@@ -561,6 +560,7 @@ Similar comparisons hold for `Enumerable#sort_by.last` vs
 `Enumerable#sort.last` vs `Enumerable#max`.
 
 ```
+$ ruby -v code/enumerable/sort_by-first-vs-min_by.rb
 ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
 Warming up --------------------------------------
    Enumerable#min_by    15.170k i/100ms
@@ -638,7 +638,7 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
 Of note, `to_proc` for 1.8.7 is considerable slower than the block format
 
 ```
-$ ruby -v code/enumerable/inject-sum-vs-block.rb
+$ ruby -v code/enumerable/inject-symbol-vs-block.rb
 ruby 2.2.4p230 (2015-12-16 revision 53155) [x86_64-darwin14]
 Warming up --------------------------------------
        inject symbol     1.893k i/100ms
@@ -805,13 +805,14 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
-#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-\[\]-vs-key.rb)
+#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-key.rb)
 
 > `Hash#keys.include?` allocates an array of keys and performs an O(n) search; <br>
 > `Hash#key?` performs an O(1) hash lookup without allocating a new array.
 
 ```
-$ ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+$ ruby -v code/hash/keys-include-vs-key.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
 
 Calculating -------------------------------------
   Hash#keys.include?      8.612k (± 2.5%) i/s -     43.248k in   5.024749s
@@ -861,7 +862,7 @@ Comparison:
 ##### `Hash#merge` vs `Hash#**other` [code](code/hash/merge-vs-double-splat-operator.rb)
 
 ```
-$ ruby -v merge-vs-double-splat-operator.rb
+$ ruby -v code/hash/merge-vs-double-splat-operator.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
         Hash#**other    64.624k i/100ms
@@ -937,8 +938,7 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
-##### Native `Hash#slice` vs other slice implementations before native
-[code](code/hash/slice-native-vs-before-native.rb)
+##### Native `Hash#slice` vs other slice implementations before native [code](code/hash/slice-native-vs-before-native.rb)
 
 Since ruby 2.5, Hash comes with a `slice` method to select hash members by keys.
 
@@ -1053,15 +1053,15 @@ always `ASCII-8BIT` encoded instead of the script encoding (usually `UTF-8`).
 
 ```
 $ ruby -v code/string/dup-vs-unary-plus.rb
-  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
-  Calculating -------------------------------------
-             String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
-            String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
+Calculating -------------------------------------
+           String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
+          String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
 
-  Comparison:
-             String#+@:  7697108.3 i/s
-            String#dup:  3566485.7 i/s - 2.16x  slower
+Comparison:
+           String#+@:  7697108.3 i/s
+          String#dup:  3566485.7 i/s - 2.16x  slower
 ```
 
 ##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
@@ -1126,17 +1126,17 @@ longer. For short strings, `String#match?` performs similarly to
 
 ```
 $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
-  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
-  Calculating -------------------------------------
-             String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
-         String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
-    String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
+Calculating -------------------------------------
+           String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
+       String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
+  String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
 
-  Comparison:
-    String#start_with?:  6314182.0 i/s
-         String#match?:  5138115.1 i/s - 1.23x  slower
-             String#=~:  1088461.5 i/s - 5.80x  slower
+Comparison:
+  String#start_with?:  6314182.0 i/s
+       String#match?:  5138115.1 i/s - 1.23x  slower
+           String#=~:  1088461.5 i/s - 5.80x  slower
 ```
 
 ```
@@ -1397,7 +1397,7 @@ Comparison:
 
 ### Range
 
-#### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
+##### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
