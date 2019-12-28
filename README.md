@@ -1236,33 +1236,36 @@ String#dup["string"]=:   917873.1 i/s
 
 ```
 $ ruby -v code/string/gsub-vs-tr.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-darwin19]
 
+Warming up --------------------------------------
+         String#gsub    53.060k i/100ms
+           String#tr   175.023k i/100ms
 Calculating -------------------------------------
-         String#gsub    38.268k i/100ms
-           String#tr    83.210k i/100ms
--------------------------------------------------
-         String#gsub    516.604k (± 4.4%) i/s -      2.602M
-           String#tr      1.862M (± 4.0%) i/s -      9.320M
+         String#gsub    584.292k (± 4.5%) i/s -      2.918M in   5.005139s
+           String#tr      3.071M (± 5.6%) i/s -     15.402M in   5.033238s
 
 Comparison:
-           String#tr:  1861860.4 i/s
-         String#gsub:   516604.2 i/s - 3.60x slower
+           String#tr:  3070572.5 i/s
+         String#gsub:   584292.4 i/s - 5.26x  slower
+
 ```
 
 ##### `Mutable` vs `Immutable` [code](code/string/mutable_vs_immutable_strings.rb)
 
 ```
 $ ruby -v code/string/mutable_vs_immutable_strings.rb
-ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-darwin14]
-
+ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-darwin19]
+Warming up --------------------------------------
+      Without Freeze   305.218k i/100ms
+         With Freeze   340.241k i/100ms
 Calculating -------------------------------------
-      Without Freeze      7.279M (± 6.6%) i/s -     36.451M in   5.029785s
-         With Freeze      9.329M (± 7.9%) i/s -     46.370M in   5.001345s
+      Without Freeze     10.683M (± 2.7%) i/s -     53.413M in   5.003759s
+         With Freeze     14.946M (± 3.8%) i/s -     74.853M in   5.015808s
 
 Comparison:
-         With Freeze:  9329054.3 i/s
-      Without Freeze:  7279203.1 i/s - 1.28x slower
+         With Freeze: 14946436.7 i/s
+      Without Freeze: 10683192.9 i/s - 1.40x  slower
 ```
 
 
