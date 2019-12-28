@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'benchmark/ips'
 require 'date'
 
-STRING = '2018-03-21'.freeze
+STRING = '2018-03-21'
 
 def fast
   Date.iso8601(STRING)
