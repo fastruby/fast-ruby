@@ -7,21 +7,17 @@ before_install:
   - gem update --system
   - gem install bundler
 rvm:
-  - 2.5.1
-  - 2.4.3
-  - 2.3.0
-  - 2.1.8
-  - 2.2.4
+  - 2.7.1
+  - 2.6.6
+  - 2.5.8
   - ruby-head
-  - jruby-9.0.4.0
+  - jruby-9.2.11.1
   - jruby-head
   - rbx-2
 matrix:
   allow_failures:
-    - rvm: 2.1.8
-    - rvm: 2.2.4
     - rvm: ruby-head
-    - rvm: jruby-9.0.4.0
+    - rvm: jruby-9.2.11.1
     - rvm: jruby-head
     - rvm: rbx-2
   fast_finish: true
