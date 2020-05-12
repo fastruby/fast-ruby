@@ -447,6 +447,22 @@ Comparison:
         Array#insert:        0.2 i/s - 262.56x slower
 ```
 
+#### `Enumerable#drop(1)` vs `Array#[1..]` [code](code/array/drop-vs-slice.rb)
+```
+ruby -v code/array/drop-vs-slice.rb
+ruby 2.7.1p83 (2020-03-31 revision a0c7c23c9c) [x86_64-darwin19]
+Warming up --------------------------------------
+          Array#drop   831.515k i/100ms
+            Array#[]   536.131k i/100ms
+Calculating -------------------------------------
+          Array#drop      8.306M (± 1.8%) i/s -     41.576M in   5.007158s
+            Array#[]      5.389M (± 2.4%) i/s -     27.343M in   5.076859s
+
+Comparison:
+          Array#drop:  8305977.2 i/s
+            Array#[]:  5389130.2 i/s - 1.54x  (± 0.00) slower
+```
+
 ### Enumerable
 
 ##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
