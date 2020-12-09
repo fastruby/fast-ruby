@@ -1067,6 +1067,7 @@ Comparison:
 ##### `String#casecmp` vs  `String#casecmp?` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
 
 `String#casecmp?` is available on Ruby 2.4 or later.
+Note that `String#casecmp` only works on characters A-Z/a-z, not all of Unicode.
 
 ```
 $ ruby -v code/string/casecmp-vs-downcase-\=\=.rb
