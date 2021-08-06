@@ -859,6 +859,24 @@ Comparison:
          Hash#merge!:    10653.3 i/s - 2.66x slower
 ```
 
+##### `Hash#update` vs `Hash#[]=` [code](code/hash/update-vs-\[\]=.rb)
+
+```
+$ ruby -v code/hash/update-vs-\[\]=.rb
+ruby 2.6.6p146 (2020-03-31 revision 67876) [x86_64-darwin18]
+
+Warming up --------------------------------------
+            Hash#[]=     7.453k i/100ms
+         Hash#update     4.311k i/100ms
+Calculating -------------------------------------
+            Hash#[]=     74.764k (± 1.9%) i/s -    380.103k in   5.085962s
+         Hash#update     43.220k (± 0.8%) i/s -    219.861k in   5.087364s
+
+Comparison:
+            Hash#[]=:    74764.0 i/s
+         Hash#update:    43220.1 i/s - 1.73x  (± 0.00) slower
+```
+
 ##### `Hash#merge` vs `Hash#**other` [code](code/hash/merge-vs-double-splat-operator.rb)
 
 ```
