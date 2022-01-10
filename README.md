@@ -207,7 +207,7 @@ Comparison:
   ancestors.include?:   192602.9 i/s - 6.49x  slower
 ```
 
-#### Method Invocation
+### Method Invocation
 
 ##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
 
@@ -309,8 +309,7 @@ Comparison:
 ##### Kernel#format vs Float#round().to_s [code](code/general/format-vs-round-and-to-s.rb)
 
 ```
-$ ruby -v code/general/format-vs-round-and-t
-o-s.rb
+$ ruby -v code/general/format-vs-round-and-to-s.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
          Float#round   106.645k i/100ms
@@ -561,6 +560,7 @@ Similar comparisons hold for `Enumerable#sort_by.last` vs
 `Enumerable#sort.last` vs `Enumerable#max`.
 
 ```
+$ ruby -v code/enumerable/sort_by-first-vs-min_by.rb
 ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
 Warming up --------------------------------------
    Enumerable#min_by    15.170k i/100ms
@@ -638,7 +638,7 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
 Of note, `to_proc` for 1.8.7 is considerable slower than the block format
 
 ```
-$ ruby -v code/enumerable/inject-sum-vs-block.rb
+$ ruby -v code/enumerable/inject-symbol-vs-block.rb
 ruby 2.2.4p230 (2015-12-16 revision 53155) [x86_64-darwin14]
 Warming up --------------------------------------
        inject symbol     1.893k i/100ms
@@ -805,13 +805,14 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
-#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-\[\]-vs-key.rb)
+#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-key.rb)
 
 > `Hash#keys.include?` allocates an array of keys and performs an O(n) search; <br>
 > `Hash#key?` performs an O(1) hash lookup without allocating a new array.
 
 ```
-$ ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+$ ruby -v code/hash/keys-include-vs-key.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
 
 Calculating -------------------------------------
   Hash#keys.include?      8.612k (± 2.5%) i/s -     43.248k in   5.024749s
@@ -861,7 +862,7 @@ Comparison:
 ##### `Hash#merge` vs `Hash#**other` [code](code/hash/merge-vs-double-splat-operator.rb)
 
 ```
-$ ruby -v merge-vs-double-splat-operator.rb
+$ ruby -v code/hash/merge-vs-double-splat-operator.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
         Hash#**other    64.624k i/100ms
@@ -937,6 +938,32 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
+##### Native `Hash#slice` vs other slice implementations before native [code](code/hash/slice-native-vs-before-native.rb)
+
+Since ruby 2.5, Hash comes with a `slice` method to select hash members by keys.
+
+```
+$ ruby -v code/hash/slice-native-vs-before-native.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux]
+Warming up --------------------------------------
+Hash#native-slice      178.077k i/100ms
+Array#each             124.311k i/100ms
+Array#each_w/_object   110.818k i/100ms
+Hash#select-include     66.972k i/100ms
+Calculating -------------------------------------
+Hash#native-slice         2.540M (± 1.5%) i/s -     12.822M in   5.049955s
+Array#each                1.614M (± 1.0%) i/s -      8.080M in   5.007925s
+Array#each_w/_object      1.353M (± 2.6%) i/s -      6.760M in   5.000441s
+Hash#select-include     760.944k (± 0.9%) i/s -      3.817M in   5.017123s
+
+Comparison:
+Hash#native-slice   :  2539515.5 i/s
+Array#each          :  1613665.5 i/s - 1.57x  slower
+Array#each_w/_object:  1352851.8 i/s - 1.88x  slower
+Hash#select-include :   760944.2 i/s - 3.34x  slower
+```
+
+
 ### Proc & Block
 
 ##### Block vs `Symbol#to_proc` [code](code/proc-and-block/block-vs-to_proc.rb)
@@ -963,29 +990,59 @@ Comparison:
 
 ##### `Proc#call` and block arguments vs `yield`[code](code/proc-and-block/proc-call-vs-yield.rb)
 
-In MRI Ruby, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
+In MRI Ruby before 2.5, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
+ruby 2.4.4p296 (2018-03-28 revision 63013) [x86_64-darwin18]
 Calculating -------------------------------------
-          block.call    41.978k i/100ms
-       block + yield    42.674k i/100ms
-      block argument    41.722k i/100ms
-               yield    62.681k i/100ms
--------------------------------------------------
-          block.call    842.581k (±12.5%) i/s -      4.114M
-       block + yield    941.468k (±11.7%) i/s -      4.651M
-      block argument      1.043M (± 7.1%) i/s -      5.215M
-               yield      3.828M (±11.3%) i/s -     18.930M
+        block.call      1.967M (± 2.0%) i/s -      9.871M in   5.019328s
+     block + yield      2.147M (± 3.3%) i/s -     10.814M in   5.044319s
+      unused block      2.265M (± 1.9%) i/s -     11.333M in   5.004522s
+             yield     10.436M (± 1.6%) i/s -     52.260M in   5.008851s
 
 Comparison:
-               yield:  3828436.1 i/s
-      block argument:  1042509.6 i/s - 3.67x slower
-       block + yield:   941467.7 i/s - 4.07x slower
-          block.call:   842581.2 i/s - 4.54x slower
+             yield: 10436414.0 i/s
+      unused block:  2265399.0 i/s - 4.61x  slower
+     block + yield:  2146619.0 i/s - 4.86x  slower
+        block.call:  1967300.9 i/s - 5.30x  slower
 ```
 
+MRI Ruby 2.5 implements [Lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045):
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call      1.970M (± 2.3%) i/s -      9.863M in   5.009599s
+     block + yield      9.075M (± 2.6%) i/s -     45.510M in   5.018369s
+      unused block     11.176M (± 2.7%) i/s -     55.977M in   5.012741s
+             yield     10.588M (± 1.9%) i/s -     53.108M in   5.017755s
+
+Comparison:
+      unused block: 11176355.0 i/s
+             yield: 10588342.3 i/s - 1.06x  slower
+     block + yield:  9075355.5 i/s - 1.23x  slower
+        block.call:  1969834.0 i/s - 5.67x  slower
+```
+
+MRI Ruby 2.6 implements [an optimization for block.call where a block parameter is passed](https://bugs.ruby-lang.org/issues/14330):
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.6.1p33 (2019-01-30 revision 66950) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call     10.587M (± 1.2%) i/s -     52.969M in   5.003808s
+     block + yield     12.630M (± 0.3%) i/s -     63.415M in   5.020910s
+      unused block     15.981M (± 0.8%) i/s -     80.255M in   5.022305s
+             yield     15.352M (± 3.1%) i/s -     76.816M in   5.009404s
+
+Comparison:
+      unused block: 15980789.4 i/s
+             yield: 15351931.0 i/s - 1.04x  slower
+     block + yield: 12630378.1 i/s - 1.27x  slower
+        block.call: 10587315.1 i/s - 1.51x  slower
+```
 
 ### String
 
@@ -996,15 +1053,15 @@ always `ASCII-8BIT` encoded instead of the script encoding (usually `UTF-8`).
 
 ```
 $ ruby -v code/string/dup-vs-unary-plus.rb
-  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
-  Calculating -------------------------------------
-             String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
-            String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
+Calculating -------------------------------------
+           String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
+          String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
 
-  Comparison:
-             String#+@:  7697108.3 i/s
-            String#dup:  3566485.7 i/s - 2.16x  slower
+Comparison:
+           String#+@:  7697108.3 i/s
+          String#dup:  3566485.7 i/s - 2.16x  slower
 ```
 
 ##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
@@ -1069,17 +1126,17 @@ longer. For short strings, `String#match?` performs similarly to
 
 ```
 $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
-  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
-  Calculating -------------------------------------
-             String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
-         String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
-    String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
+Calculating -------------------------------------
+           String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
+       String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
+  String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
 
-  Comparison:
-    String#start_with?:  6314182.0 i/s
-         String#match?:  5138115.1 i/s - 1.23x  slower
-             String#=~:  1088461.5 i/s - 5.80x  slower
+Comparison:
+  String#start_with?:  6314182.0 i/s
+       String#match?:  5138115.1 i/s - 1.23x  slower
+           String#=~:  1088461.5 i/s - 5.80x  slower
 ```
 
 ```
@@ -1340,7 +1397,7 @@ Comparison:
 
 ### Range
 
-#### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
+##### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
