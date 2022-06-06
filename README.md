@@ -143,18 +143,13 @@ ActiveSupport's [String#constantize](https://doc.bccnsoft.com/docs/rails-guides-
 ruby 2.7.3p183 (2021-04-05 revision 6847ee089d) [x86_64-darwin20]
 
 Calculating -------------------------------------
-        using a Hash      8.641M (± 1.9%) i/s -     43.818M in   5.073094s
-using a case statement
-                          8.314M (± 3.1%) i/s -     41.587M in   5.007488s
 using an if statement
-                          8.295M (± 3.3%) i/s -     41.524M in   5.012041s
-  String#constantize      2.365M (± 3.7%) i/s -     11.884M in   5.032603s
+                          8.124M (± 1.8%) i/s -     41.357M in   5.092437s
+  String#constantize      2.462M (± 2.4%) i/s -     12.315M in   5.004089s
 
 Comparison:
-        using a Hash:  8640697.2 i/s
-using a case statement:  8313545.9 i/s - same-ish: difference falls within error
-using an if statement:  8295324.8 i/s - same-ish: difference falls within error
-  String#constantize:  2365366.0 i/s - 3.65x  (± 0.00) slower
+using an if statement:  8123851.3 i/s
+  String#constantize:  2462371.2 i/s - 3.30x  (± 0.00) slower
 ```
 
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
