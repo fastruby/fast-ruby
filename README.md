@@ -137,7 +137,7 @@ module_eval with string:     1129.7 i/s - 1.19x slower
 
 ActiveSupport's [String#constantize](https://doc.bccnsoft.com/docs/rails-guides-4.2.1-en/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
 
-[Read the rationale here](asdf)
+[Read the rationale here](https://github.com/fastruby/fast-ruby/pull/200)
 
 ```
 ruby 2.7.3p183 (2021-04-05 revision 6847ee089d) [x86_64-darwin20]
