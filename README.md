@@ -133,6 +133,30 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
+##### `String#constantize` vs a comparison for inflection
+
+ActiveSupport's [String#constantize](https://doc.bccnsoft.com/docs/rails-guides-4.2.1-en/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
+
+[Read the rationale here](asdf)
+
+```
+ruby 2.7.3p183 (2021-04-05 revision 6847ee089d) [x86_64-darwin20]
+
+Calculating -------------------------------------
+        using a Hash      8.641M (± 1.9%) i/s -     43.818M in   5.073094s
+using a case statement
+                          8.314M (± 3.1%) i/s -     41.587M in   5.007488s
+using an if statement
+                          8.295M (± 3.3%) i/s -     41.524M in   5.012041s
+  String#constantize      2.365M (± 3.7%) i/s -     11.884M in   5.032603s
+
+Comparison:
+        using a Hash:  8640697.2 i/s
+using a case statement:  8313545.9 i/s - same-ish: difference falls within error
+using an if statement:  8295324.8 i/s - same-ish: difference falls within error
+  String#constantize:  2365366.0 i/s - 3.65x  (± 0.00) slower
+```
+
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
