@@ -135,7 +135,7 @@ module_eval with string:     1129.7 i/s - 1.19x slower
 
 ##### `String#constantize` vs a comparison for inflection
 
-ActiveSupport's [String#constantize](https://doc.bccnsoft.com/docs/rails-guides-4.2.1-en/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
+ActiveSupport's [String#constantize](https://guides.rubyonrails.org/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
 
 [Read the rationale here](https://github.com/fastruby/fast-ruby/pull/200)
 
