@@ -713,6 +713,25 @@ Comparison:
         inject block:    14063.1 i/s - 1.35x slower
 ```
 
+##### `Enumerable#each_with_object` vs `Enumerable#inject` [code](code/enumerable/each-with-object-vs-inject.rb)
+
+```
+$ ruby -v code/enumerable/each-with-object-vs-inject.rb
+ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-darwin20]
+Warming up --------------------------------------
+Enumerable#each_with_object
+                       690.000  i/100ms
+   Enumerable#inject    43.000  i/100ms
+Calculating -------------------------------------
+Enumerable#each_with_object
+                          6.946k (± 2.7%) i/s -     35.190k in   5.070226s
+   Enumerable#inject    399.314  (±22.0%) i/s -      1.892k in   5.031637s
+
+Comparison:
+Enumerable#each_with_object:     6946.0 i/s
+   Enumerable#inject:      399.3 i/s - 17.39x  (± 0.00) slower
+```
+
 ### Date
 
 ##### `Date.iso8601` vs `Date.parse` [code](code/date/iso8601-vs-parse.rb)
