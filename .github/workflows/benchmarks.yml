@@ -10,7 +10,7 @@ jobs:
   rake:
     runs-on: ubuntu-latest
     env:
-      SHARE: "1"
+      SHARE: ${{ github.ref_name == 'main' && '1' || '' }}
 
     strategy:
       matrix:
