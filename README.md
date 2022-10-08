@@ -1200,10 +1200,6 @@ longer. For short strings, `String#match?` performs similarly to
 > Sometimes you cant replace regexp with `start_with?`, <br>
 > for example: `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
 > :warning: <br>
-> You can combine `start_with?` and `end_with?` to replace
-> `error.path =~ /^#{path}(\.rb)?$/` to this <br>
-> `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
-> —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
 
 ```
 $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
