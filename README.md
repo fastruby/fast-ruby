@@ -56,28 +56,6 @@ Idioms
 
 ### General
 
-##### Parallel Assignment vs Sequential Assignment [code](code/general/assignment.rb)
-
-[Read the rationale here](https://github.com/JuanitoFatas/fast-ruby/pull/50#issue-98586885).
-
-```
-$ ruby -v code/general/assignment.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
-
-Calculating -------------------------------------
- Parallel Assignment   149.201k i/100ms
-Sequential Assignment
-                       142.545k i/100ms
--------------------------------------------------
- Parallel Assignment      7.687M (± 6.9%) i/s -     38.345M
-Sequential Assignment
-                          6.320M (± 8.5%) i/s -     31.360M
-
-Comparison:
- Parallel Assignment:  7686954.1 i/s
-Sequential Assignment:  6320425.6 i/s - 1.22x slower
-```
-
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
 > https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
