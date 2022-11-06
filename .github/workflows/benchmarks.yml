@@ -9,8 +9,6 @@ on:
 jobs:
   rake:
     runs-on: ubuntu-latest
-    env:
-      SHARE: "1"
 
     strategy:
       matrix:
@@ -19,6 +17,10 @@ jobs:
                        'jruby-head', 'truffleruby-22.3.0', 'truffleruby-head']
 
     steps:
+      - name: Set Share Env
+        if: github.ref_name == 'main'
+        run: |
+          echo "SHARE=1" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
