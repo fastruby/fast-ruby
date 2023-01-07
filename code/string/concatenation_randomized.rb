@@ -141,16 +141,16 @@ end
 # =>
 
   def bench_10_to_100
-  Benchmark.bmbm do |x|
-    sarr1 = Array.new(2_000_000) { RandStr.eq100.dup }
-    sarr2 = Array.new(2_000_000) { RandStr.eq100.dup }
-
-    i, j = 0, 0
-    x.report("Collateral actions only")  { k=0; 1_000_000.times { k+=1; RandStr.eq10; sarr2[k]; RandStr.lt100; } }
-    x.report("String#+")         { k=0; 1_000_000.times { k+=1; sarr1[k]; fastest_plus(RandStr.eq10, RandStr.lt100) } }
-    x.report('"#{foo}#{bar}"')   { k=0; 1_000_000.times { k+=1; sarr2[k]; fast_interpolation(RandStr.eq10, RandStr.lt100) } }
-    x.report("String#concat")    { 1_000_000.times { RandStr.eq10; slow_concat(sarr1[i], RandStr.lt100); i+=1; } }
-    x.report("String#append")    { 1_000_000.times { RandStr.eq10; slow_append(sarr2[j], RandStr.lt100); j+=1;  } }
-  end
+    Benchmark.bmbm do |x|
+      sarr1 = Array.new(2_000_000) { RandStr.eq100.dup }
+      sarr2 = Array.new(2_000_000) { RandStr.eq100.dup }
+  
+      i, j = 0, 0
+      x.report("Collateral actions only")  { k=0; 1_000_000.times { k+=1; RandStr.eq10; sarr2[k]; RandStr.lt100; } }
+      x.report("String#+")         { k=0; 1_000_000.times { k+=1; sarr1[k]; fastest_plus(RandStr.eq10, RandStr.lt100) } }
+      x.report('"#{foo}#{bar}"')   { k=0; 1_000_000.times { k+=1; sarr2[k]; fast_interpolation(RandStr.eq10, RandStr.lt100) } }
+      x.report("String#concat")    { 1_000_000.times { RandStr.eq10; slow_concat(sarr1[i], RandStr.lt100); i+=1; } }
+      x.report("String#append")    { 1_000_000.times { RandStr.eq10; slow_append(sarr2[j], RandStr.lt100); j+=1;  } }
+    end
 end
 
