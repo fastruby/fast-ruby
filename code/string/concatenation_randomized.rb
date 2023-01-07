@@ -28,8 +28,8 @@ module RandStr
   def self.method_missing(symbol)
     return super unless @rand_strs.keys.include?(symbol)
 
-    define_singleton_method(symbol) { rand_str( symbol ) }
-    return rand_str( symbol )
+    define_singleton_method(symbol) { rand_str(symbol) }
+    return rand_str(symbol)
   end
 
 end
