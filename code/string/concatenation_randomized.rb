@@ -138,7 +138,6 @@ end
 # "#{foo}#{bar}"            1.096633   0.000966   1.097599 (  1.100782)    0.417964     x 1.78 slower
 # String#concat             1.373582   0.000910   1.374492 (  1.375239)    0.692421     x 2.95 slower
 # String#append             1.300632   0.000000   1.300632 (  1.300807)    0.617989     x 2.63 slower
-# =>
 
   def bench_10_to_100
     Benchmark.bmbm do |x|
