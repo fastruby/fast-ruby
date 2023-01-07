@@ -21,7 +21,7 @@ module RandStr
 
   self.generate_rand_strs
 
-  def self.rand_str( named_range )
+  def self.rand_str(named_range)
     @rand_strs[named_range][rand(RND_STRINGS_AMOUNT)]
   end
 
