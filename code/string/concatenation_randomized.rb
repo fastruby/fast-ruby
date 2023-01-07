@@ -13,8 +13,8 @@ module RandStr
   def self.generate_rand_strs
     chars = ('A'..'z').to_a * 20
     @rand_strs[:lt10] = Array.new(RND_STRINGS_AMOUNT) { chars.sample(rand(10)).join }
-    @rand_strs[:lt100] = Array.new(RND_STRINGS_AMOUNT) { chars.sample( rand(100) ).join }
-    @rand_strs[:lt1000] = Array.new(RND_STRINGS_AMOUNT) { chars.sample( rand(1000) ).join }
+    @rand_strs[:lt100] = Array.new(RND_STRINGS_AMOUNT) { chars.sample(rand(100)).join }
+    @rand_strs[:lt1000] = Array.new(RND_STRINGS_AMOUNT) { chars.sample(rand(1000)).join }
     @rand_strs[:eq10] = Array.new(RND_STRINGS_AMOUNT) { chars.sample(10).join }
     @rand_strs[:eq100] = Array.new(RND_STRINGS_AMOUNT) { chars.sample(100).join }
   end
