@@ -5,8 +5,6 @@ In [Erik Michaels-Ober](https://github.com/sferik)'s great talk, 'Writing Fast R
 
 Each idiom has a corresponding code example that resides in [code](code).
 
-All results listed in README.md are running with Ruby 2.2.0p0 on OS X 10.10.1. Machine information: MacBook Pro (Retina, 15-inch, Mid 2014), 2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3. Your results may vary, but you get the idea. : )
-
 You can checkout [the GitHub Actions build](https://github.com/fastruby/fast-ruby/actions) for these benchmark results ran against different Ruby implementations.
 
 **Let's write faster code, together! <3**
@@ -56,59 +54,40 @@ Idioms
 
 ### General
 
-##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
-
-> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
-
-```
-$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-Calculating -------------------------------------
-   getter_and_setter    61.240k i/100ms
-       attr_accessor    66.535k i/100ms
--------------------------------------------------
-   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
-       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
-
-Comparison:
-       attr_accessor:  1865408.4 i/s
-   getter_and_setter:  1660021.9 i/s - 1.12x slower
-```
-
 ##### `begin...rescue` vs `respond_to?` for Control Flow [code](code/general/begin-rescue-vs-respond-to.rb)
 
 ```
 $ ruby -v code/general/begin-rescue-vs-respond-to.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin21]
+Warming up --------------------------------------
+      begin...rescue    66.246k i/100ms
+         respond_to?   675.966k i/100ms
 Calculating -------------------------------------
-      begin...rescue    29.452k i/100ms
-         respond_to?   106.528k i/100ms
--------------------------------------------------
-      begin...rescue    371.591k (± 5.4%) i/s -      1.855M
-         respond_to?      3.277M (± 7.5%) i/s -     16.299M
+      begin...rescue    667.210k (± 9.3%) i/s -      3.312M in   5.025150s
+         respond_to?      6.927M (± 3.5%) i/s -     35.150M in   5.080591s
 
 Comparison:
-         respond_to?:  3276972.3 i/s
-      begin...rescue:   371591.0 i/s - 8.82x slower
+         respond_to?:  6927293.4 i/s
+      begin...rescue:   667210.3 i/s - 10.38x  (± 0.00) slower
 ```
 
 ##### `define_method` vs `module_eval` for Defining Methods [code](code/general/define_method-vs-module-eval.rb)
 
 ```
 $ ruby -v code/general/define_method-vs-module-eval.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin21]
+Warming up --------------------------------------
+module_eval with string
+                       253.000  i/100ms
+       define_method   382.000  i/100ms
 Calculating -------------------------------------
-module_eval with string 125.000  i/100ms
-       define_method    138.000  i/100ms
--------------------------------------------------
-module_eval with string   1.130k (±20.3%) i/s -      5.500k
-       define_method      1.346k (±25.9%) i/s -      6.348k
+module_eval with string
+                          2.723k (±15.9%) i/s -     13.409k in   5.129575s
+       define_method      3.906k (±10.4%) i/s -     19.482k in   5.070977s
 
 Comparison:
-       define_method:        1345.6 i/s
-module_eval with string:     1129.7 i/s - 1.19x slower
+       define_method:     3905.8 i/s
+module_eval with string:     2722.6 i/s - 1.43x  (± 0.00) slower
 ```
 
 ##### `String#constantize` vs a comparison for inflection
@@ -118,16 +97,20 @@ ActiveSupport's [String#constantize](https://guides.rubyonrails.org/active_suppo
 [Read the rationale here](https://github.com/fastruby/fast-ruby/pull/200)
 
 ```
-ruby 2.7.3p183 (2021-04-05 revision 6847ee089d) [x86_64-darwin20]
-
+$ bundle exec ruby -v code/general/constantize-vs-comparison.rb
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin21]
+Warming up --------------------------------------
+using an if statement
+                       546.853k i/100ms
+  String#constantize   392.010k i/100ms
 Calculating -------------------------------------
 using an if statement
-                          8.124M (± 1.8%) i/s -     41.357M in   5.092437s
-  String#constantize      2.462M (± 2.4%) i/s -     12.315M in   5.004089s
+                          5.028M (± 8.9%) i/s -     25.155M in   5.058707s
+  String#constantize      3.838M (± 4.3%) i/s -     19.208M in   5.014531s
 
 Comparison:
-using an if statement:  8123851.3 i/s
-  String#constantize:  2462371.2 i/s - 3.30x  (± 0.00) slower
+using an if statement:  5027723.2 i/s
+  String#constantize:  3838482.9 i/s - 1.31x  (± 0.00) slower
 ```
 
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb)
@@ -136,37 +119,36 @@ Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/
 
 ```
 $ ruby -v code/general/raise-vs-e2mmap.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin14]
-
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin21]
+Warming up --------------------------------------
+Ruby exception: E2MM#Raise
+                         4.385k i/100ms
+Ruby exception: Kernel#raise
+                        84.082k i/100ms
 Calculating -------------------------------------
 Ruby exception: E2MM#Raise
-                         2.865k i/100ms
+                         42.992k (± 2.1%) i/s -    219.250k in   5.102072s
 Ruby exception: Kernel#raise
-                        42.215k i/100ms
--------------------------------------------------
-Ruby exception: E2MM#Raise
-                         27.270k (± 8.8%) i/s -    137.520k
-Ruby exception: Kernel#raise
-                        617.446k (± 7.9%) i/s -      3.082M
+                        912.868k (± 6.5%) i/s -      4.625M in   5.087443s
 
 Comparison:
-Ruby exception: Kernel#raise:   617446.2 i/s
-Ruby exception: E2MM#Raise:    27269.8 i/s - 22.64x slower
+Ruby exception: Kernel#raise:   912868.3 i/s
+Ruby exception: E2MM#Raise:    42991.8 i/s - 21.23x  (± 0.00) slower
 
+Warming up --------------------------------------
+Custom exception: E2MM#Raise
+                         3.820k i/100ms
+Custom exception: Kernel#raise
+                        85.444k i/100ms
 Calculating -------------------------------------
 Custom exception: E2MM#Raise
-                         2.807k i/100ms
+                         41.713k (± 6.3%) i/s -    210.100k in   5.057839s
 Custom exception: Kernel#raise
-                        45.313k i/100ms
--------------------------------------------------
-Custom exception: E2MM#Raise
-                         29.005k (± 7.2%) i/s -    145.964k
-Custom exception: Kernel#raise
-                        589.149k (± 7.8%) i/s -      2.945M
+                        879.514k (± 4.6%) i/s -      4.443M in   5.061842s
 
 Comparison:
-Custom exception: Kernel#raise:   589148.7 i/s
-Custom exception: E2MM#Raise:    29004.8 i/s - 20.31x slower
+Custom exception: Kernel#raise:   879514.5 i/s
+Custom exception: E2MM#Raise:    41713.3 i/s - 21.08x  (± 0.00) slower
 ```
 
 ##### `loop` vs `while true` [code](code/general/loop-vs-while-true.rb)
