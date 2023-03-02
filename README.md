@@ -1083,7 +1083,7 @@ Array#map { Hash#[] }:  3104255.1 i/s - 1.70x  slower
 ```
 
 ##### `Hash#slice#values` vs `Hash#values_at#compact` vs `Array#map { Hash#[] }#compact`
-[code](code/hash/values_at-vs-map.rb)
+[code](code/hash/values_at-compact-vs-slice-values-vs-map-compact.rb)
 
 To select hash values by keys, when some of the keys may not exist in the hash,
 and you care only about the intersection (i.e. ignore the default values).
