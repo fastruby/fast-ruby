@@ -1046,17 +1046,17 @@ and you care about the default values.
 
 ```
 $ ruby -v code/hash/values_at-vs-map.rb
-ruby 2.6.2p47 (2019-03-13 revision 67232) [x86_64-darwin18]
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin22]
 Warming up --------------------------------------
-Hash#values_at         245.809k i/100ms
-Array#map { Hash#[] }  185.153k i/100ms
+Hash#values_at         503.783k i/100ms
+Array#map { Hash#[] }  279.576k i/100ms
 Calculating -------------------------------------
-Hash#values_at            5.284M (± 3.3%) i/s -     26.547M in   5.030606s
-Array#map { Hash#[] }     3.104M (± 2.7%) i/s -     15.553M in   5.014067s
+Hash#values_at            4.901M (± 4.1%) i/s -     24.685M in   5.046090s
+Array#map { Hash#[] }     2.801M (± 3.1%) i/s -     14.258M in   5.095692s
 
 Comparison:
-Hash#values_at       :  5283787.1 i/s
-Array#map { Hash#[] }:  3104255.1 i/s - 1.70x  slower
+Hash#values_at       :  4900567.9 i/s
+Array#map { Hash#[] }:  2800981.4 i/s - 1.75x  slower
 ```
 
 ### Proc & Block
