@@ -1,4 +1,4 @@
-require 'benchmark'
+require 'benchmark/ips'
 
 module RandStr
   RND_STRINGS_AMOUNT = 1000
@@ -72,7 +72,7 @@ end
 # String#append             1.319974   0.000000   1.319974 (  1.324772)    0.619114    x 2 slower
 
 def bench_100_to_100
-  Benchmark.bmbm do |x|
+  Benchmark.ips do |x|
     # 1M for rehearsal + 1M for bm
     sarr1 = Array.new(2_000_000) { RandStr.eq100.dup }
     sarr2 = Array.new(2_000_000) { RandStr.eq100.dup }
@@ -109,7 +109,7 @@ end
 # String#append             1.913785   0.177921   2.091706 (  2.094298)     1.4279      x 3.18 slower
 
 def bench_100_to_1000
-  Benchmark.bmbm do |x|
+  Benchmark.ips do |x|
     sarr1 = Array.new(2_000_000) { RandStr.eq100.dup }
     sarr2 = Array.new(2_000_000) { RandStr.eq100.dup }
 
@@ -140,10 +140,10 @@ end
 # String#append             1.300632   0.000000   1.300632 (  1.300807)    0.617989     x 2.63 slower
 
 def bench_10_to_100
-  Benchmark.bmbm do |x|
+  Benchmark.ips do |x|
     sarr1 = Array.new(2_000_000) { RandStr.eq100.dup }
     sarr2 = Array.new(2_000_000) { RandStr.eq100.dup }
-  
+
     i, j = 0, 0
     x.report("Collateral actions only")  { k=0; 1_000_000.times { k+=1; RandStr.eq10; sarr2[k]; RandStr.lt100; } }
     x.report("String#+")         { k=0; 1_000_000.times { k+=1; sarr1[k]; fastest_plus(RandStr.eq10, RandStr.lt100) } }
@@ -152,4 +152,3 @@ def bench_10_to_100
     x.report("String#append")    { 1_000_000.times { RandStr.eq10; slow_append(sarr2[j], RandStr.lt100); j+=1;  } }
   end
 end
-
