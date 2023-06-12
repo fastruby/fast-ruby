@@ -8,7 +8,7 @@ def fast
 end
 
 def slow
-  ARRAY.inject({}) { |result, element| result.merge(element.id => element.stuff) }
+  ARRAY.inject({}) { |result, element| result[element.id] = element.stuff; result }
 end
 
 Benchmark.ips do |x|
