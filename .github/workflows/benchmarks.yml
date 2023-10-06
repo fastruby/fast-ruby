@@ -31,12 +31,12 @@ jobs:
       - name: Run benchmarks
         run: bundle exec rake
 
-  rake:
+  rake_old:
     runs-on: ubuntu-20.04
 
     strategy:
       matrix:
-        ruby-version: ['2.3.0', '2.1.9',  '2.2.10']
+        ruby-version: ['2.3.0', '2.1.9', '2.2.10']
 
     steps:
       - name: Set Share Env
