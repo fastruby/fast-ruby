@@ -1547,6 +1547,7 @@ This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 Inter
 
 ### CC0 1.0 Universal
 
-To the extent possible under law, @JuanitoFatas has waived all copyright and related or neighboring rights to "fast-ruby".
+To the extent possible under law, @JuanitoFatas has waived all copyright and
+related or neighboring rights to "fast-ruby".
 
 This work belongs to the community.
