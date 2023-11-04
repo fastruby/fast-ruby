@@ -21,6 +21,7 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           echo "SHARE=1" >> $GITHUB_ENV
+          echo "CI=1" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
@@ -30,6 +31,11 @@ jobs:
         run: bundle install
       - name: Run benchmarks
         run: bundle exec rake
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.ruby-version }}-report
+          path: reports/${{ matrix.ruby-version }}-report.txt
 
   rake_old:
     runs-on: ubuntu-20.04
@@ -43,6 +49,7 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           echo "SHARE=1" >> $GITHUB_ENV
+          echo "CI=1" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
@@ -52,3 +59,8 @@ jobs:
         run: bundle install
       - name: Run benchmarks
         run: bundle exec rake
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.ruby-version }}-report
+          path: reports/${{ matrix.ruby-version }}-report.txt

@@ -1,3 +1,4 @@
 /.bundle/
 *.bundle
 /Gemfile.lock
+reports/
