@@ -327,7 +327,7 @@ Comparison:
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
 
-**WARNING:** `bsearch` ONLY works on *sorted array*. More details please see [#29](https://github.com/JuanitoFatas/fast-ruby/issues/29).
+**WARNING:** `bsearch` ONLY works on *sorted array*. More details please see [#29](https://github.com/fastruby/fast-ruby/issues/29).
 
 ```
 $ ruby -v code/array/bsearch-vs-find.rb
@@ -467,7 +467,7 @@ Comparison:
 ##### `Array#new` vs `Fixnum#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
 
 Typical slowdown is 40-60% depending on the size of the array. See the corresponding
-[pull request](https://github.com/JuanitoFatas/fast-ruby/pull/91/) for performance characteristics.
+[pull request](https://github.com/fastruby/fast-ruby/pull/91/) for performance characteristics.
 
 ```
 ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
@@ -766,7 +766,7 @@ Comparison:
 
 [Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
 and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
-See [#102 (comment)](https://github.com/JuanitoFatas/fast-ruby/pull/102#issuecomment-198827506) for more info.
+See [#102 (comment)](https://github.com/fastruby/fast-ruby/pull/102#issuecomment-198827506) for more info.
 
 ```
 $ ruby -v code/hash/dig-vs-\[\]-vs-fetch.rb
@@ -819,7 +819,7 @@ Comparison:
 > Note that the speedup in the block version comes from avoiding repeated <br>
 > construction of the argument. If the argument is a constant, number symbol or <br>
 > something of that sort the argument version is actually slightly faster <br>
-> See also [#39 (comment)](https://github.com/JuanitoFatas/fast-ruby/issues/39#issuecomment-103989335)
+> See also [#39 (comment)](https://github.com/fastruby/fast-ruby/issues/39#issuecomment-103989335)
 
 ```
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
@@ -972,7 +972,7 @@ Comparison:
 ##### `{}#merge!(Hash)` vs `Hash#merge({})` vs `Hash#dup#merge!({})` [code](code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb)
 
 > When we don't want to modify the original hash, and we want duplicates to be created <br>
-> See [#42](https://github.com/JuanitoFatas/fast-ruby/pull/42#issue-93502261) for more details.
+> See [#42](https://github.com/fastruby/fast-ruby/pull/42#issue-93502261) for more details.
 
 ```
 $ ruby -v code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb
@@ -1283,7 +1283,7 @@ Comparison:
         String#match:  2362314.8 i/s - 2.96x  slower
 ```
 
-See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) and [#62](https://github.com/JuanitoFatas/fast-ruby/pull/62) for discussions.
+See [#59](https://github.com/fastruby/fast-ruby/pull/59) and [#62](https://github.com/fastruby/fast-ruby/pull/62) for discussions.
 
 
 ##### `String#gsub` vs `String#sub` vs `String#[]=` [code](code/string/gsub-vs-sub.rb)
@@ -1523,19 +1523,19 @@ Comparison:
 
 ## Less idiomatic but with significant performance ruby
 
-Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-difference
+Checkout: https://github.com/fastruby/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-difference
 
 
 ## Submit New Entry
 
-Please! [Edit this README.md](https://github.com/JuanitoFatas/fast-ruby/edit/master/README.md) then [Submit a Awesome Pull Request](https://github.com/JuanitoFatas/fast-ruby/pulls)!
+Please! [Edit this README.md](https://github.com/fastruby/fast-ruby/edit/main/README.md) then [Submit a Awesome Pull Request](https://github.com/fastruby/fast-ruby/pulls)!
 
 
 ## Something went wrong
 
 Code example is wrong? :cry: Got better example? :heart_eyes: Excellent!
 
-[Please open an issue](https://github.com/JuanitoFatas/fast-ruby/issues/new) or [Open a Pull Request](https://github.com/JuanitoFatas/fast-ruby/pulls) to fix it.
+[Please open an issue](https://github.com/fastruby/fast-ruby/issues/new) or [Open a Pull Request](https://github.com/fastruby/fast-ruby/pulls) to fix it.
 
 Thank you in advance! :wink: :beer:
 
