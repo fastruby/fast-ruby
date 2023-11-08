@@ -111,7 +111,7 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
-##### `String#constantize` vs a comparison for inflection
+##### `String#constantize` vs a comparison for inflection [code](code/general/constantize-vs-comparison.rb)
 
 ActiveSupport's [String#constantize](https://guides.rubyonrails.org/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
 
@@ -1063,7 +1063,7 @@ Comparison:
                Block:    47914.3 i/s - 1.14x slower
 ```
 
-##### `Proc#call` and block arguments vs `yield`[code](code/proc-and-block/proc-call-vs-yield.rb)
+##### `Proc#call` and block arguments vs `yield` [code](code/proc-and-block/proc-call-vs-yield.rb)
 
 In MRI Ruby before 2.5, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
 
@@ -1329,7 +1329,7 @@ Comparison:
          String#gsub:   516604.2 i/s - 3.60x slower
 ```
 
-##### `String#gsub` vs `String#tr` vs `String#del` [code](code/string/gsub-vs-tr-vs-del.rb)
+##### `String#gsub` vs `String#tr` vs `String#delete` [code](code/string/gsub-vs-tr-vs-delete.rb)
 
 ```
 ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-linux]
