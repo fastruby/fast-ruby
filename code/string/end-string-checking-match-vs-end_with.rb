@@ -1,9 +1,13 @@
 require 'benchmark/ips'
 
-SLUG = 'root_url'
+SLUG = "some_kind_of_root_url"
+
+def slower
+  SLUG =~ /_(path|url)$/
+end
 
 def slow
-  SLUG =~ /_(path|url)$/
+  SLUG.match?(/_(path|url)$/)
 end
 
 def fast
@@ -11,7 +15,8 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('String#=~')        { slow }
+  x.report('String#=~')        { slower }
+  x.report('String#match?')    { slow } if RUBY_VERSION >= "2.4.0".freeze
   x.report('String#end_with?') { fast }
   x.compare!
 end

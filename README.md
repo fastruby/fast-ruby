@@ -1,4 +1,4 @@
-Fast Ruby [![Build Status](https://travis-ci.org/JuanitoFatas/fast-ruby.svg?branch=travis)](https://travis-ci.org/JuanitoFatas/fast-ruby)
+Fast Ruby [![Benchmarks](https://github.com/fastruby/fast-ruby/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/fastruby/fast-ruby/actions/workflows/benchmarks.yml)
 =======================================================================================================================================================================
 
 In [Erik Michaels-Ober](https://github.com/sferik)'s great talk, 'Writing Fast Ruby': [Video @ Baruco 2014](https://www.youtube.com/watch?v=fGFM_UrSp70), [Slide](https://speakerdeck.com/sferik/writing-fast-ruby), he presented us with many idioms that lead to faster running Ruby code. He inspired me to document these to let more people know. I try to link to real commits so people can see that this can really have benefits in the real world. **This does not mean you can always blindly replace one with another. It depends on the context (e.g. `gsub` versus `tr`). Friendly reminder: Use with caution!**
@@ -7,7 +7,7 @@ Each idiom has a corresponding code example that resides in [code](code).
 
 All results listed in README.md are running with Ruby 2.2.0p0 on OS X 10.10.1. Machine information: MacBook Pro (Retina, 15-inch, Mid 2014), 2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3. Your results may vary, but you get the idea. : )
 
-You can checkout [the travis build](https://travis-ci.org/JuanitoFatas/fast-ruby) for these benchmark results ran against different Ruby implementations.
+You can checkout [the GitHub Actions build](https://github.com/fastruby/fast-ruby/actions) for these benchmark results ran against different Ruby implementations.
 
 **Let's write faster code, together! <3**
 
@@ -46,34 +46,33 @@ Idioms
 
 - [General](#general)
 - [Array](#array)
+- [Date](#date)
 - [Enumerable](#enumerable)
 - [Hash](#hash)
 - [Proc & Block](#proc--block)
 - [String](#string)
+- [Time](#time)
 - [Range](#range)
 
 ### General
 
-##### Parallel Assignment vs Sequential Assignment [code](code/general/assignment.rb)
+##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
-[Read the rationale here](https://github.com/JuanitoFatas/fast-ruby/pull/50#issue-98586885).
+> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
 
 ```
-$ ruby -v code/general/assignment.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
-
+$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
 Calculating -------------------------------------
- Parallel Assignment   149.201k i/100ms
-Sequential Assignment
-                       142.545k i/100ms
+   getter_and_setter    61.240k i/100ms
+       attr_accessor    66.535k i/100ms
 -------------------------------------------------
- Parallel Assignment      7.687M (± 6.9%) i/s -     38.345M
-Sequential Assignment
-                          6.320M (± 8.5%) i/s -     31.360M
+   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
+       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
 
 Comparison:
- Parallel Assignment:  7686954.1 i/s
-Sequential Assignment:  6320425.6 i/s - 1.22x slower
+       attr_accessor:  1865408.4 i/s
+   getter_and_setter:  1660021.9 i/s - 1.12x slower
 ```
 
 ##### `begin...rescue` vs `respond_to?` for Control Flow [code](code/general/begin-rescue-vs-respond-to.rb)
@@ -112,7 +111,26 @@ Comparison:
 module_eval with string:     1129.7 i/s - 1.19x slower
 ```
 
-##### `raise` vs `E2MM#Raise` for raising (and defining) exeptions  [code](code/general/raise-vs-e2mmap.rb)
+##### `String#constantize` vs a comparison for inflection [code](code/general/constantize-vs-comparison.rb)
+
+ActiveSupport's [String#constantize](https://guides.rubyonrails.org/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".
+
+[Read the rationale here](https://github.com/fastruby/fast-ruby/pull/200)
+
+```
+ruby 2.7.3p183 (2021-04-05 revision 6847ee089d) [x86_64-darwin20]
+
+Calculating -------------------------------------
+using an if statement
+                          8.124M (± 1.8%) i/s -     41.357M in   5.092437s
+  String#constantize      2.462M (± 2.4%) i/s -     12.315M in   5.004089s
+
+Comparison:
+using an if statement:  8123851.3 i/s
+  String#constantize:  2462371.2 i/s - 3.30x  (± 0.00) slower
+```
+
+##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
 
@@ -169,7 +187,24 @@ Comparison:
          Kernel loop:        0.2 i/s - 2.41x slower
 ```
 
-#### Method Invocation
+##### `ancestors.include?` vs `<=` [code](code/general/inheritance-check.rb)
+
+```
+$ ruby -vW0 code/general/inheritance-check.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
+Warming up --------------------------------------
+  less than or equal    66.992k i/100ms
+  ancestors.include?    16.943k i/100ms
+Calculating -------------------------------------
+  less than or equal      1.250M (± 6.4%) i/s -      6.230M in   5.006896s
+  ancestors.include?    192.603k (± 4.8%) i/s -    965.751k in   5.025917s
+
+Comparison:
+  less than or equal:  1249606.0 i/s
+  ancestors.include?:   192602.9 i/s - 6.49x  slower
+```
+
+### Method Invocation
 
 ##### `call` vs `send` vs `method_missing` [code](code/method/call-vs-send-vs-method_missing.rb)
 
@@ -271,8 +306,7 @@ Comparison:
 ##### Kernel#format vs Float#round().to_s [code](code/general/format-vs-round-and-to-s.rb)
 
 ```
-$ ruby -v code/general/format-vs-round-and-t
-o-s.rb
+$ ruby -v code/general/format-vs-round-and-to-s.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
          Float#round   106.645k i/100ms
@@ -293,7 +327,7 @@ Comparison:
 
 ##### `Array#bsearch` vs `Array#find` [code](code/array/bsearch-vs-find.rb)
 
-**WARNING:** `bsearch` ONLY works on *sorted array*. More details please see [#29](https://github.com/JuanitoFatas/fast-ruby/issues/29).
+**WARNING:** `bsearch` ONLY works on *sorted array*. More details please see [#29](https://github.com/fastruby/fast-ruby/issues/29).
 
 ```
 $ ruby -v code/array/bsearch-vs-find.rb
@@ -408,6 +442,66 @@ Calculating -------------------------------------
 Comparison:
        Array#unshift:       44.9 i/s
         Array#insert:        0.2 i/s - 262.56x slower
+
+```
+##### `Array#concat` vs `Array#+` [code](code/array/array-concat-vs-+.rb)
+`Array#+` returns a new array built by concatenating the two arrays together to
+produce a third array. `Array#concat` appends the elements of the other array to self.
+This means that the + operator will create a new array each time it is called
+(which is expensive), while concat only appends the new element.
+```
+$ ruby -v code/array/array-concat-vs-+.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin18]
+Warming up --------------------------------------
+        Array#concat    23.000  i/100ms
+             Array#+     1.000  i/100ms
+Calculating -------------------------------------
+        Array#concat    217.669  (±15.2%) i/s -      1.058k in   5.016952s
+             Array#+      1.475  (± 0.0%) i/s -      8.000  in   5.467642s
+
+Comparison:
+        Array#concat:      217.7 i/s
+             Array#+:        1.5 i/s - 147.54x  slower
+```
+
+##### `Array#new` vs `Fixnum#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
+
+Typical slowdown is 40-60% depending on the size of the array. See the corresponding
+[pull request](https://github.com/fastruby/fast-ruby/pull/91/) for performance characteristics.
+
+```
+ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
+Calculating -------------------------------------
+           Array#new    63.875k i/100ms
+  Fixnum#times + map    48.010k i/100ms
+-------------------------------------------------
+           Array#new      1.070M (± 2.2%) i/s -      5.365M
+  Fixnum#times + map    678.097k (± 2.7%) i/s -      3.409M
+
+Comparison:
+           Array#new:  1069837.0 i/s
+  Fixnum#times + map:   678097.4 i/s - 1.58x slower
+```
+
+##### `Array#sort.reverse` vs `Array#sort_by` +  block [code](code/array/sort-reverse-vs-sort_by-with-block.rb)
+
+```
+$ ruby -v code/array/sort-reverse-vs-sort_by.rb
+ruby 2.5.2p104 (2018-10-18 revision 65133) [x86_64-darwin13]
+Warming up --------------------------------------
+Array#sort.reverse
+                        16.231k i/100ms
+Array#sort_by &:-@
+                         5.406k i/100ms
+Calculating -------------------------------------
+Array#sort.reverse
+                        149.492k (±11.0%) i/s -    746.626k in   5.070375s
+Array#sort_by &:-@
+                         51.981k (± 8.8%) i/s -    259.488k in   5.041625s
+
+Comparison:
+Array#sort.reverse:   149492.2 i/s
+Array#sort_by &:-@:    51980.6 i/s - 2.88x  (± 0.00) slower
 ```
 
 ### Enumerable
@@ -514,6 +608,31 @@ Comparison:
   Array#reverse.each:   190729.1 i/s - 1.13x slower
 ```
 
+##### `Enumerable#sort_by.first` vs `Enumerable#min_by` [code](code/enumerable/sort_by-first-vs-min_by.rb)
+`Enumerable#sort_by` performs a sort of the enumerable and allocates a
+new array the size of the enumerable.  `Enumerable#min_by` doesn't
+perform a sort or allocate an array the size of the enumerable.
+Similar comparisons hold for `Enumerable#sort_by.last` vs
+`Enumerable#max_by`, `Enumerable#sort.first` vs `Enumerable#min`, and
+`Enumerable#sort.last` vs `Enumerable#max`.
+
+```
+$ ruby -v code/enumerable/sort_by-first-vs-min_by.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+Warming up --------------------------------------
+   Enumerable#min_by    15.170k i/100ms
+Enumerable#sort_by...first
+                        10.413k i/100ms
+Calculating -------------------------------------
+   Enumerable#min_by    157.877k (± 0.9%) i/s -    804.010k in   5.093048s
+Enumerable#sort_by...first
+                        106.831k (± 1.3%) i/s -    541.476k in   5.069403s
+
+Comparison:
+   Enumerable#min_by:   157877.0 i/s
+Enumerable#sort_by...first:   106831.1 i/s - 1.48x  slower
+```
+
 ##### `Enumerable#detect` vs `Enumerable#select.first` [code](code/enumerable/select-first-vs-detect.rb)
 
 ```
@@ -576,7 +695,7 @@ Enumerable#sort_by (Symbol#to_proc):    25916.1 i/s
 Of note, `to_proc` for 1.8.7 is considerable slower than the block format
 
 ```
-$ ruby -v code/enumerable/inject-sum-vs-block.rb
+$ ruby -v code/enumerable/inject-symbol-vs-block.rb
 ruby 2.2.4p230 (2015-12-16 revision 53155) [x86_64-darwin14]
 Warming up --------------------------------------
        inject symbol     1.893k i/100ms
@@ -591,6 +710,27 @@ Comparison:
        inject symbol:    19001.5 i/s
       inject to_proc:    15958.3 i/s - 1.19x slower
         inject block:    14063.1 i/s - 1.35x slower
+```
+
+### Date
+
+##### `Date.iso8601` vs `Date.parse` [code](code/date/iso8601-vs-parse.rb)
+
+When expecting well-formatted data from e.g. an API, `iso8601` is faster and will raise an `ArgumentError` on malformed input.
+
+```
+$ ruby -v code/date/iso8601-vs-parse.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        Date.iso8601    28.880k i/100ms
+          Date.parse    15.805k i/100ms
+Calculating -------------------------------------
+        Date.iso8601    328.035k (± 4.7%) i/s -      1.646M in   5.029287s
+          Date.parse    175.546k (± 3.8%) i/s -    885.080k in   5.049444s
+
+Comparison:
+        Date.iso8601:   328035.3 i/s
+          Date.parse:   175545.9 i/s - 1.87x  slower
 ```
 
 ### Hash
@@ -626,7 +766,7 @@ Comparison:
 
 [Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
 and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
-See [#102 (comment)](https://github.com/JuanitoFatas/fast-ruby/pull/102#issuecomment-198827506) for more info.
+See [#102 (comment)](https://github.com/fastruby/fast-ruby/pull/102#issuecomment-198827506) for more info.
 
 ```
 $ ruby -v code/hash/dig-vs-\[\]-vs-fetch.rb
@@ -679,7 +819,7 @@ Comparison:
 > Note that the speedup in the block version comes from avoiding repeated <br>
 > construction of the argument. If the argument is a constant, number symbol or <br>
 > something of that sort the argument version is actually slightly faster <br>
-> See also [#39 (comment)](https://github.com/JuanitoFatas/fast-ruby/issues/39#issuecomment-103989335)
+> See also [#39 (comment)](https://github.com/fastruby/fast-ruby/issues/39#issuecomment-103989335)
 
 ```
 $ ruby -v code/hash/fetch-vs-fetch-with-block.rb
@@ -722,6 +862,42 @@ Comparison:
       Hash#keys.each:   869262.3 i/s - 1.21x slower
 ```
 
+#### `Hash#key?` instead of `Hash#keys.include?` [code](code/hash/keys-include-vs-key.rb)
+
+> `Hash#keys.include?` allocates an array of keys and performs an O(n) search; <br>
+> `Hash#key?` performs an O(1) hash lookup without allocating a new array.
+
+```
+$ ruby -v code/hash/keys-include-vs-key.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+
+Calculating -------------------------------------
+  Hash#keys.include?      8.612k (± 2.5%) i/s -     43.248k in   5.024749s
+           Hash#key?      6.366M (± 5.5%) i/s -     31.715M in   5.002276s
+
+Comparison:
+           Hash#key?:  6365855.5 i/s
+  Hash#keys.include?:     8612.4 i/s - 739.15x  slower
+```
+
+##### `Hash#value?` instead of `Hash#values.include?` [code](code/hash/values-include-vs-value.rb)
+
+> `Hash#values.include?` allocates an array of values and performs an O(n) search; <br>
+> `Hash#value?` performs an O(n) search without allocating a new array.
+
+```
+$ ruby -v code/hash/values-include-vs-value.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-darwin17]
+
+Calculating -------------------------------------
+Hash#values.include?     23.187k (± 4.3%) i/s -    117.720k in   5.086976s
+         Hash#value?     38.395k (± 1.0%) i/s -    194.361k in   5.062696s
+
+Comparison:
+         Hash#value?:    38395.0 i/s
+Hash#values.include?:    23186.8 i/s - 1.66x  slower
+```
+
 ##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
 
 ```
@@ -740,10 +916,28 @@ Comparison:
          Hash#merge!:    10653.3 i/s - 2.66x slower
 ```
 
+##### `Hash#update` vs `Hash#[]=` [code](code/hash/update-vs-\[\]=.rb)
+
+```
+$ ruby -v code/hash/update-vs-\[\]=.rb
+ruby 2.6.6p146 (2020-03-31 revision 67876) [x86_64-darwin18]
+
+Warming up --------------------------------------
+            Hash#[]=     7.453k i/100ms
+         Hash#update     4.311k i/100ms
+Calculating -------------------------------------
+            Hash#[]=     74.764k (± 1.9%) i/s -    380.103k in   5.085962s
+         Hash#update     43.220k (± 0.8%) i/s -    219.861k in   5.087364s
+
+Comparison:
+            Hash#[]=:    74764.0 i/s
+         Hash#update:    43220.1 i/s - 1.73x  (± 0.00) slower
+```
+
 ##### `Hash#merge` vs `Hash#**other` [code](code/hash/merge-vs-double-splat-operator.rb)
 
 ```
-$ ruby -v merge-vs-double-splat-operator.rb
+$ ruby -v code/hash/merge-vs-double-splat-operator.rb
 ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin15]
 Warming up --------------------------------------
         Hash#**other    64.624k i/100ms
@@ -778,7 +972,7 @@ Comparison:
 ##### `{}#merge!(Hash)` vs `Hash#merge({})` vs `Hash#dup#merge!({})` [code](code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb)
 
 > When we don't want to modify the original hash, and we want duplicates to be created <br>
-> See [#42](https://github.com/JuanitoFatas/fast-ruby/pull/42#issue-93502261) for more details.
+> See [#42](https://github.com/fastruby/fast-ruby/pull/42#issue-93502261) for more details.
 
 ```
 $ ruby -v code/hash/merge-bang-vs-merge-vs-dup-merge-bang.rb
@@ -819,6 +1013,32 @@ Comparison:
          sort + to_h:    81972.8 i/s - 1.49x slower
 ```
 
+##### Native `Hash#slice` vs other slice implementations before native [code](code/hash/slice-native-vs-before-native.rb)
+
+Since ruby 2.5, Hash comes with a `slice` method to select hash members by keys.
+
+```
+$ ruby -v code/hash/slice-native-vs-before-native.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux]
+Warming up --------------------------------------
+Hash#native-slice      178.077k i/100ms
+Array#each             124.311k i/100ms
+Array#each_w/_object   110.818k i/100ms
+Hash#select-include     66.972k i/100ms
+Calculating -------------------------------------
+Hash#native-slice         2.540M (± 1.5%) i/s -     12.822M in   5.049955s
+Array#each                1.614M (± 1.0%) i/s -      8.080M in   5.007925s
+Array#each_w/_object      1.353M (± 2.6%) i/s -      6.760M in   5.000441s
+Hash#select-include     760.944k (± 0.9%) i/s -      3.817M in   5.017123s
+
+Comparison:
+Hash#native-slice   :  2539515.5 i/s
+Array#each          :  1613665.5 i/s - 1.57x  slower
+Array#each_w/_object:  1352851.8 i/s - 1.88x  slower
+Hash#select-include :   760944.2 i/s - 3.34x  slower
+```
+
+
 ### Proc & Block
 
 ##### Block vs `Symbol#to_proc` [code](code/proc-and-block/block-vs-to_proc.rb)
@@ -843,72 +1063,103 @@ Comparison:
                Block:    47914.3 i/s - 1.14x slower
 ```
 
-##### `Proc#call` and block arguments vs `yield`[code](code/proc-and-block/proc-call-vs-yield.rb)
+##### `Proc#call` and block arguments vs `yield` [code](code/proc-and-block/proc-call-vs-yield.rb)
 
-In MRI Ruby 2.4 and earlier, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
-
-```
-$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin15]
-Calculating -------------------------------------
-          block.call    41.978k i/100ms
-       block + yield    42.674k i/100ms
-      block argument    41.722k i/100ms
-               yield    62.681k i/100ms
--------------------------------------------------
-          block.call    842.581k (±12.5%) i/s -      4.114M
-       block + yield    941.468k (±11.7%) i/s -      4.651M
-      block argument      1.043M (± 7.1%) i/s -      5.215M
-               yield      3.828M (±11.3%) i/s -     18.930M
-
-Comparison:
-               yield:  3828436.1 i/s
-      block argument:  1042509.6 i/s - 3.67x slower
-       block + yield:   941467.7 i/s - 4.07x slower
-          block.call:   842581.2 i/s - 4.54x slower
-```
-
-CRuby 2.5 introduces [lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045), which speeds things up by about 3x.
+In MRI Ruby before 2.5, block arguments [are converted to Procs](https://www.omniref.com/ruby/2.2.0/symbols/Proc/yield?#annotation=4087638&line=711), which incurs a heap allocation.
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-darwin17]
-Warming up --------------------------------------
-          block.call   161.026k i/100ms
-       block + yield   287.981k i/100ms
-      block argument   304.921k i/100ms
-               yield   277.501k i/100ms
+ruby 2.4.4p296 (2018-03-28 revision 63013) [x86_64-darwin18]
 Calculating -------------------------------------
-          block.call      2.445M (± 7.8%) i/s -     12.238M in   5.036492s
-       block + yield      7.518M (± 7.0%) i/s -     37.438M in   5.005914s
-      block argument      8.559M (± 6.9%) i/s -     42.689M in   5.010211s
-               yield      7.826M (± 5.3%) i/s -     39.128M in   5.013577s
+        block.call      1.967M (± 2.0%) i/s -      9.871M in   5.019328s
+     block + yield      2.147M (± 3.3%) i/s -     10.814M in   5.044319s
+      unused block      2.265M (± 1.9%) i/s -     11.333M in   5.004522s
+             yield     10.436M (± 1.6%) i/s -     52.260M in   5.008851s
 
 Comparison:
-      block argument:  8558548.6 i/s
-               yield:  7826224.5 i/s - same-ish: difference falls within error
-       block + yield:  7517855.1 i/s - same-ish: difference falls within error
-          block.call:  2444708.2 i/s - 3.50x  slower
+             yield: 10436414.0 i/s
+      unused block:  2265399.0 i/s - 4.61x  slower
+     block + yield:  2146619.0 i/s - 4.86x  slower
+        block.call:  1967300.9 i/s - 5.30x  slower
+```
+
+MRI Ruby 2.5 implements [Lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045), which speeds things up by about 3x.:
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call      1.970M (± 2.3%) i/s -      9.863M in   5.009599s
+     block + yield      9.075M (± 2.6%) i/s -     45.510M in   5.018369s
+      unused block     11.176M (± 2.7%) i/s -     55.977M in   5.012741s
+             yield     10.588M (± 1.9%) i/s -     53.108M in   5.017755s
+
+Comparison:
+      unused block: 11176355.0 i/s
+             yield: 10588342.3 i/s - 1.06x  slower
+     block + yield:  9075355.5 i/s - 1.23x  slower
+        block.call:  1969834.0 i/s - 5.67x  slower
+```
+
+MRI Ruby 2.6 implements [an optimization for block.call where a block parameter is passed](https://bugs.ruby-lang.org/issues/14330):
+
+```
+$ ruby -v code/proc-and-block/proc-call-vs-yield.rb
+ruby 2.6.1p33 (2019-01-30 revision 66950) [x86_64-darwin18]
+Calculating -------------------------------------
+        block.call     10.587M (± 1.2%) i/s -     52.969M in   5.003808s
+     block + yield     12.630M (± 0.3%) i/s -     63.415M in   5.020910s
+      unused block     15.981M (± 0.8%) i/s -     80.255M in   5.022305s
+             yield     15.352M (± 3.1%) i/s -     76.816M in   5.009404s
+
+Comparison:
+      unused block: 15980789.4 i/s
+             yield: 15351931.0 i/s - 1.04x  slower
+     block + yield: 12630378.1 i/s - 1.27x  slower
+        block.call: 10587315.1 i/s - 1.51x  slower
 ```
 
 ### String
 
-##### `String#casecmp` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
+##### `String#dup` vs `String#+` [code](code/string/dup-vs-unary-plus.rb)
+
+Note that `String.new` is not the same as the options compared, since it is
+always `ASCII-8BIT` encoded instead of the script encoding (usually `UTF-8`).
+
+```
+$ ruby -v code/string/dup-vs-unary-plus.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+
+Calculating -------------------------------------
+           String#+@      7.697M (± 1.4%) i/s -     38.634M in   5.020313s
+          String#dup      3.566M (± 1.0%) i/s -     17.860M in   5.008377s
+
+Comparison:
+           String#+@:  7697108.3 i/s
+          String#dup:  3566485.7 i/s - 2.16x  slower
+```
+
+##### `String#casecmp` vs  `String#casecmp?` vs `String#downcase + ==` [code](code/string/casecmp-vs-downcase-==.rb)
+
+`String#casecmp?` is available on Ruby 2.4 or later.
+Note that `String#casecmp` only works on characters A-Z/a-z, not all of Unicode.
 
 ```
 $ ruby -v code/string/casecmp-vs-downcase-\=\=.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
-
+ruby 2.7.1p83 (2020-03-31 revision a0c7c23c9c) [x86_64-darwin19]
+Warming up --------------------------------------
+     String#casecmp?   395.796k i/100ms
+String#downcase + ==   543.958k i/100ms
+      String#casecmp   730.028k i/100ms
 Calculating -------------------------------------
-String#downcase + ==   101.900k i/100ms
-      String#casecmp   109.828k i/100ms
--------------------------------------------------
-String#downcase + ==      2.915M (± 5.4%) i/s -     14.572M
-      String#casecmp      3.708M (± 6.1%) i/s -     18.561M
+     String#casecmp?      3.687M (±10.9%) i/s -     18.602M in   5.158065s
+String#downcase + ==      5.017M (±11.3%) i/s -     25.022M in   5.089175s
+      String#casecmp      6.948M (± 6.0%) i/s -     35.041M in   5.062714s
 
 Comparison:
-      String#casecmp:  3708258.7 i/s
-String#downcase + ==:  2914767.7 i/s - 1.27x slower
+      String#casecmp:  6948231.0 i/s
+String#downcase + ==:  5017089.5 i/s - 1.38x  (± 0.00) slower
+     String#casecmp?:  3686650.7 i/s - 1.88x  (± 0.00) slower
 ```
 
 ##### String Concatenation [code](code/string/concatenation.rb)
@@ -938,47 +1189,45 @@ Comparison:
             String#+:  2977282.7 i/s - 1.80x slower
 ```
 
-##### `String#match` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-end_with.rb)
+##### `String#match` vs `String.match?` vs `String#start_with?`/`String#end_with?` [code (start)](code/string/start-string-checking-match-vs-start_with.rb) [code (end)](code/string/end-string-checking-match-vs-end_with.rb)
+
+The regular expression approaches become slower as the tested string becomes
+longer. For short strings, `String#match?` performs similarly to
+`String#start_with?`/`String#end_with?`.
 
 > :warning: <br>
 > Sometimes you cant replace regexp with `start_with?`, <br>
 > for example: `"a\nb" =~ /^b/ #=> 2` but `"a\nb" =~ /\Ab/ #=> nil`.<br>
 > :warning: <br>
-> You can combine `start_with?` and `end_with?` to replace
-> `error.path =~ /^#{path}(\.rb)?$/` to this <br>
-> `error.path.start_with?(path) && error.path.end_with?('.rb', '')`<br>
-> —— @igas [rails/rails#17316](https://github.com/rails/rails/pull/17316)
 
 ```
 $ ruby -v code/string/start-string-checking-match-vs-start_with.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
 Calculating -------------------------------------
-           String#=~    56.672k i/100ms
-  String#start_with?   118.308k i/100ms
--------------------------------------------------
-           String#=~    919.574k (± 6.4%) i/s -      4.590M
-  String#start_with?      4.177M (± 6.4%) i/s -     20.822M
+           String#=~      1.088M (± 4.0%) i/s -      5.471M in   5.034404s
+       String#match?      5.138M (± 5.0%) i/s -     25.669M in   5.008810s
+  String#start_with?      6.314M (± 4.3%) i/s -     31.554M in   5.007207s
 
 Comparison:
-  String#start_with?:  4177162.6 i/s
-           String#=~:   919574.2 i/s - 4.54x slower
+  String#start_with?:  6314182.0 i/s
+       String#match?:  5138115.1 i/s - 1.23x  slower
+           String#=~:  1088461.5 i/s - 5.80x  slower
 ```
 
 ```
 $ ruby -v code/string/end-string-checking-match-vs-end_with.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+  ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
 
-Calculating -------------------------------------
-           String#=~    53.194k i/100ms
-    String#end_with?   105.871k i/100ms
--------------------------------------------------
-           String#=~    891.124k (± 7.2%) i/s -      4.468M
-    String#end_with?      2.942M (± 7.6%) i/s -     14.610M
+  Calculating -------------------------------------
+             String#=~    918.101k (± 6.0%) i/s -      4.650M in   5.084079s
+         String#match?      3.009M (± 6.8%) i/s -     14.991M in   5.005691s
+      String#end_with?      4.548M (± 9.3%) i/s -     22.684M in   5.034115s
 
-Comparison:
-    String#end_with?:  2942017.4 i/s
-           String#=~:   891124.1 i/s - 3.30x slower
+  Comparison:
+      String#end_with?:  4547871.0 i/s
+         String#match?:  3008554.5 i/s - 1.51x  slower
+             String#=~:   918100.5 i/s - 4.95x  slower
 ```
 
 ##### `String#start_with?` vs `String#[].==` [code](code/string/start_with-vs-substring-==.rb)
@@ -1000,35 +1249,41 @@ Comparison:
    String#[0...n] ==:   427206.8 i/s - 4.79x slower
 ```
 
-##### `Regexp#===` vs `String#match` vs `String#=~` [code ](code/string/===-vs-=~-vs-match.rb)
+##### `Regexp#===` vs `Regexp#match` vs `Regexp#match?` vs `String#match` vs `String#=~` vs `String#match?` [code ](code/string/===-vs-=~-vs-match.rb)
+
+`String#match?` and `Regexp#match?` are available on Ruby 2.4 or later.
+ActiveSupport [provides](http://guides.rubyonrails.org/v5.1/active_support_core_extensions.html#match-questionmark)
+a forward compatible extension of `Regexp` for older Rubies without the speed
+improvement.
 
 > :warning: <br>
-> Sometimes you can't replace `match` with `=~`, <br>
+> Sometimes you can't replace `match` with `match?`, <br>
 > This is only useful for cases where you are checking <br>
 > for a match and not using the resultant match object. <br>
 > :warning: <br>
 > `Regexp#===` is also faster than `String#match` but you need to switch the order of arguments.
 
 ```
-$ ruby -v code/string/===-vs-=~-vs-match.rb.rb
-ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
-
+$ ruby -v code/string/===-vs-=~-vs-match.rb
+ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-darwin16]
 Calculating -------------------------------------
-           String#=~    98.184k i/100ms
-          Regexp#===    92.382k i/100ms
-        String#match    83.601k i/100ms
--------------------------------------------------
-           String#=~      2.442M (± 7.6%) i/s -     12.175M
-          Regexp#===      2.259M (± 7.9%) i/s -     11.271M
-        String#match      1.840M (± 7.3%) i/s -      9.196M
+       Regexp#match?      6.994M (± 3.0%) i/s -     35.144M in   5.029647s
+       String#match?      6.909M (± 3.3%) i/s -     34.663M in   5.023177s
+           String#=~      2.784M (± 5.2%) i/s -     13.996M in   5.043168s
+          Regexp#===      2.702M (± 4.5%) i/s -     13.631M in   5.056215s
+        Regexp#match      2.607M (± 4.9%) i/s -     13.025M in   5.009071s
+        String#match      2.362M (± 5.7%) i/s -     11.817M in   5.020344s
 
 Comparison:
-           String#=~:  2442335.1 i/s
-          Regexp#===:  2259277.3 i/s - 1.08x slower
-        String#match:  1839815.4 i/s - 1.33x slower
+       Regexp#match?:  6994107.7 i/s
+       String#match?:  6909055.7 i/s - same-ish: difference falls within error
+           String#=~:  2783577.8 i/s - 2.51x  slower
+          Regexp#===:  2702030.0 i/s - 2.59x  slower
+        Regexp#match:  2607484.0 i/s - 2.68x  slower
+        String#match:  2362314.8 i/s - 2.96x  slower
 ```
 
-See [#59](https://github.com/JuanitoFatas/fast-ruby/pull/59) and [#62](https://github.com/JuanitoFatas/fast-ruby/pull/62) for discussions.
+See [#59](https://github.com/fastruby/fast-ruby/pull/59) and [#62](https://github.com/fastruby/fast-ruby/pull/62) for discussions.
 
 
 ##### `String#gsub` vs `String#sub` vs `String#[]=` [code](code/string/gsub-vs-sub.rb)
@@ -1072,6 +1327,24 @@ Calculating -------------------------------------
 Comparison:
            String#tr:  1861860.4 i/s
          String#gsub:   516604.2 i/s - 3.60x slower
+```
+
+##### `String#gsub` vs `String#tr` vs `String#delete` [code](code/string/gsub-vs-tr-vs-delete.rb)
+
+```
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-linux]
+
+Calculating -------------------------------------
+         String#gsub      1.342M (± 1.3%) i/s -      6.816M in   5.079675s
+           String#tr      2.627M (± 1.0%) i/s -     13.387M in   5.096083s
+       String#delete      2.924M (± 0.7%) i/s -     14.889M in   5.093070s
+ String#delete const      3.136M (± 2.6%) i/s -     15.866M in   5.064043s
+
+Comparison:
+ String#delete const:  3135559.1 i/s
+       String#delete:  2923531.8 i/s - 1.07x  slower
+           String#tr:  2627150.5 i/s - 1.19x  slower
+         String#gsub:  1342013.4 i/s - 2.34x  slower
 ```
 
 ##### `Mutable` vs `Immutable` [code](code/string/mutable_vs_immutable_strings.rb)
@@ -1122,48 +1395,106 @@ String#gsub!'string':   481183.5 i/s - 2.52x slower
 String#gsub!/regexp/:   342003.8 i/s - 3.55x slower
 ```
 
-##### `String#sub` vs `String#chomp` [code](code/string/sub-vs-chomp.rb)
+##### `String#sub` vs `String#delete_prefix` [code](code/string/sub-vs-delete_prefix.rb)
 
+[Ruby 2.5 introduced](https://bugs.ruby-lang.org/issues/12694) `String#delete_prefix`.
+Note that this can only be used for removing characters from the start of a string.
+
+```
+$ ruby -v code/string/sub-vs-delete_prefix.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-darwin17]
+Calculating -------------------------------------
+String#delete_prefix      4.112M (± 1.8%) i/s -     20.707M in   5.037928s
+          String#sub    814.725k (± 1.4%) i/s -      4.088M in   5.018962s
+
+Comparison:
+String#delete_prefix:  4111531.1 i/s
+          String#sub:   814725.3 i/s - 5.05x  slower
+```
+
+##### `String#sub` vs `String#chomp` vs `String#delete_suffix` [code](code/string/sub-vs-chomp-vs-delete_suffix.rb)
+
+[Ruby 2.5 introduced](https://bugs.ruby-lang.org/issues/13665) `String#delete_suffix`
+as a counterpart to `delete_prefix`. The performance gain over `chomp` is
+small and during some runs the difference falls within the error margin.
 Note that this can only be used for removing characters from the end of a string.
 
 ```
-$ ruby -v code/string/sub-vs-chomp.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-darwin13]
+$ ruby -v code/string/sub-vs-chomp-vs-delete_suffix.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-darwin17]
 Calculating -------------------------------------
-  String#sub/regexp/    42.816k i/100ms
-String#chomp'string'    94.851k i/100ms
--------------------------------------------------
-  String#sub/regexp/    660.509k (± 8.0%) i/s -      3.297M
-String#chomp'string'      2.803M (± 8.0%) i/s -     13.943M
+        String#sub    838.415k (± 1.7%) i/s -      4.214M in   5.027412s
+      String#chomp      3.951M (± 2.1%) i/s -     19.813M in   5.017089s
+String#delete_suffix    4.202M (± 2.1%) i/s -     21.075M in   5.017429s
 
 Comparison:
-String#chomp'string':  2803443.5 i/s
-  String#sub/regexp/:   660508.7 i/s - 4.24x slower
+String#delete_suffix:  4202201.7 i/s
+        String#chomp:  3950921.9 i/s - 1.06x  slower
+          String#sub:   838415.3 i/s - 5.01x  slower
 ```
 
-##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
+##### `String#unpack1` vs `String#unpack[0]` [code](code/string/unpack1-vs-unpack[0].rb)
 
-> https://www.omniref.com/ruby/2.2.0/files/method.h?#annotation=4081781&line=47
+[Ruby 2.4.0 introduced `unpack1`](https://bugs.ruby-lang.org/issues/12752) to skip creating the intermediate array object.
 
 ```
-$ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
-ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+$ ruby -v code/string/unpack1-vs-unpack\[0\].rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+      String#unpack1   224.291k i/100ms
+    String#unpack[0]   201.870k i/100ms
 Calculating -------------------------------------
-   getter_and_setter    61.240k i/100ms
-       attr_accessor    66.535k i/100ms
--------------------------------------------------
-   getter_and_setter      1.660M (± 9.7%) i/s -      8.267M
-       attr_accessor      1.865M (± 9.2%) i/s -      9.248M
+      String#unpack1      4.864M (± 4.2%) i/s -     24.448M in   5.035203s
+    String#unpack[0]      3.778M (± 4.0%) i/s -     18.976M in   5.031253s
 
 Comparison:
-       attr_accessor:  1865408.4 i/s
-   getter_and_setter:  1660021.9 i/s - 1.12x slower
+      String#unpack1:  4864467.2 i/s
+    String#unpack[0]:  3777815.6 i/s - 1.29x  slower
 ```
 
+##### Remove extra spaces (or other contiguous characters) [code](code/string/remove-extra-spaces-or-other-chars.rb)
+
+The code is tested against contiguous spaces but should work for other chars too.
+
+```
+$ ruby -v code/string/remove-extra-spaces-or-other-chars.rb
+ruby 2.5.0p0 (2017-12-25 revision 61468) [x86_64-linux]
+Warming up --------------------------------------
+ String#gsub/regex+/     1.644k i/100ms
+      String#squeeze    24.681k i/100ms
+Calculating -------------------------------------
+ String#gsub/regex+/     14.668k (± 5.1%) i/s -     73.980k in   5.056887s
+      String#squeeze    372.910k (± 8.4%) i/s -      1.851M in   5.011881s
+
+Comparison:
+      String#squeeze:   372910.3 i/s
+ String#gsub/regex+/:    14668.1 i/s - 25.42x  slower
+```
+
+### Time
+
+##### `Time.iso8601` vs `Time.parse` [code](code/time/iso8601-vs-parse.rb)
+
+When expecting well-formatted data from e.g. an API, `iso8601` is faster and will raise an `ArgumentError` on malformed input.
+
+```
+$ ruby -v code/time/iso8601-vs-parse.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        Time.iso8601    10.234k i/100ms
+          Time.parse     4.228k i/100ms
+Calculating -------------------------------------
+        Time.iso8601    114.485k (± 3.5%) i/s -    573.104k in   5.012008s
+          Time.parse     43.711k (± 4.1%) i/s -    219.856k in   5.038349s
+
+Comparison:
+        Time.iso8601:   114485.1 i/s
+          Time.parse:    43710.9 i/s - 2.62x  slower
+```
 
 ### Range
 
-#### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
+##### `cover?` vs `include?` [code](code/range/cover-vs-include.rb)
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
@@ -1192,19 +1523,19 @@ Comparison:
 
 ## Less idiomatic but with significant performance ruby
 
-Checkout: https://github.com/JuanitoFatas/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-difference
+Checkout: https://github.com/fastruby/fast-ruby/wiki/Less-idiomatic-but-with-significant-performance-difference
 
 
 ## Submit New Entry
 
-Please! [Edit this README.md](https://github.com/JuanitoFatas/fast-ruby/edit/master/README.md) then [Submit a Awesome Pull Request](https://github.com/JuanitoFatas/fast-ruby/pulls)!
+Please! [Edit this README.md](https://github.com/fastruby/fast-ruby/edit/main/README.md) then [Submit a Awesome Pull Request](https://github.com/fastruby/fast-ruby/pulls)!
 
 
 ## Something went wrong
 
 Code example is wrong? :cry: Got better example? :heart_eyes: Excellent!
 
-[Please open an issue](https://github.com/JuanitoFatas/fast-ruby/issues/new) or [Open a Pull Request](https://github.com/JuanitoFatas/fast-ruby/pulls) to fix it.
+[Please open an issue](https://github.com/fastruby/fast-ruby/issues/new) or [Open a Pull Request](https://github.com/fastruby/fast-ruby/pulls) to fix it.
 
 Thank you in advance! :wink: :beer:
 
