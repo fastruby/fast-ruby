@@ -1083,7 +1083,7 @@ Comparison:
         block.call:  1967300.9 i/s - 5.30x  slower
 ```
 
-MRI Ruby 2.5 implements [Lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045):
+MRI Ruby 2.5 implements [Lazy Proc allocation for block parameters](https://bugs.ruby-lang.org/issues/14045), which speeds things up by about 3x.:
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
