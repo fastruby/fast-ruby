@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        ruby-version: ['2.3.0', '2.2', '2.1']
+        ruby-version: ['2.3', '2.2', '2.1']
 
     steps:
       - name: Set Share Env
