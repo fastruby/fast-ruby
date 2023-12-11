@@ -169,22 +169,28 @@ Custom exception: Kernel#raise:   589148.7 i/s
 Custom exception: E2MM#Raise:    29004.8 i/s - 20.31x slower
 ```
 
-##### `loop` vs `while true` [code](code/general/loop-vs-while-true.rb)
+##### `loop` vs `while true` vs `until false` vs `infinite range` [code](code/general/loop-vs-while-true-vs-until-false-vs-infinite-range.rb)
 
 ```
-$ ruby -v code/general/loop-vs-while-true.rb
-ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
+$ ruby -v code/general/loop-vs-while-true-vs-until-false-vs-infinite-range.rb
+ruby 3.3.0dev (2023-11-12 master 60e19a0b5f) [x86_64-linux]
 
-Calculating -------------------------------------
-          While Loop     1.000  i/100ms
+Warming up --------------------------------------
+          While loop     1.000  i/100ms
+          Until loop     1.000  i/100ms
          Kernel loop     1.000  i/100ms
--------------------------------------------------
-          While Loop      0.536  (± 0.0%) i/s -      3.000  in   5.593042s
-         Kernel loop      0.223  (± 0.0%) i/s -      2.000  in   8.982355s
+      Infinite range     1.000  i/100ms
+Calculating -------------------------------------
+          While loop      0.600  (± 0.0%) i/s -      3.000  in   5.002930s
+          Until loop      0.594  (± 0.0%) i/s -      3.000  in   5.054004s
+         Kernel loop      0.258  (± 0.0%) i/s -      2.000  in   7.754873s
+      Infinite range      0.207  (± 0.0%) i/s -      2.000  in   9.664227s
 
 Comparison:
-          While Loop:        0.5 i/s
-         Kernel loop:        0.2 i/s - 2.41x slower
+          While loop:        0.6 i/s
+          Until loop:        0.6 i/s - 1.01x  slower
+         Kernel loop:        0.3 i/s - 2.33x  slower
+      Infinite range:        0.2 i/s - 2.90x  slower
 ```
 
 ##### `ancestors.include?` vs `<=` [code](code/general/inheritance-check.rb)
