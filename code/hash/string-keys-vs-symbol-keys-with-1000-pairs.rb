@@ -1,9 +1,9 @@
 require "benchmark/ips"
 
 
-STRING_KEYS = (1..1000).map{|x| "key_#{x}"}.shuffle
-FROZEN_KEYS = STRING_KEYS.map{|x| "fr_#{x}".freeze}
-SYMBOL_KEYS = STRING_KEYS.map(&:to_sym)
+STRING_KEYS = (1001..2000).map{|x| "key_#{x}"}.shuffle
+FROZEN_KEYS = (2001..3000).map{|x| "key_#{x}".freeze}.shuffle
+SYMBOL_KEYS = (3001..4000).map{|x| "key_#{x}".to_sym}.shuffle
 
 # If we use static values for Hash, speed improves even more.
 def symbol_hash
