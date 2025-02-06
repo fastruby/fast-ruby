@@ -1563,6 +1563,10 @@ Feel free to talk with me on Twitter! <3
 
   Provides Big O notation benchmarking for Ruby.
 
+- [The Ruby Challenge](https://www.youtube.com/watch?v=aDeP7FGQBig)
+
+  Talk by Prem Sichanugrist @ Ruby Kaigi 2014.
+
 - [Fasterer](https://github.com/DamirSvrtan/fasterer)
 
   Make your Rubies go faster with this command line tool.
