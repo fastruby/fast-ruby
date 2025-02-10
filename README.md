@@ -1563,7 +1563,7 @@ Feel free to talk with me on Twitter! <3
 
   Provides Big O notation benchmarking for Ruby.
 
-- [The Ruby Challenge](https://therubychallenge.com/)
+- [The Ruby Challenge](https://www.youtube.com/watch?v=aDeP7FGQBig)
 
   Talk by Prem Sichanugrist @ Ruby Kaigi 2014.
 
