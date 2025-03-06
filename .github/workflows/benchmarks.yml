@@ -14,8 +14,8 @@ jobs:
       matrix:
         ruby-version: [
           'ruby-head', '3.2', '3.1', '3.0', '2.7', '2.6', '2.5', '2.4',
-          'jruby-head', 'jruby-9.1',
-          'truffleruby-head', 'truffleruby-22'
+          'jruby-head',
+          'truffleruby-head'
         ]
 
     steps:
@@ -34,6 +34,31 @@ jobs:
         run: bundle exec rake
 
   rake_old:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        ruby-version: [
+          'jruby-9.1',
+          'truffleruby-22'
+        ]
+
+    steps:
+      - name: Set Share Env
+        if: github.ref_name == 'main'
+        run: |
+          echo "SHARE=1" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+      - name: Install dependencies
+        run: bundle install
+      - name: Run benchmarks
+        run: bundle exec rake
+
+  rake_older:
     runs-on: ubuntu-20.04
 
     strategy:
