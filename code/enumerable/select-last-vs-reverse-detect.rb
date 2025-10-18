@@ -1,13 +1,13 @@
 require 'benchmark/ips'
 
-ARRAY = [*1..100]
+ARRAY = [*1..7777]
 
 def fast
-  ARRAY.reverse.detect { |x| (x % 10).zero? }
+  ARRAY.reverse.detect { |x| (x % 5).zero? }
 end
 
 def slow
-  ARRAY.select { |x| (x % 10).zero? }.last
+  ARRAY.select { |x| (x % 5).zero? }.last
 end
 
 Benchmark.ips do |x|
