@@ -26,10 +26,10 @@ Use [benchmark-ips](https://github.com/evanphx/benchmark-ips) (2.0+).
 ```ruby
 require "benchmark/ips"
 
-def fast
+def a
 end
 
-def slow
+def b
 end
 
 Benchmark.ips do |x|
