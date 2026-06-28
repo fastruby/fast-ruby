@@ -893,6 +893,30 @@ Comparison:
 Hash#values.include?:    62052.8 i/s - 1.15x  slower
 ```
 
+##### `Hash#values.compact` instead of `Hash#values.select` or `Hash#select.values` (to get non-nil values) [code](code/hash/select-values-vs-values-select-vs-values-compact.rb)
+
+> To collect the non-nil values of a hash, `Hash#select { |_k, v| v }.values` allocates an intermediate hash before extracting its values; <br>
+> `Hash#values.select { |v| v }` skips the intermediate hash but still runs a block per element; <br>
+> `Hash#values.compact` drops the nils in C without a Ruby-level block, which is fastest.
+
+```
+$ ruby -v code/hash/select-values-vs-values-select-vs-values-compact.rb
+ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin25]
+Warming up --------------------------------------
+  Hash#select.values     2.887k i/100ms
+  Hash#values.select     3.526k i/100ms
+ Hash#values.compact    57.606k i/100ms
+Calculating -------------------------------------
+  Hash#select.values     29.102k (± 1.3%) i/s   (34.36 μs/i) -    147.237k in   5.060206s
+  Hash#values.select     35.490k (± 0.7%) i/s   (28.18 μs/i) -    179.826k in   5.067223s
+ Hash#values.compact    580.469k (± 4.2%) i/s    (1.72 μs/i) -      2.938M in   5.070648s
+
+Comparison:
+ Hash#values.compact:   580468.7 i/s
+  Hash#values.select:    35489.9 i/s - 16.36x  slower
+  Hash#select.values:    29101.7 i/s - 19.95x  slower
+```
+
 ##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
 
 ```
