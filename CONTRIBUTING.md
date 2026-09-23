@@ -34,6 +34,36 @@ Run your result:
 $ ruby -v code/your-new/entry.rb
 ```
 
+### Benchmarks that need a newer Ruby
+
+CI runs every benchmark on every Ruby in `compose.yaml`, back to Ruby 2.1, and
+fails when one crashes. If your entry uses something older Rubies do not have,
+make it skip them.
+
+Skip one report, so the rest still run everywhere:
+
+```ruby
+Benchmark.ips do |x|
+  x.report('String#delete_suffix') { fast } if RUBY_VERSION >= '2.5.0'
+  x.report('String#sub')           { slow }
+  x.compare!
+end
+```
+
+Skip the whole file when nothing in it makes sense without the feature:
+
+```ruby
+if RUBY_VERSION >= '2.5.0'
+  # everything, including Benchmark.ips
+end
+```
+
+New syntax (for example `<<~` before 2.3) cannot be skipped this way: older
+Rubies fail to parse the file before the `if` runs. Write it with syntax they
+understand instead.
+
+To check an entry on an older Ruby, see Docker below.
+
 To run it on a Ruby you don't have installed, use Docker. There is one service
 per Ruby in the CI matrix (see `compose.yaml`):
 
