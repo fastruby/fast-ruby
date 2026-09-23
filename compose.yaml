@@ -1,0 +1,90 @@
+# Run the benchmarks on any Ruby from the CI matrix without installing it:
+#
+#   docker compose run --rm ruby_2.1
+#
+# CI runs the same services, see .github/workflows/benchmarks.yml.
+
+x-benchmark: &benchmark
+  volumes:
+    - .:/app
+  working_dir: /app
+  environment:
+    - SHARE
+  entrypoint: ["/app/docker/run-benchmarks.sh"]
+
+services:
+  ruby_3.2:
+    <<: *benchmark
+    image: ruby:3.2
+
+  ruby_3.1:
+    <<: *benchmark
+    image: ruby:3.1
+
+  ruby_3.0:
+    <<: *benchmark
+    image: ruby:3.0
+
+  ruby_2.7:
+    <<: *benchmark
+    image: ruby:2.7
+
+  ruby_2.6:
+    <<: *benchmark
+    image: ruby:2.6
+
+  ruby_2.5:
+    <<: *benchmark
+    image: ruby:2.5
+
+  ruby_2.4:
+    <<: *benchmark
+    image: ruby:2.4
+
+  ruby_2.3:
+    <<: *benchmark
+    image: ruby:2.3
+
+  ruby_2.2:
+    <<: *benchmark
+    image: ruby:2.2
+
+  # Only amd64 images exist for these two; they run under emulation on arm64 hosts.
+  ruby_2.1:
+    <<: *benchmark
+    image: ruby:2.1
+    platform: linux/amd64
+
+  jruby_9.1:
+    <<: *benchmark
+    image: jruby:9.1
+    platform: linux/amd64
+
+  # No official images for these, they are built from docker/Dockerfile.
+  truffleruby_22:
+    <<: *benchmark
+    build:
+      context: docker
+      args:
+        RUBY: truffleruby-22.3.1
+
+  ruby_head:
+    <<: *benchmark
+    build:
+      context: docker
+      args:
+        RUBY: ruby-head
+
+  jruby_head:
+    <<: *benchmark
+    build:
+      context: docker
+      args:
+        RUBY: jruby-head
+
+  truffleruby_head:
+    <<: *benchmark
+    build:
+      context: docker
+      args:
+        RUBY: truffleruby-head

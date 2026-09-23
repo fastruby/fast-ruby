@@ -34,6 +34,23 @@ Run your result:
 $ ruby -v code/your-new/entry.rb
 ```
 
+To run it on a Ruby you don't have installed, use Docker. There is one service
+per Ruby in the CI matrix (see `compose.yaml`):
+
+```
+docker compose run --rm ruby_2.1 code/your-new/entry.rb
+docker compose run --rm truffleruby_head code/your-new/entry.rb
+```
+
+Without a file argument, the service runs every benchmark, the same way CI does.
+
+The `*_head` and `truffleruby_22` images are built once and then reused, so
+the head builds go stale. To get the latest nightly build:
+
+```
+docker compose build --no-cache ruby_head
+```
+
 Thanks in advance!!! Look forward to learning more from you!
 
 <3 [JuanitoFatas](https://twitter.com/juanitofatas)
