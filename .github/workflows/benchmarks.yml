@@ -25,6 +25,7 @@ jobs:
         run: .github/scripts/pick-benchmarks.sh "${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}"
 
   rake:
+    name: rake (${{ matrix.ruby }}${{ matrix.variant && format('+{0}', matrix.variant) || '' }})
     needs: changes
     if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
@@ -41,20 +42,50 @@ jobs:
           'jruby_head', 'jruby_9.1',
           'truffleruby_head', 'truffleruby_22'
         ]
+        # '' is the plain Ruby. Each include below overwrites it, so GitHub
+        # adds it as a separate job instead of merging it into the plain one.
+        variant: ['']
+        include:
+          - { ruby: ruby_3.1, variant: yjit, flags: --yjit }
+          - { ruby: ruby_3.2, variant: yjit, flags: --yjit }
+          - { ruby: ruby_3.3, variant: yjit, flags: --yjit }
+          - { ruby: ruby_3.4, variant: yjit, flags: --yjit }
+          - { ruby: ruby_4.0, variant: yjit, flags: --yjit }
+          - { ruby: ruby_head, variant: yjit, flags: --yjit }
+          - { ruby: ruby_4.0, variant: zjit, flags: --zjit }
+          - { ruby: ruby_head, variant: zjit, flags: --zjit }
+
+    # Read by docker/run-benchmarks.sh and docker/collect_results.rb.
+    env:
+      RUBY_VARIANT: ${{ matrix.variant }}
+      RUBY_VARIANT_FLAGS: ${{ matrix.flags }}
+      RESULTS_DIR: results
+      RESULTS_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      RESULTS_PR: ${{ github.event.pull_request.number }}
+      RESULTS_LABEL: ${{ matrix.ruby }}${{ matrix.variant && format('+{0}', matrix.variant) || '' }}
 
     steps:
+      # Plain Rubies only: shared reports do not record the Ruby or its flags,
+      # so variant runs would be indistinguishable on ips.fastruby.io.
       - name: Set Share Env
-        if: github.ref_name == 'main'
+        if: github.ref_name == 'main' && matrix.variant == ''
         run: |
           echo "SHARE=1" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
-      - name: Run benchmarks on ${{ matrix.ruby }}
+      - name: Run benchmarks on ${{ env.RESULTS_LABEL }}
         env:
           FILES: ${{ needs.changes.outputs.files }}
         run: .github/scripts/run-benchmarks.sh ${{ matrix.ruby }}
       - name: Report failed benchmarks
         if: failure()
-        run: .github/scripts/report-failures.sh benchmarks.log ${{ matrix.ruby }}
+        run: .github/scripts/report-failures.sh benchmarks.log ${{ env.RESULTS_LABEL }}
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-${{ env.RESULTS_LABEL }}
+          path: results/
+          if-no-files-found: warn
 
   # The check to require on main. Passes when every benchmark job passed, or
   # when there was nothing to benchmark.

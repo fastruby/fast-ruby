@@ -60,6 +60,22 @@ the head builds go stale. To get the latest nightly build:
 docker compose build --no-cache ruby_head
 ```
 
+To run it with a JIT, pass the variant and its flags. The run stops if the
+Ruby does not have that JIT, instead of quietly running without it:
+
+```
+RUBY_VARIANT=yjit RUBY_VARIANT_FLAGS=--yjit docker compose run --rm ruby_3.4 code/your-new/entry.rb
+RUBY_VARIANT=zjit RUBY_VARIANT_FLAGS=--zjit docker compose run --rm ruby_4.0 code/your-new/entry.rb
+```
+
+To keep the results, set `RESULTS_DIR`. Each benchmark then also writes its
+report as JSON to `results/<label>/`, with the Ruby, its flags and the machine
+it ran on:
+
+```
+RESULTS_DIR=results RESULTS_LABEL=ruby_3.4 docker compose run --rm ruby_3.4 code/your-new/entry.rb
+```
+
 ## Benchmarks that need a newer Ruby
 
 CI runs every benchmark on every Ruby in `compose.yaml`, back to Ruby 2.1, and
