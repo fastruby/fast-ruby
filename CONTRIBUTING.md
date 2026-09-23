@@ -8,6 +8,13 @@ These idioms list here are trying to satisfy following goals:
 
 [![GOALS](/images/Goals.png)](https://speakerdeck.com/sferik/writing-fast-ruby?slide=11)
 
+## Contents
+
+- [Note on entry](#note-on-entry)
+- [Running it on other Rubies](#running-it-on-other-rubies)
+- [Benchmarks that need a newer Ruby](#benchmarks-that-need-a-newer-ruby)
+- [License](#license)
+
 ## Note on entry
 
 Fast code first.
@@ -31,10 +38,29 @@ end
 Run your result:
 
 ```
-$ ruby -v code/your-new/entry.rb
+ruby -v code/your-new/entry.rb
 ```
 
-### Benchmarks that need a newer Ruby
+## Running it on other Rubies
+
+To run it on a Ruby you don't have installed, use Docker. There is one service
+per Ruby in the CI matrix (see `compose.yaml`):
+
+```
+docker compose run --rm ruby_2.1 code/your-new/entry.rb
+docker compose run --rm truffleruby_head code/your-new/entry.rb
+```
+
+Without a file argument, the service runs every benchmark, the same way CI does.
+
+The `*_head` and `truffleruby_22` images are built once and then reused, so
+the head builds go stale. To get the latest nightly build:
+
+```
+docker compose build --no-cache ruby_head
+```
+
+## Benchmarks that need a newer Ruby
 
 CI runs every benchmark on every Ruby in `compose.yaml`, back to Ruby 2.1, and
 fails when one crashes. If your entry uses something older Rubies do not have,
@@ -62,30 +88,13 @@ New syntax (for example `<<~` before 2.3) cannot be skipped this way: older
 Rubies fail to parse the file before the `if` runs. Write it with syntax they
 understand instead.
 
-To check an entry on an older Ruby, see Docker below.
+To check an entry on an older Ruby, see [Running it on other Rubies](#running-it-on-other-rubies).
 
-To run it on a Ruby you don't have installed, use Docker. There is one service
-per Ruby in the CI matrix (see `compose.yaml`):
-
-```
-docker compose run --rm ruby_2.1 code/your-new/entry.rb
-docker compose run --rm truffleruby_head code/your-new/entry.rb
-```
-
-Without a file argument, the service runs every benchmark, the same way CI does.
-
-The `*_head` and `truffleruby_22` images are built once and then reused, so
-the head builds go stale. To get the latest nightly build:
-
-```
-docker compose build --no-cache ruby_head
-```
+## License
 
 Thanks in advance!!! Look forward to learning more from you!
 
 <3 [JuanitoFatas](https://twitter.com/juanitofatas)
-
-###### License
 
 <small>The documentation is [CC BY-SA 4.0 (International)](https://github.com/JuanitoFatas/fast-ruby#license).</small>
 
