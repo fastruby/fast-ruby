@@ -3,8 +3,10 @@ require "benchmark/ips"
 h = { a: { b: { c: { d: { e: "foo" } } } } }
 
 Benchmark.ips do |x|
-  x.report "Hash#dig" do
-    h.dig(:a, :b, :c, :d, :e)
+  if RUBY_VERSION >= "2.3.0"
+    x.report "Hash#dig" do
+      h.dig(:a, :b, :c, :d, :e)
+    end
   end
 
   x.report "Hash#[]" do

@@ -41,7 +41,7 @@ def slow
 end
 
 Benchmark.ips do |x|
-  x.report('Hash#native-slice   ') { fastest }
+  x.report('Hash#native-slice   ') { fastest } if RUBY_VERSION >= '2.5.0'
   x.report('Array#each          ') { faster }
   x.report('Array#each_w/_object') { fast }
   x.report('Hash#select-include ') { slow }

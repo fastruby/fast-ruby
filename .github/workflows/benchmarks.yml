@@ -1,10 +1,19 @@
 name: Benchmarks
 
+# Only changes that can affect a benchmark run it: README-only changes do not.
 on:
   push:
     branches: [ main ]
+    paths: &benchmark_paths
+      - 'code/**/*.rb'
+      - 'Gemfile'
+      - 'Rakefile'
+      - 'compose.yaml'
+      - 'docker/**'
+      - '.github/workflows/benchmarks.yml'
   pull_request:
     branches: [ main ]
+    paths: *benchmark_paths
 
 jobs:
   rake:
@@ -27,7 +36,38 @@ jobs:
       - name: Set Share Env
         if: github.ref_name == 'main'
         run: |
-          echo "SHARE=1" >> $GITHUB_ENV
+          echo "SHARE=1" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
+        with:
+          # A pull_request checks out a merge commit: HEAD^1 is the base.
+          fetch-depth: 2
+      # On a pull request, run only the benchmark files it changes, unless it
+      # changes something every benchmark depends on. Pushes to main run all.
+      - name: Pick benchmarks
+        id: pick
+        if: github.event_name == 'pull_request'
+        run: |
+          changed=$(git diff --name-only HEAD^1 HEAD)
+          if echo "$changed" | grep -qE '^(Gemfile|Rakefile|compose\.yaml|docker/|\.github/workflows/benchmarks\.yml)'; then
+            echo "Shared files changed, running every benchmark"
+          else
+            files=$(git diff --name-only --diff-filter=d HEAD^1 HEAD -- 'code/**/*.rb' | tr '\n' ' ')
+            if [ -z "$files" ]; then
+              # For example a PR that only deletes a benchmark.
+              echo "No benchmark to run"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Running: $files"
+              echo "files=$files" >> "$GITHUB_OUTPUT"
+            fi
+          fi
       - name: Run benchmarks on ${{ matrix.ruby }}
-        run: docker compose run --rm -T ${{ matrix.ruby }}
+        if: steps.pick.outputs.skip != 'true'
+        env:
+          FILES: ${{ steps.pick.outputs.files }}
+        run: |
+          # Unquoted on purpose: one argument per file. set -f keeps names like
+          # dig-vs-[]-vs-fetch.rb from being read as glob patterns.
+          set -f
+          # shellcheck disable=SC2086
+          docker compose run --rm -T ${{ matrix.ruby }} $FILES
