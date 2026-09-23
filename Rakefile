@@ -12,7 +12,11 @@ task :run_benchmark do
     failed << benchmark unless system("ruby", "-v", "-W0", benchmark)
   end
 
-  abort "Failed benchmarks:\n#{failed.join("\n")}" unless failed.empty?
+  unless failed.empty?
+    abort "Failed benchmarks:\n#{failed.join("\n")}\n\n" \
+          "If a benchmark needs a newer Ruby, make it skip older ones, see " \
+          "\"Benchmarks that need a newer Ruby\" in CONTRIBUTING.md."
+  end
 end
 
 task default: :run_benchmark

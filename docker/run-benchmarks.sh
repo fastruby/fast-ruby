@@ -23,5 +23,8 @@ done
 
 if [ -n "$failed" ]; then
   echo "Failed benchmarks:$failed" >&2
+  echo >&2
+  echo "If a benchmark needs a newer Ruby, make it skip older ones, see" \
+    "\"Benchmarks that need a newer Ruby\" in CONTRIBUTING.md." >&2
   exit 1
 fi
