@@ -14,7 +14,14 @@ if [ "$#" -eq 0 ]; then
   exec bundle exec rake
 fi
 
+failed=""
 for benchmark in "$@"; do
   echo "\$ ruby -v $benchmark"
-  bundle exec ruby -v -W0 "$benchmark"
+  bundle exec ruby -v -W0 "$benchmark" || failed="$failed
+$benchmark"
 done
+
+if [ -n "$failed" ]; then
+  echo "Failed benchmarks:$failed" >&2
+  exit 1
+fi
