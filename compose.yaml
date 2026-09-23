@@ -10,6 +10,10 @@ x-benchmark: &benchmark
   working_dir: /app
   environment:
     - SHARE
+    # Only JRuby reads it. Java's default heap cap (1/4 of memory) is too small
+    # for code/array/bsearch-vs-find.rb's 100M element array: JRuby 9.1 fails
+    # even on 16 GB CI runners, JRuby 10 on smaller machines.
+    - JRUBY_OPTS=-J-Xmx6g
   entrypoint: ["/app/docker/run-benchmarks.sh"]
 
 services:

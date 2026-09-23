@@ -10,4 +10,8 @@ gem 'e2mmap'
 # does not even parse on Ruby 2.1.
 gem 'ostruct' if RUBY_VERSION >= '3.4'
 
+# JRuby 9.1's bundled jruby-openssl cannot complete a TLS handshake with
+# ips.fastruby.io, so sharing results (SHARE=1) crashed every benchmark.
+gem 'jruby-openssl', '>= 0.10' if RUBY_ENGINE == 'jruby' && Gem::Version.new(JRUBY_VERSION) < Gem::Version.new('9.2')
+
 gem 'rake'
