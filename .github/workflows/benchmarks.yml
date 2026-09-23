@@ -1,22 +1,59 @@
 name: Benchmarks
 
-# Only changes that can affect a benchmark run it: README-only changes do not.
+# Always runs, so the benchmarks-ok check at the end always reports and can be
+# required. The changes job decides whether there is anything to benchmark.
 on:
   push:
     branches: [ main ]
-    paths: &benchmark_paths
-      - 'code/**/*.rb'
-      - 'Gemfile'
-      - 'Rakefile'
-      - 'compose.yaml'
-      - 'docker/**'
-      - '.github/workflows/benchmarks.yml'
   pull_request:
     branches: [ main ]
-    paths: *benchmark_paths
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.pick.outputs.run }}
+      files: ${{ steps.pick.outputs.files }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # A pull request runs only the benchmark files it changes, unless it
+      # changes something every benchmark depends on. A push to main runs
+      # everything, if anything that affects benchmarks changed.
+      - name: Pick benchmarks
+        id: pick
+        env:
+          # A pull_request checks out a merge commit: HEAD^1 is the base.
+          BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}
+        run: |
+          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "Base $BASE not found, running every benchmark"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$BASE" HEAD)
+          files=$(git diff --name-only --diff-filter=d "$BASE" HEAD -- 'code/**/*.rb' | tr '\n' ' ')
+          if echo "$changed" | grep -qE '^(Gemfile|Rakefile|compose\.yaml|docker/|\.github/workflows/benchmarks\.yml)'; then
+            echo "Shared files changed, running every benchmark"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ -z "$files" ]; then
+            # Docs only, or a PR that only deletes a benchmark.
+            echo "No benchmark to run"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            echo "Running: $files"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "files=$files" >> "$GITHUB_OUTPUT"
+          else
+            echo "Benchmarks changed, running every benchmark"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   rake:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -38,36 +75,28 @@ jobs:
         run: |
           echo "SHARE=1" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
-        with:
-          # A pull_request checks out a merge commit: HEAD^1 is the base.
-          fetch-depth: 2
-      # On a pull request, run only the benchmark files it changes, unless it
-      # changes something every benchmark depends on. Pushes to main run all.
-      - name: Pick benchmarks
-        id: pick
-        if: github.event_name == 'pull_request'
-        run: |
-          changed=$(git diff --name-only HEAD^1 HEAD)
-          if echo "$changed" | grep -qE '^(Gemfile|Rakefile|compose\.yaml|docker/|\.github/workflows/benchmarks\.yml)'; then
-            echo "Shared files changed, running every benchmark"
-          else
-            files=$(git diff --name-only --diff-filter=d HEAD^1 HEAD -- 'code/**/*.rb' | tr '\n' ' ')
-            if [ -z "$files" ]; then
-              # For example a PR that only deletes a benchmark.
-              echo "No benchmark to run"
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "Running: $files"
-              echo "files=$files" >> "$GITHUB_OUTPUT"
-            fi
-          fi
       - name: Run benchmarks on ${{ matrix.ruby }}
-        if: steps.pick.outputs.skip != 'true'
         env:
-          FILES: ${{ steps.pick.outputs.files }}
+          FILES: ${{ needs.changes.outputs.files }}
         run: |
           # Unquoted on purpose: one argument per file. set -f keeps names like
           # dig-vs-[]-vs-fetch.rb from being read as glob patterns.
           set -f
           # shellcheck disable=SC2086
           docker compose run --rm -T ${{ matrix.ruby }} $FILES
+
+  # The check to require on main. Passes when every benchmark job passed, or
+  # when there was nothing to benchmark.
+  benchmarks-ok:
+    needs: [changes, rake]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check the benchmark jobs
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          RAKE: ${{ needs.rake.result }}
+        run: |
+          echo "changes: $CHANGES, rake: $RAKE"
+          [ "$CHANGES" = success ] && { [ "$RAKE" = success ] || [ "$RAKE" = skipped ]; }
