@@ -10,6 +10,11 @@ export BUNDLE_GEMFILE=/tmp/bundle/Gemfile
 
 bundle install
 
+# Also write every result as JSON, see docker/collect_results.rb.
+if [ -n "$RESULTS_DIR" ]; then
+  export RUBYOPT="-r/app/docker/collect_results.rb $RUBYOPT"
+fi
+
 if [ "$#" -eq 0 ]; then
   exec bundle exec rake
 fi

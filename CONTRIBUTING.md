@@ -60,6 +60,14 @@ the head builds go stale. To get the latest nightly build:
 docker compose build --no-cache ruby_head
 ```
 
+To keep the results, set `RESULTS_DIR`. Each benchmark then also writes its
+report as JSON to `results/<label>/`, with the Ruby, its flags and the machine
+it ran on:
+
+```
+RESULTS_DIR=results RESULTS_LABEL=ruby_3.4 docker compose run --rm ruby_3.4 code/your-new/entry.rb
+```
+
 ## Benchmarks that need a newer Ruby
 
 CI runs every benchmark on every Ruby in `compose.yaml`, back to Ruby 2.1, and

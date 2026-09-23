@@ -14,6 +14,14 @@ x-benchmark: &benchmark
     # for code/array/bsearch-vs-find.rb's 100M element array: JRuby 9.1 fails
     # even on 16 GB CI runners, JRuby 10 on smaller machines.
     - JRUBY_OPTS=-J-Xmx6g
+    # Results (docker/collect_results.rb).
+    - RESULTS_DIR
+    - RESULTS_LABEL
+    - RESULTS_COMMIT
+    - RESULTS_PR
+    - GITHUB_RUN_ID
+    - GITHUB_RUN_ATTEMPT
+    - RUNNER_NAME
   entrypoint: ["/app/docker/run-benchmarks.sh"]
 
 services:

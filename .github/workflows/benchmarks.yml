@@ -42,6 +42,14 @@ jobs:
           'truffleruby_head', 'truffleruby_22'
         ]
 
+    # Read by docker/collect_results.rb.
+    env:
+      RESULTS_DIR: results
+      # On a pull request, github.sha is a temporary merge commit.
+      RESULTS_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      RESULTS_PR: ${{ github.event.pull_request.number }}
+      RESULTS_LABEL: ${{ matrix.ruby }}
+
     steps:
       - name: Set Share Env
         if: github.ref_name == 'main'
@@ -55,6 +63,13 @@ jobs:
       - name: Report failed benchmarks
         if: failure()
         run: .github/scripts/report-failures.sh benchmarks.log ${{ matrix.ruby }}
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-${{ env.RESULTS_LABEL }}
+          path: results/
+          if-no-files-found: warn
 
   # The check to require on main. Passes when every benchmark job passed, or
   # when there was nothing to benchmark.
