@@ -16,8 +16,9 @@ jobs:
       matrix:
         # Service names from compose.yaml
         ruby: [
-          'ruby_head', 'ruby_3.2', 'ruby_3.1', 'ruby_3.0', 'ruby_2.7', 'ruby_2.6',
-          'ruby_2.5', 'ruby_2.4', 'ruby_2.3', 'ruby_2.2', 'ruby_2.1',
+          'ruby_head', 'ruby_4.0', 'ruby_3.4', 'ruby_3.3', 'ruby_3.2', 'ruby_3.1',
+          'ruby_3.0', 'ruby_2.7', 'ruby_2.6', 'ruby_2.5', 'ruby_2.4', 'ruby_2.3',
+          'ruby_2.2', 'ruby_2.1',
           'jruby_head', 'jruby_9.1',
           'truffleruby_head', 'truffleruby_22'
         ]

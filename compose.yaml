@@ -13,6 +13,18 @@ x-benchmark: &benchmark
   entrypoint: ["/app/docker/run-benchmarks.sh"]
 
 services:
+  ruby_4.0:
+    <<: *benchmark
+    image: ruby:4.0
+
+  ruby_3.4:
+    <<: *benchmark
+    image: ruby:3.4
+
+  ruby_3.3:
+    <<: *benchmark
+    image: ruby:3.3
+
   ruby_3.2:
     <<: *benchmark
     image: ruby:3.2
