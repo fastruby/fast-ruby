@@ -19,37 +19,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # A pull request runs only the benchmark files it changes, unless it
-      # changes something every benchmark depends on. A push to main runs
-      # everything, if anything that affects benchmarks changed.
       - name: Pick benchmarks
         id: pick
-        env:
-          # A pull_request checks out a merge commit: HEAD^1 is the base.
-          BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}
-        run: |
-          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            echo "Base $BASE not found, running every benchmark"
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          changed=$(git diff --name-only "$BASE" HEAD)
-          files=$(git diff --name-only --diff-filter=d "$BASE" HEAD -- 'code/**/*.rb' | tr '\n' ' ')
-          if echo "$changed" | grep -qE '^(Gemfile|Rakefile|compose\.yaml|docker/|\.github/workflows/benchmarks\.yml)'; then
-            echo "Shared files changed, running every benchmark"
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ -z "$files" ]; then
-            # Docs only, or a PR that only deletes a benchmark.
-            echo "No benchmark to run"
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          elif [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            echo "Running: $files"
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "files=$files" >> "$GITHUB_OUTPUT"
-          else
-            echo "Benchmarks changed, running every benchmark"
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          fi
+        # A pull_request checks out a merge commit: HEAD^1 is the base.
+        run: .github/scripts/pick-benchmarks.sh "${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}"
 
   rake:
     needs: changes
@@ -76,38 +49,12 @@ jobs:
           echo "SHARE=1" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
       - name: Run benchmarks on ${{ matrix.ruby }}
-        # Explicit bash turns on pipefail, so tee does not hide a failure.
-        shell: bash
         env:
           FILES: ${{ needs.changes.outputs.files }}
-        run: |
-          # Unquoted on purpose: one argument per file. set -f keeps names like
-          # dig-vs-[]-vs-fetch.rb from being read as glob patterns.
-          set -f
-          # shellcheck disable=SC2086
-          docker compose run --rm -T ${{ matrix.ruby }} $FILES 2>&1 | tee benchmarks.log
-      # One annotation per failed benchmark, shown on the PR's changed files,
-      # and a list on the run's summary page.
+        run: .github/scripts/run-benchmarks.sh ${{ matrix.ruby }}
       - name: Report failed benchmarks
         if: failure()
-        env:
-          RUBY_SERVICE: ${{ matrix.ruby }}
-        run: |
-          failed=$(sed -n '/^Failed benchmarks:/,$p' benchmarks.log | grep -E '^code/.+\.rb$' || true)
-          [ -n "$failed" ] || exit 0
-          hint='If it needs a newer Ruby, make it skip older ones, see "Benchmarks that need a newer Ruby" in CONTRIBUTING.md.'
-          {
-            echo "### Benchmarks that failed on $RUBY_SERVICE"
-            echo
-            echo "$failed" | while read -r file; do echo "- \`$file\`"; done
-            echo
-            echo "$hint"
-          } >> "$GITHUB_STEP_SUMMARY"
-          echo "$failed" | while read -r file; do
-            # Annotation properties cannot contain raw % , or :
-            escaped=$(printf '%s' "$file" | sed 's/%/%25/g; s/,/%2C/g; s/:/%3A/g')
-            echo "::error file=$escaped,title=Fails on $RUBY_SERVICE::Crashed on $RUBY_SERVICE. $hint"
-          done
+        run: .github/scripts/report-failures.sh benchmarks.log ${{ matrix.ruby }}
 
   # The check to require on main. Passes when every benchmark job passed, or
   # when there was nothing to benchmark.
@@ -117,10 +64,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
       - name: Check the benchmark jobs
-        env:
-          CHANGES: ${{ needs.changes.result }}
-          RAKE: ${{ needs.rake.result }}
-        run: |
-          echo "changes: $CHANGES, rake: $RAKE"
-          [ "$CHANGES" = success ] && { [ "$RAKE" = success ] || [ "$RAKE" = skipped ]; }
+        run: .github/scripts/check-benchmarks.sh ${{ needs.changes.result }} ${{ needs.rake.result }}
