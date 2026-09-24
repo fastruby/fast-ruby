@@ -24,9 +24,21 @@ jobs:
         # A pull_request checks out a merge commit: HEAD^1 is the base.
         run: .github/scripts/pick-benchmarks.sh "${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}"
 
+  # Every benchmark has the same shape (see lint-benchmarks.rb). Reads the
+  # files without running them, on the newest Ruby: the lint needs Prism.
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint benchmarks
+        run: docker compose run --rm -T --entrypoint ruby ruby_4.0 .github/scripts/lint-benchmarks.rb
+
+  # Waits for the lint: if it fails, the PR cannot merge, so the benchmark
+  # jobs would only hold the org's job slots for nothing.
   rake:
     name: rake (${{ matrix.ruby }}${{ matrix.variant && format('+{0}', matrix.variant) || '' }})
-    needs: changes
+    needs: [changes, lint]
     if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -90,11 +102,11 @@ jobs:
   # The check to require on main. Passes when every benchmark job passed, or
   # when there was nothing to benchmark.
   benchmarks-ok:
-    needs: [changes, rake]
+    needs: [changes, lint, rake]
     if: always()
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Check the benchmark jobs
-        run: .github/scripts/check-benchmarks.sh ${{ needs.changes.result }} ${{ needs.rake.result }}
+        run: .github/scripts/check-benchmarks.sh ${{ needs.changes.result }} ${{ needs.lint.result }} ${{ needs.rake.result }}

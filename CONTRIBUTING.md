@@ -35,6 +35,12 @@ Benchmark.ips do |x|
 end
 ```
 
+Keep that shape: end every `Benchmark.ips` block with `x.compare!`, keep the
+default timing (no `Benchmark.ips(20)`, `x.time = ...` or `x.config(time: ...)`),
+so every entry is measured the same way, and make sure
+the file actually calls `Benchmark.ips` when it runs
+(not only inside a method nothing calls). CI checks all three.
+
 Run your result:
 
 ```
