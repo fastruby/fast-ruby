@@ -10,7 +10,7 @@ def fast
   ARRAY.detect { |x| x.eql?(15) }
 end
 
-Benchmark.ips(20) do |x|
+Benchmark.ips do |x|
   x.report('Enumerable#select.first') { slow }
   x.report('Enumerable#detect') { fast }
   x.compare!
