@@ -1,34 +1,38 @@
 require 'benchmark/ips'
 
-# 2 + 1 = 3 object
-def slow_plus
-  'foo' + 'bar'
-end
+# Object counts are per call, measured on Ruby 3.4.
 
-# 2 + 1 = 3 object
-def slow_concat
-  'foo'.concat 'bar'
-end
-
-# 2 + 1 = 3 object
-def slow_append
-  'foo' << 'bar'
-end
-
-# 1 object
-def fast
-  'foo' 'bar'
-end
-
-def fast_interpolation
+# 1 object: the result.
+# Both of these are built from literals when the file is parsed, so they are close; which one wins varies by Ruby version.
+def fastest
   "#{'foo'}#{'bar'}"
 end
 
+# 1 object: the result.
+def faster
+  'foo' 'bar'
+end
+
+# 2 objects: 'foo' and 'bar'; 'foo' is changed in place.
+def slow
+  'foo' << 'bar'
+end
+
+# 2 objects: 'foo' and 'bar'; 'foo' is changed in place.
+def slower
+  'foo'.concat 'bar'
+end
+
+# 3 objects: 'foo', 'bar' and the new result.
+def slowest
+  'foo' + 'bar'
+end
+
 Benchmark.ips do |x|
-  x.report('String#+')                 { slow_plus }
-  x.report('String#concat')            { slow_concat }
-  x.report('String#append')            { slow_append }
-  x.report('"foo" "bar"')              { fast }
-  x.report('"#{\'foo\'}#{\'bar\'}"')   { fast_interpolation }
+  x.report('"#{\'foo\'}#{\'bar\'}"')   { fastest }
+  x.report('"foo" "bar"')              { faster }
+  x.report('String#append')            { slow }
+  x.report('String#concat')            { slower }
+  x.report('String#+')                 { slowest }
   x.compare!
 end

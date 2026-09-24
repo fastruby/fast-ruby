@@ -17,8 +17,8 @@ def fastest
 end
 
 Benchmark.ips do |x|
-  x.report('String#gsub') { slow }
-  x.report('String#sub')  { fast }
   x.report('String#dup["string"]=')  { fastest }
+  x.report('String#sub')  { fast }
+  x.report('String#gsub') { slow }
   x.compare!
 end

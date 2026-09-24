@@ -19,7 +19,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('String#gsub/regex+/') { slow }
   x.report('String#squeeze')    { fast }
+  x.report('String#gsub/regex+/') { slow }
   x.compare!
 end

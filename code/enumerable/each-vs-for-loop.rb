@@ -15,7 +15,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('For loop') { slow  }
   x.report('#each')    { fast  }
+  x.report('For loop') { slow  }
   x.compare!
 end

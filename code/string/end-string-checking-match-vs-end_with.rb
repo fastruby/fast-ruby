@@ -15,8 +15,8 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('String#=~')        { slower }
-  x.report('String#match?')    { slow } if RUBY_VERSION >= "2.4.0".freeze
   x.report('String#end_with?') { fast }
+  x.report('String#match?')    { slow } if RUBY_VERSION >= "2.4.0".freeze
+  x.report('String#=~')        { slower }
   x.compare!
 end

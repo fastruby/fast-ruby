@@ -24,10 +24,17 @@ EQL_USING_RANGE = STRINGS.each_index.map do |i|
   "STRINGS[#{i}][0...PREFIX.length].eql?(PREFIX)"
 end.join(";")
 
+# Each check is written out for all 10 strings (not looped), so only the checks are measured.
+# The methods are defined from those strings.
+eval "def fastest\n#{START_WITH}\nend"
+eval "def faster\n#{EQL_USING_LENGTH}\nend"
+eval "def fast\n#{EQL_USING_RANGE_PREALLOC}\nend"
+eval "def slow\n#{EQL_USING_RANGE}\nend"
+
 Benchmark.ips do |x|
-  x.report("String#start_with?", START_WITH)
-  x.report("String#[0, n] ==", EQL_USING_LENGTH)
-  x.report("String#[RANGE] ==", EQL_USING_RANGE_PREALLOC)
-  x.report("String#[0...n] ==", EQL_USING_RANGE)
+  x.report("String#start_with?") { fastest }
+  x.report("String#[0, n] ==") { faster }
+  x.report("String#[RANGE] ==") { fast }
+  x.report("String#[0...n] ==") { slow }
   x.compare!
 end

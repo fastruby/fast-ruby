@@ -134,7 +134,7 @@ using an if statement: 15517955.2 i/s
   String#constantize: 10556362.4 i/s - 1.47x  slower
 ```
 
-##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb)
+##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb) [custom exception code](code/general/raise-custom-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
 
@@ -155,7 +155,10 @@ Ruby exception: Kernel#raise
 Comparison:
 Ruby exception: Kernel#raise:  2570660.6 i/s
 Ruby exception: E2MM#Raise:    88268.9 i/s - 29.12x  slower
+```
 
+```
+$ ruby -v code/general/raise-custom-vs-e2mmap.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
 Warming up --------------------------------------
 Custom exception: E2MM#Raise

@@ -15,8 +15,8 @@ def fast
 end
 
 Benchmark.ips do |x|
+  x.report('Array#flat_map')       { fast           }
   x.report('Array#map.flatten(1)') { slow_flatten_1 }
   x.report('Array#map.flatten')    { slow_flatten   }
-  x.report('Array#flat_map')       { fast           }
   x.compare!
 end

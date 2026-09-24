@@ -1,18 +1,18 @@
 require "benchmark/ips"
 
-HASH = Hash[*("a".."zzz").to_a.shuffle]
-KEY = "zz"
+HASH = Hash[*("a".."zzz").to_a] # 9139 pairs, same order every run
+KEY = HASH.keys[HASH.size / 2] # always found halfway through
 
-def key_fast
+def fast
   HASH.key? KEY
 end
 
-def key_slow
+def slow
   HASH.keys.include? KEY
 end
 
 Benchmark.ips do |x|
-  x.report("Hash#keys.include?") { key_slow }
-  x.report("Hash#key?") { key_fast }
+  x.report("Hash#key?") { fast }
+  x.report("Hash#keys.include?") { slow }
   x.compare!
 end

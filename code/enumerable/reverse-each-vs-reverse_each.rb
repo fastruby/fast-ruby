@@ -11,7 +11,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('Array#reverse.each') { slow }
   x.report('Array#reverse_each') { fast }
+  x.report('Array#reverse.each') { slow }
   x.compare!
 end

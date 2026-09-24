@@ -15,7 +15,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('Hash#merge!') { slow }
   x.report('Hash#[]=') { fast }
+  x.report('Hash#merge!') { slow }
   x.compare!
 end

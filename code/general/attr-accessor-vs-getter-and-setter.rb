@@ -26,7 +26,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('getter_and_setter') { slow }
   x.report('attr_accessor')     { fast }
+  x.report('getter_and_setter') { slow }
   x.compare!
 end

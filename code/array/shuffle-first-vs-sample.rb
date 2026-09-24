@@ -11,7 +11,7 @@ def fast
 end
 
 Benchmark.ips do |x|
-  x.report('Array#shuffle.first') { slow }
   x.report('Array#sample')        { fast }
+  x.report('Array#shuffle.first') { slow }
   x.compare!
 end
