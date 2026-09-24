@@ -492,6 +492,61 @@ Comparison:
   Array#sort_by &:-@:   229323.6 i/s - 2.44x  slower
 ```
 
+##### Subset check: `(a1 - a2).empty?` vs alternatives [code](code/array/subset-check.rb)
+
+> To check whether every element of `a1` is also in `a2`, `(a1 - a2).empty?` is
+> consistently the fastest across modern Ruby versions for the common case where
+> `a1` is actually a subset. <br>
+> **Caveat:** the winner is highly data-dependent. `a1.all? { |e| a2.include?(e) }`
+> short-circuits on the first miss, so it wins when `a1` is *not* a subset, but it
+> is O(n*m) and degrades badly on large true subsets. <br>
+> Note also that `Set#subset?` (including the `to_set` conversion) was ~6.8x slower
+> on Ruby 3.3/3.4 but only ~1.7x slower on Ruby 4.0, where `Set` became much
+> faster. If you already hold `Set`s (or check repeatedly), `Set#subset?` scales
+> best.
+
+```
+$ ruby -v code/array/subset-check.rb
+ruby 3.3.10 (2025-10-23 revision 343ea05002) [arm64-darwin25]
+Warming up --------------------------------------
+    (a1 - a2).empty?    86.499k i/100ms
+     (a1 & a2) == a1    73.860k i/100ms
+ (a1 & a2).size == n    74.102k i/100ms
+a1.all? { include? }    67.703k i/100ms
+   a1.to_set.subset?    12.068k i/100ms
+Calculating -------------------------------------
+    (a1 - a2).empty?    849.546k (± 2.7%) i/s    (1.18 μs/i) -      4.325M in   5.090893s
+     (a1 & a2) == a1    746.103k (± 2.0%) i/s    (1.34 μs/i) -      3.767M in   5.048711s
+ (a1 & a2).size == n    780.447k (± 1.9%) i/s    (1.28 μs/i) -      3.927M in   5.032254s
+a1.all? { include? }    715.301k (± 2.4%) i/s    (1.40 μs/i) -      3.588M in   5.016435s
+   a1.to_set.subset?    124.189k (± 0.8%) i/s    (8.05 μs/i) -    627.536k in   5.053052s
+
+Comparison:
+    (a1 - a2).empty?:   849546.4 i/s
+ (a1 & a2).size == n:   780446.7 i/s - 1.09x  slower
+     (a1 & a2) == a1:   746103.3 i/s - 1.14x  slower
+a1.all? { include? }:   715300.6 i/s - 1.19x  slower
+   a1.to_set.subset?:   124189.5 i/s - 6.84x  slower
+
+$ ruby -v code/array/subset-check.rb
+ruby 3.4.7 (2025-10-08 revision 7a5688e2a2) +PRISM [arm64-darwin25]
+Comparison:
+    (a1 - a2).empty?:   807172.5 i/s
+ (a1 & a2).size == n:   719880.2 i/s - 1.12x  slower
+a1.all? { include? }:   713213.0 i/s - 1.13x  slower
+     (a1 & a2) == a1:   687629.1 i/s - 1.17x  slower
+   a1.to_set.subset?:   119834.6 i/s - 6.74x  slower
+
+$ ruby -v code/array/subset-check.rb
+ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin25]
+Comparison:
+    (a1 - a2).empty?:   784706.1 i/s
+a1.all? { include? }:   727520.9 i/s - 1.08x  slower
+ (a1 & a2).size == n:   701969.3 i/s - 1.12x  slower
+     (a1 & a2) == a1:   670252.7 i/s - 1.17x  slower
+   a1.to_set.subset?:   467206.3 i/s - 1.68x  slower
+```
+
 ### Enumerable
 
 ##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
