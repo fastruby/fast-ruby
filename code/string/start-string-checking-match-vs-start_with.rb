@@ -2,18 +2,18 @@ require 'benchmark/ips'
 
 SLUG = 'test_some_kind_of_long_file_name.rb'
 
-def slower
-  SLUG =~ /^test_/
+# String#match? wins on Ruby 3.4 (with or without YJIT).
+# start_with? wins on the other Rubies CI runs.
+def fast
+  SLUG.start_with?('test_')
 end
 
 def slow
   SLUG.match?(/^test_/)
 end
 
-# String#match? wins on Ruby 3.4 (with or without YJIT).
-# start_with? wins on the other Rubies CI runs.
-def fast
-  SLUG.start_with?('test_')
+def slower
+  SLUG =~ /^test_/
 end
 
 Benchmark.ips do |x|

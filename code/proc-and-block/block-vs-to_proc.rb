@@ -2,12 +2,12 @@ require 'benchmark/ips'
 
 RANGE = (1..100)
 
-def slow
-  RANGE.map { |i| i.to_s }
-end
-
 def fast
   RANGE.map(&:to_s)
+end
+
+def slow
+  RANGE.map { |i| i.to_s }
 end
 
 Benchmark.ips do |x|

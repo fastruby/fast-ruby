@@ -23,6 +23,7 @@ def slow
   (BEGIN_OF_JULY..END_OF_JULY).include? DAY_IN_JULY
 end
 
+# Range#member? is an alias of Range#include?, so these two should tie.
 def slower
   (BEGIN_OF_JULY..END_OF_JULY).member? DAY_IN_JULY
 end

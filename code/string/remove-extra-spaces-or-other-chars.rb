@@ -10,12 +10,12 @@ LIPSUM
 
 raise unless PASSAGE.gsub(/ +/, " ") == PASSAGE.squeeze(" ")
 
-def slow
-  PASSAGE.gsub(/ +/, " ")
-end
-
 def fast
   PASSAGE.squeeze(" ")
+end
+
+def slow
+  PASSAGE.gsub(/ +/, " ")
 end
 
 Benchmark.ips do |x|

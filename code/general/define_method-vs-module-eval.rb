@@ -36,7 +36,6 @@ def slow
   ModuleEvalWithString.def_methods(method_names(10))
 end
 
-
 Benchmark.ips do |x|
   x.report("define_method")           { fast }
   x.report("module_eval with string") { slow }

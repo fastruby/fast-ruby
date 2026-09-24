@@ -44,17 +44,18 @@ the file actually calls `Benchmark.ips` when it runs
 The method names say which report should win.
 CI checks that exactly one report is named the winner and that it comes first.
 Wrap every report in a method, so they all pay the same call cost.
-Name them by rank and list the winner first: `fastest`, `faster`, `fast` at the top, then `slow`, `slower`, `slowest`.
+Name them by rank and list the winner first.
+The names grow outward from the line between fast and slow: the recommended side uses `fast`, then `faster`, then `fastest`; the other side uses `slow`, then `slower`, then `slowest`.
 The names are relative: `slow` only means slower than `fast`.
 When a ranking could look odd, say why in one line, like in `code/array/length-vs-size-vs-count.rb`:
 
 ```ruby
-def fastest
+def faster
   ARRAY.length
 end
 
 # Array#size is an alias of Array#length, so these two should tie.
-def faster
+def fast
   ARRAY.size
 end
 
@@ -63,8 +64,8 @@ def slow
 end
 
 Benchmark.ips do |x|
-  x.report("Array#length") { fastest }
-  x.report("Array#size") { faster }
+  x.report("Array#length") { faster }
+  x.report("Array#size") { fast }
   x.report("Array#count") { slow }
   x.compare!
 end

@@ -1,17 +1,17 @@
 require 'benchmark/ips'
 
-def slow
-  begin
-    writing
-  rescue
-    'fast ruby'
-  end
-end
-
 def fast
   if respond_to?(:writing)
     writing
   else
+    'fast ruby'
+  end
+end
+
+def slow
+  begin
+    writing
+  rescue
     'fast ruby'
   end
 end

@@ -2,12 +2,12 @@ require 'benchmark/ips'
 
 ARRAY = [*1..100]
 
-def slow
-  ARRAY.shuffle.first
-end
-
 def fast
   ARRAY.sample
+end
+
+def slow
+  ARRAY.shuffle.first
 end
 
 Benchmark.ips do |x|

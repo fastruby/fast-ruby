@@ -39,12 +39,12 @@ HASH = {
 }
 
 
-def slow
-  HASH.keys.each(&:to_sym)
-end
-
 def fast
   HASH.each_key(&:to_sym)
+end
+
+def slow
+  HASH.keys.each(&:to_sym)
 end
 
 Benchmark.ips do |x|

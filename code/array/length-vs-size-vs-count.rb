@@ -2,12 +2,12 @@ require 'benchmark/ips'
 
 ARRAY = [*1..100]
 
-def fastest
+def faster
   ARRAY.length
 end
 
 # Array#size is an alias of Array#length, so these two should tie.
-def faster
+def fast
   ARRAY.size
 end
 
@@ -16,8 +16,8 @@ def slow
 end
 
 Benchmark.ips do |x|
-  x.report("Array#length") { fastest }
-  x.report("Array#size") { faster }
+  x.report("Array#length") { faster }
+  x.report("Array#size") { fast }
   x.report("Array#count") { slow }
   x.compare!
 end

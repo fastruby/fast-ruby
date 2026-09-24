@@ -2,14 +2,14 @@ require 'benchmark/ips'
 
 ARRAY = [*1..100]
 
-def slow
-  for number in ARRAY do
+def fast
+  ARRAY.each do |number|
     number
   end
 end
 
-def fast
-  ARRAY.each do |number|
+def slow
+  for number in ARRAY do
     number
   end
 end

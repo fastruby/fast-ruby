@@ -2,21 +2,21 @@ require 'benchmark/ips'
 
 SLUG = 'ABCD'
 
-def slowest
-  SLUG.casecmp?('abcd')
+def fast
+  SLUG.casecmp('abcd') == 0
 end
 
 def slow
   SLUG.downcase == 'abcd'
 end
 
-def fast
-  SLUG.casecmp('abcd') == 0
+def slower
+  SLUG.casecmp?('abcd')
 end
 
 Benchmark.ips do |x|
   x.report('String#casecmp')       { fast }
   x.report('String#downcase + ==') { slow }
-  x.report("String#casecmp?")      { slowest } if RUBY_VERSION >= "2.4.0".freeze
+  x.report("String#casecmp?")      { slower } if RUBY_VERSION >= "2.4.0".freeze
   x.compare!
 end

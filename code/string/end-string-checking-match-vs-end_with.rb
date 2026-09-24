@@ -2,16 +2,16 @@ require 'benchmark/ips'
 
 SLUG = "some_kind_of_root_url"
 
-def slower
-  SLUG =~ /_(path|url)$/
+def fast
+  SLUG.end_with?('_path', '_url')
 end
 
 def slow
   SLUG.match?(/_(path|url)$/)
 end
 
-def fast
-  SLUG.end_with?('_path', '_url')
+def slower
+  SLUG =~ /_(path|url)$/
 end
 
 Benchmark.ips do |x|
