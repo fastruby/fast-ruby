@@ -6,18 +6,21 @@
 #   so every file uses the default
 # - no Benchmark.ips sits inside a method that never runs from the top of the file,
 #   which would benchmark nothing at all
+# - every Benchmark.ips block states which report should win: exactly one
+#   report calls `fastest` (else `faster`, else `fast`), and it comes first
 #
 # Usage: ruby .github/scripts/lint-benchmarks.rb [files...]  (needs Ruby 3.3+)
 require "prism"
 
-# Calls named `name` that have a block, not looking inside the ones found.
-def find_calls(node, name, found = [])
+# Calls named `name`, not looking inside the ones found. Only calls with a
+# block, unless `with_block: false` (reports can be a code string: x.report(label, code)).
+def find_calls(node, name, with_block: true, found: [])
   return found unless node
 
-  if node.is_a?(Prism::CallNode) && node.name == name && node.block
+  if node.is_a?(Prism::CallNode) && node.name == name && (node.block || !with_block)
     found << node
   else
-    node.compact_child_nodes.each { |child| find_calls(child, name, found) }
+    node.compact_child_nodes.each { |child| find_calls(child, name, with_block: with_block, found: found) }
   end
   found
 end
@@ -27,6 +30,28 @@ def any_call?(node, &test)
   return true if node.is_a?(Prism::CallNode) && test.call(node)
 
   node.compact_child_nodes.any? { |child| any_call?(child, &test) }
+end
+
+CLAIM_METHODS = %i[fastest faster fast].freeze
+
+# Method names called under `node` without a receiver.
+def called_names(node, names = [])
+  return names unless node
+
+  names << node.name if node.is_a?(Prism::CallNode) && node.receiver.nil?
+  node.compact_child_nodes.each { |child| called_names(child, names) }
+  names
+end
+
+def claim_problem(ips)
+  reports = find_calls(ips.block, :report, with_block: false).map { |r| called_names(r.block) }
+  top = CLAIM_METHODS.find { |name| reports.any? { |calls| calls.include?(name) } }
+  return "no claim. Wrap each report in a method and name the winner's `fast` (or `faster`, `fastest`)" unless top
+
+  claimed = reports.count { |calls| calls.include?(top) }
+  return "#{claimed} reports call `#{top}`. Name only the winner `#{top}`" if claimed > 1
+
+  "the report calling `#{top}` must come first" unless reports.first.include?(top)
 end
 
 TIMING_KEYS = %w[time warmup].freeze
@@ -159,6 +184,9 @@ def lint(file)
       name = owner.keys.last.delete_prefix("#")
       problems << "#{where}: inside `def #{name}`, which never runs from the top of the file"
     end
+
+    claim = claim_problem(ips)
+    problems << "#{where}: #{claim}" if claim
   end
   problems
 end
