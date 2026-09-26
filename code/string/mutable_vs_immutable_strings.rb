@@ -1,17 +1,17 @@
 require "benchmark/ips"
 
-# Allocates new string over and over again
-def without_freeze
-  "To freeze or not to freeze"
-end
-
 # Keeps and reuses shared string
-def with_feeze
+def fast
   "To freeze or not to freeze".freeze
 end
 
+# Allocates new string over and over again
+def slow
+  "To freeze or not to freeze"
+end
+
 Benchmark.ips do |x|
-  x.report("Without Freeze") { without_freeze }
-  x.report("With Freeze") { with_feeze }
+  x.report("With Freeze") { fast }
+  x.report("Without Freeze") { slow }
   x.compare!
 end

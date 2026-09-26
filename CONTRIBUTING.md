@@ -39,7 +39,37 @@ Keep that shape: end every `Benchmark.ips` block with `x.compare!`, keep the
 default timing (no `Benchmark.ips(20)`, `x.time = ...` or `x.config(time: ...)`),
 so every entry is measured the same way, and make sure
 the file actually calls `Benchmark.ips` when it runs
-(not only inside a method nothing calls). CI checks all three.
+(not only inside a method nothing calls). CI checks these, and the naming below.
+
+The method names say which report should win.
+CI checks that exactly one report is named the winner and that it comes first.
+Wrap every report in a method, so they all pay the same call cost.
+Name them by rank and list the winner first.
+The names grow outward from the line between fast and slow: the recommended side uses `fast`, then `faster`, then `fastest`; the other side uses `slow`, then `slower`, then `slowest`.
+The names are relative: `slow` only means slower than `fast`.
+When a ranking could look odd, say why in one line, like in `code/array/length-vs-size-vs-count.rb`:
+
+```ruby
+def faster
+  ARRAY.length
+end
+
+# Array#size is an alias of Array#length, so these two should tie.
+def fast
+  ARRAY.size
+end
+
+def slow
+  ARRAY.count
+end
+
+Benchmark.ips do |x|
+  x.report("Array#length") { faster }
+  x.report("Array#size") { fast }
+  x.report("Array#count") { slow }
+  x.compare!
+end
+```
 
 Run your result:
 

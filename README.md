@@ -134,7 +134,7 @@ using an if statement: 15517955.2 i/s
   String#constantize: 10556362.4 i/s - 1.47x  slower
 ```
 
-##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb)
+##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb) [custom exception code](code/general/raise-custom-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
 
@@ -155,7 +155,10 @@ Ruby exception: Kernel#raise
 Comparison:
 Ruby exception: Kernel#raise:  2570660.6 i/s
 Ruby exception: E2MM#Raise:    88268.9 i/s - 29.12x  slower
+```
 
+```
+$ ruby -v code/general/raise-custom-vs-e2mmap.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
 Warming up --------------------------------------
 Custom exception: E2MM#Raise
@@ -1058,23 +1061,21 @@ Comparison:
 
 ```
 $ ruby -v code/proc-and-block/proc-call-vs-yield.rb
-ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
 Warming up --------------------------------------
-          block.call     2.261M i/100ms
-       block + yield     2.314M i/100ms
-        unused block     3.025M i/100ms
-               yield     2.971M i/100ms
+               yield     2.156M i/100ms
+       block + yield     1.605M i/100ms
+          block.call     1.609M i/100ms
 Calculating -------------------------------------
-          block.call     22.057M (± 6.0%) i/s   (45.34 ns/i) -    110.796M in   5.043129s
-       block + yield     23.280M (± 0.6%) i/s   (42.96 ns/i) -    117.997M in   5.068779s
-        unused block     30.609M (± 1.3%) i/s   (32.67 ns/i) -    154.268M in   5.040991s
-               yield     29.921M (± 0.6%) i/s   (33.42 ns/i) -    151.512M in   5.063842s
+               yield     20.615M (±10.0%) i/s   (48.51 ns/i) -    103.495M in   5.020450s
+       block + yield     16.824M (± 9.2%) i/s   (59.44 ns/i) -     85.066M in   5.056288s
+          block.call     14.608M (±14.3%) i/s   (68.46 ns/i) -     73.995M in   5.065432s
 
 Comparison:
-        unused block: 30608512.5 i/s
-               yield: 29921356.8 i/s - 1.02x  slower
-       block + yield: 23279981.0 i/s - 1.31x  slower
-          block.call: 22056758.6 i/s - 1.39x  slower
+        yield: 20614679.3 i/s
+block + yield: 16823796.9 i/s - 1.23x  slower
+   block.call: 14607819.3 i/s - 1.41x  slower
+
 ```
 
 ### String

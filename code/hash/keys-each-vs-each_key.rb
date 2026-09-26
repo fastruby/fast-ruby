@@ -39,16 +39,16 @@ HASH = {
 }
 
 
-def slow
-  HASH.keys.each(&:to_sym)
-end
-
 def fast
   HASH.each_key(&:to_sym)
 end
 
+def slow
+  HASH.keys.each(&:to_sym)
+end
+
 Benchmark.ips do |x|
-  x.report('Hash#keys.each') { slow }
   x.report('Hash#each_key')  { fast }
+  x.report('Hash#keys.each') { slow }
   x.compare!
 end

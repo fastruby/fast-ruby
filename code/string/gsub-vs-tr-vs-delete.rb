@@ -3,26 +3,27 @@ require 'benchmark/ips'
 WORDS = 'writing fast ruby'
 SPACE = ' '
 
-def use_gsub
-  WORDS.gsub(' ', '')
-end
-
-def use_tr
-  WORDS.tr(' ', '')
-end
-
-def use_delete
-  WORDS.delete(' ')
-end
-
-def use_delete_const
+# The same call as `faster`, but ' ' is allocated once instead of on every call.
+def fastest
   WORDS.delete(SPACE)
 end
 
+def faster
+  WORDS.delete(' ')
+end
+
+def fast
+  WORDS.tr(' ', '')
+end
+
+def slow
+  WORDS.gsub(' ', '')
+end
+
 Benchmark.ips do |x|
-  x.report('String#gsub') { use_gsub }
-  x.report('String#tr') { use_tr }
-  x.report('String#delete') { use_delete }
-  x.report('String#delete const') { use_delete_const }
+  x.report('String#delete const') { fastest }
+  x.report('String#delete') { faster }
+  x.report('String#tr') { fast }
+  x.report('String#gsub') { slow }
   x.compare!
 end

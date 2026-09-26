@@ -1,22 +1,23 @@
 require "benchmark/ips"
 
+# Regexp#match? and String#match? tie on almost every Ruby; either one could come first.
 def fastest
   /boo/.match?('foo'.freeze)
 end
 
-def fast
+def faster
   "foo".freeze.match?(/boo/)
 end
 
-def slow
+def fast
   "foo".freeze =~ /boo/
 end
 
-def slower
-  /boo/ === "foo".freeze  
+def slow
+  /boo/ === "foo".freeze
 end
 
-def even_slower
+def slower
   /boo/.match('foo'.freeze)
 end
 
@@ -26,10 +27,10 @@ end
 
 Benchmark.ips do |x|
   x.report("Regexp#match?") { fastest } if RUBY_VERSION >= "2.4.0".freeze
-  x.report("String#match?") { fast } if RUBY_VERSION >= "2.4.0".freeze
-  x.report("String#=~") { slow }
-  x.report("Regexp#===") { slower }
-  x.report("Regexp#match") { even_slower }
+  x.report("String#match?") { faster } if RUBY_VERSION >= "2.4.0".freeze
+  x.report("String#=~") { fast }
+  x.report("Regexp#===") { slow }
+  x.report("Regexp#match") { slower }
   x.report("String#match") { slowest }
   x.compare!
 end
