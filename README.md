@@ -744,6 +744,26 @@ Comparison:
         inject block:    39550.0 i/s - 46.54x  slower
 ```
 
+##### `Array#sum` vs `Array#inject(:+)` [code](code/enumerable/inject-symbol-plus-vs-sum.rb)
+
+`Array#sum` needs Ruby 2.4 or newer.
+For Floats the two differ: `Array#sum` compensates for rounding errors.
+
+```
+$ ruby -v code/enumerable/inject-symbol-plus-vs-sum.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           Array#sum   157.012k i/100ms
+    Array#inject(:+)   100.674k i/100ms
+Calculating -------------------------------------
+           Array#sum      1.527M (± 4.2%) i/s  (655.01 ns/i) -      7.694M in   5.039404s
+    Array#inject(:+)    977.701k (± 9.6%) i/s    (1.02 μs/i) -      4.933M in   5.045534s
+
+Comparison:
+       Array#sum:  1526686.2 i/s
+Array#inject(:+):   977701.4 i/s - 1.56x  slower
+```
+
 ### Date
 
 ##### `Date.iso8601` vs `Date.parse` [code](code/date/iso8601-vs-parse.rb)
