@@ -1033,6 +1033,39 @@ Array#each_w/_object:  3890033.7 i/s - 2.71x  slower
 Hash#select-include :  1342942.2 i/s - 7.86x  slower
 ```
 
+##### `Hash#values_at` vs `Array#map { Hash#[] }` [code](code/hash/values_at-vs-map.rb)
+
+To select hash values by keys, when some of the keys may not exist in the hash and you care about the default values.
+
+```
+$ ruby -v code/hash/values_at-vs-map.rb
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin22]
+Warming up --------------------------------------
+Hash#values_at         503.783k i/100ms
+Array#map { Hash#[] }  279.576k i/100ms
+Calculating -------------------------------------
+Hash#values_at            4.901M (± 4.1%) i/s -     24.685M in   5.046090s
+Array#map { Hash#[] }     2.801M (± 3.1%) i/s -     14.258M in   5.095692s
+
+Comparison:
+Hash#values_at       :  4900567.9 i/s
+Array#map { Hash#[] }:  2800981.4 i/s - 1.75x  slower
+```
+
+```
+$ ruby -v code/hash/values_at-vs-map.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+       Hash#values_at   669.893k i/100ms
+Array#map { Hash#[] }   318.055k i/100ms
+Calculating -------------------------------------
+       Hash#values_at      6.929M (± 7.2%) i/s  (144.31 ns/i) -     34.834M in   5.027125s
+Array#map { Hash#[] }      3.372M (± 5.1%) i/s  (296.52 ns/i) -     17.175M in   5.092778s
+
+Comparison:
+       Hash#values_at:  6929295.9 i/s
+Array#map { Hash#[] }:  3372416.9 i/s - 2.05x  slower
+```
 
 ### Proc & Block
 
