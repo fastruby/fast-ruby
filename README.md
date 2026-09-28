@@ -134,6 +134,47 @@ using an if statement: 15517955.2 i/s
   String#constantize: 10556362.4 i/s - 1.47x  slower
 ```
 
+##### Method vs forwarded method vs delegated method [code](code/general/method-vs-forwarded-method-vs-delegated-method.rb)
+
+```
+$ ruby -v code/general/method-vs-forwarded-method-vs-delegated-method.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin19]
+Warming up --------------------------------------
+              method   247.079k i/100ms
+    forwarded method   183.323k i/100ms
+    delegated method   136.666k i/100ms
+Calculating -------------------------------------
+              method      2.481M (± 0.5%) i/s -     12.601M in   5.078755s
+    forwarded method      1.830M (± 0.8%) i/s -      9.166M in   5.009606s
+    delegated method      1.365M (± 0.6%) i/s -      6.833M in   5.006191s
+
+Comparison:
+              method:  2481182.0 i/s
+    forwarded method:  1829835.8 i/s - 1.36x  (± 0.00) slower
+    delegated method:  1365026.7 i/s - 1.82x  (± 0.00) slower
+```
+
+The run above is from the PR, when the delegated report called `pop(1)`.
+The one below measures the current code, where all three push `1`.
+
+```
+$ ruby -v code/general/method-vs-forwarded-method-vs-delegated-method.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+              method   566.282k i/100ms
+    forwarded method   452.579k i/100ms
+    delegated method   222.869k i/100ms
+Calculating -------------------------------------
+              method      5.690M (± 1.0%) i/s  (175.74 ns/i) -     28.880M in   5.075387s
+    forwarded method      4.580M (± 3.9%) i/s  (218.33 ns/i) -     23.082M in   5.039438s
+    delegated method      2.229M (± 2.1%) i/s  (448.72 ns/i) -     11.143M in   5.000248s
+
+Comparison:
+          method:  5690282.1 i/s
+forwarded method:  4580179.6 i/s - 1.24x  slower
+delegated method:  2228579.5 i/s - 2.55x  slower
+```
+
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb) [custom exception code](code/general/raise-custom-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
