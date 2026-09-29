@@ -642,6 +642,41 @@ Comparison:
 
 ```
 $ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+          While Loop    22.553k i/100ms
+     each_with_index    11.963k i/100ms
+-------------------------------------------------
+          While Loop    240.752k (± 7.1%) i/s -      1.218M
+     each_with_index    126.753k (± 5.9%) i/s -    634.039k
+
+Comparison:
+          While Loop:   240752.1 i/s
+     each_with_index:   126753.4 i/s - 1.90x slower
+```
+
+The next run is from #155, with an extra "While optimal" loop that also copies ARRAY to a local variable (left out: it ties with the cached size).
+Its reports ran 1000 calls each, so its i/s are per 1000 calls.
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux]
+Calculating -------------------------------------
+       While optimal    443.606  (± 2.5%) i/s -      2.250k in   5.075720s
+   While cached size    441.961  (± 0.5%) i/s -      2.244k in   5.077426s
+          While loop    363.202  (± 3.3%) i/s -      1.836k in   5.061400s
+     each_with_index    277.373  (± 1.1%) i/s -      1.404k in   5.062208s
+
+Comparison:
+       While optimal:      443.6 i/s
+   While cached size:      442.0 i/s - same-ish: difference falls within error
+          While loop:      363.2 i/s - 1.22x  slower
+     each_with_index:      277.4 i/s - 1.60x  slower
+```
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
 Warming up --------------------------------------
           While Loop    49.050k i/100ms
@@ -653,6 +688,24 @@ Calculating -------------------------------------
 Comparison:
           While Loop:   501430.2 i/s
      each_with_index:   369364.5 i/s - 1.36x  slower
+```
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+   While cached size    40.277k i/100ms
+          While Loop    36.196k i/100ms
+     each_with_index    28.712k i/100ms
+Calculating -------------------------------------
+   While cached size    396.703k (± 1.8%) i/s    (2.52 μs/i) -      2.014M in   5.076466s
+          While Loop    374.002k (± 3.3%) i/s    (2.67 μs/i) -      1.882M in   5.032566s
+     each_with_index    290.320k (± 0.6%) i/s    (3.44 μs/i) -      1.464M in   5.043785s
+
+Comparison:
+While cached size:   396703.1 i/s
+       While Loop:   374002.4 i/s - 1.06x  slower
+  each_with_index:   290320.1 i/s - 1.37x  slower
 ```
 
 ##### `Enumerable#map`...`Array#flatten` vs `Enumerable#flat_map` [code](code/enumerable/map-flatten-vs-flat_map.rb)
