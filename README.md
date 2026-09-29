@@ -134,6 +134,47 @@ using an if statement: 15517955.2 i/s
   String#constantize: 10556362.4 i/s - 1.47x  slower
 ```
 
+##### Method vs forwarded method vs delegated method [code](code/general/method-vs-forwarded-method-vs-delegated-method.rb)
+
+```
+$ ruby -v code/general/method-vs-forwarded-method-vs-delegated-method.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin19]
+Warming up --------------------------------------
+              method   247.079k i/100ms
+    forwarded method   183.323k i/100ms
+    delegated method   136.666k i/100ms
+Calculating -------------------------------------
+              method      2.481M (± 0.5%) i/s -     12.601M in   5.078755s
+    forwarded method      1.830M (± 0.8%) i/s -      9.166M in   5.009606s
+    delegated method      1.365M (± 0.6%) i/s -      6.833M in   5.006191s
+
+Comparison:
+              method:  2481182.0 i/s
+    forwarded method:  1829835.8 i/s - 1.36x  (± 0.00) slower
+    delegated method:  1365026.7 i/s - 1.82x  (± 0.00) slower
+```
+
+The run above is from the PR, when the delegated report called `pop(1)`.
+The one below measures the current code, where all three push `1`.
+
+```
+$ ruby -v code/general/method-vs-forwarded-method-vs-delegated-method.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+              method   566.282k i/100ms
+    forwarded method   452.579k i/100ms
+    delegated method   222.869k i/100ms
+Calculating -------------------------------------
+              method      5.690M (± 1.0%) i/s  (175.74 ns/i) -     28.880M in   5.075387s
+    forwarded method      4.580M (± 3.9%) i/s  (218.33 ns/i) -     23.082M in   5.039438s
+    delegated method      2.229M (± 2.1%) i/s  (448.72 ns/i) -     11.143M in   5.000248s
+
+Comparison:
+          method:  5690282.1 i/s
+forwarded method:  4580179.6 i/s - 1.24x  slower
+delegated method:  2228579.5 i/s - 2.55x  slower
+```
+
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb) [custom exception code](code/general/raise-custom-vs-e2mmap.rb)
 
 Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
@@ -495,6 +536,70 @@ Comparison:
   Array#sort_by &:-@:   229323.6 i/s - 2.44x  slower
 ```
 
+##### Subset check: `(a1 - a2).empty?` vs alternatives [code](code/array/subset-check.rb)
+
+> To check whether every element of `a1` is also in `a2`, `(a1 - a2).empty?` is
+> consistently the fastest across modern Ruby versions for the common case where
+> `a1` is actually a subset. <br>
+> **Caveat:** the winner is highly data-dependent. `a1.all? { |e| a2.include?(e) }`
+> short-circuits on the first miss, so it wins when `a1` is *not* a subset, but it
+> is O(n*m) and degrades badly on large true subsets. <br>
+> Note also that `Set#subset?` (including the `to_set` conversion) was ~6.8x slower
+> on Ruby 3.3/3.4 but only ~1.7x slower on Ruby 4.0, where `Set` became much
+> faster. If you already hold `Set`s (or check repeatedly), `Set#subset?` scales
+> best.
+
+```
+$ ruby -v code/array/subset-check.rb
+ruby 3.3.10 (2025-10-23 revision 343ea05002) [arm64-darwin25]
+Warming up --------------------------------------
+    (a1 - a2).empty?    86.499k i/100ms
+     (a1 & a2) == a1    73.860k i/100ms
+ (a1 & a2).size == n    74.102k i/100ms
+a1.all? { include? }    67.703k i/100ms
+   a1.to_set.subset?    12.068k i/100ms
+Calculating -------------------------------------
+    (a1 - a2).empty?    849.546k (± 2.7%) i/s    (1.18 μs/i) -      4.325M in   5.090893s
+     (a1 & a2) == a1    746.103k (± 2.0%) i/s    (1.34 μs/i) -      3.767M in   5.048711s
+ (a1 & a2).size == n    780.447k (± 1.9%) i/s    (1.28 μs/i) -      3.927M in   5.032254s
+a1.all? { include? }    715.301k (± 2.4%) i/s    (1.40 μs/i) -      3.588M in   5.016435s
+   a1.to_set.subset?    124.189k (± 0.8%) i/s    (8.05 μs/i) -    627.536k in   5.053052s
+
+Comparison:
+    (a1 - a2).empty?:   849546.4 i/s
+ (a1 & a2).size == n:   780446.7 i/s - 1.09x  slower
+     (a1 & a2) == a1:   746103.3 i/s - 1.14x  slower
+a1.all? { include? }:   715300.6 i/s - 1.19x  slower
+   a1.to_set.subset?:   124189.5 i/s - 6.84x  slower
+
+$ ruby -v code/array/subset-check.rb
+ruby 3.4.7 (2025-10-08 revision 7a5688e2a2) +PRISM [arm64-darwin25]
+Comparison:
+    (a1 - a2).empty?:   807172.5 i/s
+ (a1 & a2).size == n:   719880.2 i/s - 1.12x  slower
+a1.all? { include? }:   713213.0 i/s - 1.13x  slower
+     (a1 & a2) == a1:   687629.1 i/s - 1.17x  slower
+   a1.to_set.subset?:   119834.6 i/s - 6.74x  slower
+
+$ ruby -v code/array/subset-check.rb
+ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin25]
+Comparison:
+    (a1 - a2).empty?:   784706.1 i/s
+a1.all? { include? }:   727520.9 i/s - 1.08x  slower
+ (a1 & a2).size == n:   701969.3 i/s - 1.12x  slower
+     (a1 & a2) == a1:   670252.7 i/s - 1.17x  slower
+   a1.to_set.subset?:   467206.3 i/s - 1.68x  slower
+
+$ ruby -v code/array/subset-check.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Comparison:
+    (a1 - a2).empty?:   547122.9 i/s
+a1.all? { include? }:   506861.9 i/s - same-ish: difference falls within error
+ (a1 & a2).size == n:   427211.2 i/s - 1.28x  slower
+   a1.to_set.subset?:   341619.6 i/s - 1.60x  slower
+     (a1 & a2) == a1:   329130.1 i/s - 1.66x  slower
+```
+
 ### Enumerable
 
 ##### `Enumerable#each + push` vs `Enumerable#map` [code](code/enumerable/each-push-vs-map.rb)
@@ -703,6 +808,26 @@ Comparison:
         inject block:    39550.0 i/s - 46.54x  slower
 ```
 
+##### `Array#sum` vs `Array#inject(:+)` [code](code/enumerable/inject-symbol-plus-vs-sum.rb)
+
+`Array#sum` needs Ruby 2.4 or newer.
+For Floats the two differ: `Array#sum` compensates for rounding errors.
+
+```
+$ ruby -v code/enumerable/inject-symbol-plus-vs-sum.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           Array#sum   157.012k i/100ms
+    Array#inject(:+)   100.674k i/100ms
+Calculating -------------------------------------
+           Array#sum      1.527M (± 4.2%) i/s  (655.01 ns/i) -      7.694M in   5.039404s
+    Array#inject(:+)    977.701k (± 9.6%) i/s    (1.02 μs/i) -      4.933M in   5.045534s
+
+Comparison:
+       Array#sum:  1526686.2 i/s
+Array#inject(:+):   977701.4 i/s - 1.56x  slower
+```
+
 ### Date
 
 ##### `Date.iso8601` vs `Date.parse` [code](code/date/iso8601-vs-parse.rb)
@@ -896,6 +1021,48 @@ Comparison:
 Hash#values.include?:    62052.8 i/s - 1.15x  slower
 ```
 
+##### `Hash#values.compact` instead of `Hash#values.select` or `Hash#select.values` (to get non-nil values) [code](code/hash/select-values-vs-values-select-vs-values-compact.rb)
+
+> To collect the non-nil values of a hash, `Hash#select { |_k, v| !v.nil? }.values` allocates an intermediate hash before extracting its values; <br>
+> `Hash#values.select { |v| !v.nil? }` skips the intermediate hash but still runs a block per element; <br>
+> `Hash#values.compact` drops the nils in C without a Ruby-level block, which is fastest.
+
+```
+$ ruby -v code/hash/select-values-vs-values-select-vs-values-compact.rb
+ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin25]
+Warming up --------------------------------------
+  Hash#select.values     2.887k i/100ms
+  Hash#values.select     3.526k i/100ms
+ Hash#values.compact    57.606k i/100ms
+Calculating -------------------------------------
+  Hash#select.values     29.102k (± 1.3%) i/s   (34.36 μs/i) -    147.237k in   5.060206s
+  Hash#values.select     35.490k (± 0.7%) i/s   (28.18 μs/i) -    179.826k in   5.067223s
+ Hash#values.compact    580.469k (± 4.2%) i/s    (1.72 μs/i) -      2.938M in   5.070648s
+
+Comparison:
+ Hash#values.compact:   580468.7 i/s
+  Hash#values.select:    35489.9 i/s - 16.36x  slower
+  Hash#select.values:    29101.7 i/s - 19.95x  slower
+```
+
+```
+$ ruby -v code/hash/select-values-vs-values-select-vs-values-compact.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+ Hash#values.compact    58.469k i/100ms
+  Hash#values.select     2.835k i/100ms
+  Hash#select.values     2.604k i/100ms
+Calculating -------------------------------------
+ Hash#values.compact    598.295k (± 1.7%) i/s    (1.67 μs/i) -      3.040M in   5.081752s
+  Hash#values.select     28.417k (± 3.1%) i/s   (35.19 μs/i) -    144.585k in   5.087922s
+  Hash#select.values     25.617k (± 3.7%) i/s   (39.04 μs/i) -    130.200k in   5.082509s
+
+Comparison:
+Hash#values.compact:   598295.2 i/s
+ Hash#values.select:    28417.3 i/s - 21.05x  slower
+ Hash#select.values:    25617.3 i/s - 23.36x  slower
+```
+
 ##### `Hash#merge!` vs `Hash#[]=` [code](code/hash/merge-bang-vs-\[\]=.rb)
 
 ```
@@ -1033,6 +1200,39 @@ Array#each_w/_object:  3890033.7 i/s - 2.71x  slower
 Hash#select-include :  1342942.2 i/s - 7.86x  slower
 ```
 
+##### `Hash#values_at` vs `Array#map { Hash#[] }` [code](code/hash/values_at-vs-map.rb)
+
+To select hash values by keys, when some of the keys may not exist in the hash and you care about the default values.
+
+```
+$ ruby -v code/hash/values_at-vs-map.rb
+ruby 3.2.1 (2023-02-08 revision 31819e82c8) [x86_64-darwin22]
+Warming up --------------------------------------
+Hash#values_at         503.783k i/100ms
+Array#map { Hash#[] }  279.576k i/100ms
+Calculating -------------------------------------
+Hash#values_at            4.901M (± 4.1%) i/s -     24.685M in   5.046090s
+Array#map { Hash#[] }     2.801M (± 3.1%) i/s -     14.258M in   5.095692s
+
+Comparison:
+Hash#values_at       :  4900567.9 i/s
+Array#map { Hash#[] }:  2800981.4 i/s - 1.75x  slower
+```
+
+```
+$ ruby -v code/hash/values_at-vs-map.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+       Hash#values_at   669.893k i/100ms
+Array#map { Hash#[] }   318.055k i/100ms
+Calculating -------------------------------------
+       Hash#values_at      6.929M (± 7.2%) i/s  (144.31 ns/i) -     34.834M in   5.027125s
+Array#map { Hash#[] }      3.372M (± 5.1%) i/s  (296.52 ns/i) -     17.175M in   5.092778s
+
+Comparison:
+       Hash#values_at:  6929295.9 i/s
+Array#map { Hash#[] }:  3372416.9 i/s - 2.05x  slower
+```
 
 ### Proc & Block
 
