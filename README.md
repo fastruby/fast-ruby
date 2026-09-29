@@ -1706,6 +1706,49 @@ improvement.
 
 ```
 $ ruby -v code/string/===-vs-=~-vs-match.rb
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-darwin14]
+
+Calculating -------------------------------------
+           String#=~    98.184k i/100ms
+          Regexp#===    92.382k i/100ms
+        String#match    83.601k i/100ms
+-------------------------------------------------
+           String#=~      2.442M (± 7.6%) i/s -     12.175M
+          Regexp#===      2.259M (± 7.9%) i/s -     11.271M
+        String#match      1.840M (± 7.3%) i/s -      9.196M
+
+Comparison:
+           String#=~:  2442335.1 i/s
+          Regexp#===:  2259277.3 i/s - 1.08x slower
+        String#match:  1839815.4 i/s - 1.33x slower
+```
+
+The next run is from #139, which added `String#include?` to this file; it now has its own entry below.
+
+```
+$ ruby -v code/string/===-vs-=~-vs-match.rb
+ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-darwin16]
+
+Warming up --------------------------------------
+     String#include?   238.465k i/100ms
+           String#=~   161.826k i/100ms
+          Regexp#===   147.986k i/100ms
+        String#match   136.749k i/100ms
+Calculating -------------------------------------
+     String#include?      5.961M (± 8.5%) i/s -     29.808M in   5.035615s
+           String#=~      2.843M (± 8.1%) i/s -     14.241M in   5.040590s
+          Regexp#===      2.689M (± 7.3%) i/s -     13.467M in   5.032779s
+        String#match      2.371M (± 5.2%) i/s -     11.897M in   5.031192s
+
+Comparison:
+     String#include?:  5960785.4 i/s
+           String#=~:  2843384.2 i/s - 2.10x  slower
+          Regexp#===:  2689290.6 i/s - 2.22x  slower
+        String#match:  2370791.0 i/s - 2.51x  slower
+```
+
+```
+$ ruby -v code/string/===-vs-=~-vs-match.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
 Warming up --------------------------------------
        Regexp#match?     2.240M i/100ms
@@ -1733,6 +1776,46 @@ Comparison:
 
 See [#59](https://github.com/fastruby/fast-ruby/pull/59) and [#62](https://github.com/fastruby/fast-ruby/pull/62) for discussions.
 
+
+##### `String#match?` vs `String#include?` vs `String#=~` for a fixed substring [code](code/string/include-vs-match.rb)
+
+For a fixed substring, `String#include?` beats a Regexp with `=~`, and `String#match?` (Ruby 2.4+) is as fast or faster.
+
+```
+$ ruby -v code/string/include-vs-match.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+       String#match?     1.325M i/100ms
+     String#include?   995.530k i/100ms
+           String#=~   853.136k i/100ms
+Calculating -------------------------------------
+       String#match?     13.827M (± 3.2%) i/s   (72.32 ns/i) -     70.248M in   5.080506s
+     String#include?      9.974M (± 1.5%) i/s  (100.26 ns/i) -     50.772M in   5.090292s
+           String#=~      8.489M (± 4.8%) i/s  (117.81 ns/i) -     42.657M in   5.025211s
+
+Comparison:
+  String#match?: 13826876.4 i/s
+String#include?:  9974287.2 i/s - 1.39x  slower
+      String#=~:  8488559.2 i/s - 1.63x  slower
+```
+
+```
+$ ruby -v code/string/include-vs-match.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+       String#match?     1.517M i/100ms
+     String#include?     1.283M i/100ms
+           String#=~     1.004M i/100ms
+Calculating -------------------------------------
+       String#match?     14.967M (± 3.4%) i/s   (66.81 ns/i) -     75.870M in   5.069146s
+     String#include?     12.845M (± 0.5%) i/s   (77.85 ns/i) -     65.441M in   5.094510s
+           String#=~     10.039M (± 1.0%) i/s   (99.61 ns/i) -     50.218M in   5.002306s
+
+Comparison:
+  String#match?: 14967056.6 i/s
+String#include?: 12845487.5 i/s - 1.17x  slower
+      String#=~: 10038889.7 i/s - 1.49x  slower
+```
 
 ##### `String#gsub` vs `String#sub` vs `String#[]=` [code](code/string/gsub-vs-sub.rb)
 
