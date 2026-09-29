@@ -500,10 +500,47 @@ Comparison:
              Array#+:        5.2 i/s - 243.60x  slower
 ```
 
-##### `Array#new` vs `Fixnum#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
+##### `Array#new` vs `range + map` vs `Integer#upto + map` vs `Integer#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
 
 Typical slowdown is 40-60% depending on the size of the array. See the corresponding
 [pull request](https://github.com/fastruby/fast-ruby/pull/91/) for performance characteristics.
+
+The first run is from before `range + map` and `Integer#upto + map` were added.
+The second is from #227.
+
+```
+ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
+Calculating -------------------------------------
+           Array#new    63.875k i/100ms
+  Fixnum#times + map    48.010k i/100ms
+-------------------------------------------------
+           Array#new      1.070M (± 2.2%) i/s -      5.365M
+  Fixnum#times + map    678.097k (± 2.7%) i/s -      3.409M
+
+Comparison:
+           Array#new:  1069837.0 i/s
+  Fixnum#times + map:   678097.4 i/s - 1.58x slower
+```
+
+```
+ruby 3.3.0dev (2023-11-12 master 60e19a0b5f) [x86_64-linux]
+Warming up --------------------------------------
+           Array#new   162.771k i/100ms
+         range + map   101.765k i/100ms
+ Integer#times + map    64.009k i/100ms
+  Integer#upto + map    86.411k i/100ms
+Calculating -------------------------------------
+           Array#new      1.629M (± 1.1%) i/s -      8.301M in   5.096134s
+         range + map      1.009M (± 1.3%) i/s -      5.088M in   5.045700s
+ Integer#times + map    621.555k (± 2.0%) i/s -      3.136M in   5.048250s
+  Integer#upto + map    810.206k (± 2.4%) i/s -      4.061M in   5.015800s
+
+Comparison:
+           Array#new:  1629141.5 i/s
+         range + map:  1008629.1 i/s - 1.62x  slower
+  Integer#upto + map:   810205.5 i/s - 2.01x  slower
+ Integer#times + map:   621555.5 i/s - 2.62x  slower
+```
 
 ```
 $ ruby -v code/array/array-new-vs-fixnum-times-map.rb
@@ -518,6 +555,27 @@ Calculating -------------------------------------
 Comparison:
            Array#new:  4250785.8 i/s
   Fixnum#times + map:  1885679.9 i/s - 2.25x  slower
+```
+
+```
+$ ruby -v code/array/array-new-vs-fixnum-times-map.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           Array#new   250.048k i/100ms
+         range + map   122.278k i/100ms
+  Integer#upto + map   137.831k i/100ms
+ Integer#times + map   123.032k i/100ms
+Calculating -------------------------------------
+           Array#new      2.572M (± 3.8%) i/s  (388.86 ns/i) -     13.002M in   5.056173s
+         range + map      1.707M (± 4.0%) i/s  (585.74 ns/i) -      8.559M in   5.013655s
+  Integer#upto + map      1.321M (±11.3%) i/s  (757.04 ns/i) -      6.616M in   5.008470s
+ Integer#times + map      1.067M (±13.2%) i/s  (937.27 ns/i) -      5.413M in   5.073819s
+
+Comparison:
+          Array#new:  2571608.0 i/s
+        range + map:  1707229.6 i/s - 1.51x  slower
+ Integer#upto + map:  1320940.0 i/s - 1.95x  slower
+Integer#times + map:  1066929.7 i/s - 2.41x  slower
 ```
 
 ##### `Array#sort.reverse` vs `Array#sort_by` +  block [code](code/array/sort-reverse-vs-sort_by-with-block.rb)
