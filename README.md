@@ -46,6 +46,7 @@ Idioms
 
 - [General](#general)
 - [Array](#array)
+- [BigDecimal](#bigdecimal)
 - [Date](#date)
 - [Enumerable](#enumerable)
 - [Hash](#hash)
@@ -879,6 +880,165 @@ Calculating -------------------------------------
 Comparison:
        Array#sum:  1526686.2 i/s
 Array#inject(:+):   977701.4 i/s - 1.56x  slower
+```
+
+### BigDecimal
+
+##### `BigDecimal` from a number vs from a String [integer code](code/bigdecimal/integer-string-vs-numeric.rb) [float code](code/bigdecimal/float-string-vs-numeric.rb)
+
+On current CRuby, building a `BigDecimal` from the number is faster than from a String.
+On Ruby 2.5 it was the other way around, as the 2.5 runs below show.
+
+The first run is from #172, when both files were one.
+
+```
+$ ruby -v code/bigdecimal/string-vs-numeric.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-darwin18]
+Calculating -------------------------------------
+  integer string new      2.497M (± 2.0%) i/s -     12.645M in   5.066385s
+    float string new      2.414M (± 2.0%) i/s -     12.182M in   5.048473s
+ integer string to_d      2.402M (± 1.8%) i/s -     12.010M in   5.001784s
+   float string to_d      2.318M (± 1.8%) i/s -     11.663M in   5.032429s
+         integer new      1.601M (± 1.2%) i/s -      8.022M in   5.010201s
+        integer to_d      1.563M (± 1.8%) i/s -      7.817M in   5.001726s
+           float new    517.635k (± 4.5%) i/s -      2.604M in   5.042605s
+          float to_d    529.413k (± 3.6%) i/s -      2.671M in   5.051477s
+
+Comparison:
+  integer string new:  2496860.3 i/s
+    float string new:  2414122.8 i/s - same-ish: difference falls within error
+ integer string to_d:  2401929.3 i/s - 1.04x  slower
+   float string to_d:  2318272.7 i/s - 1.08x  slower
+         integer new:  1601402.4 i/s - 1.56x  slower
+        integer to_d:  1563335.6 i/s - 1.60x  slower
+          float to_d:   529412.7 i/s - 4.72x  slower
+           float new:   517634.5 i/s - 4.82x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 2.5.9p229 (2021-04-05 revision 67939) [aarch64-linux]
+Warming up --------------------------------------
+         integer new   414.193k i/100ms
+        integer to_d   403.499k i/100ms
+  integer string new   550.222k i/100ms
+ integer string to_d   495.285k i/100ms
+Calculating -------------------------------------
+         integer new      4.270M (± 4.1%) i/s  (234.17 ns/i) -     21.538M in   5.043465s
+        integer to_d      3.937M (± 6.7%) i/s  (254.03 ns/i) -     19.771M in   5.022536s
+  integer string new      5.491M (± 1.7%) i/s  (182.11 ns/i) -     27.511M in   5.010070s
+ integer string to_d      4.985M (± 0.5%) i/s  (200.61 ns/i) -     25.260M in   5.067219s
+
+Comparison:
+ integer string new:  5491160.4 i/s
+integer string to_d:  4984891.5 i/s - 1.10x  slower
+        integer new:  4270484.2 i/s - 1.29x  slower
+       integer to_d:  3936547.2 i/s - 1.39x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+         integer new   724.240k i/100ms
+        integer to_d   669.146k i/100ms
+  integer string new   476.320k i/100ms
+ integer string to_d   473.860k i/100ms
+Calculating -------------------------------------
+         integer new      8.201M (± 8.4%) i/s  (121.94 ns/i) -     41.282M in   5.033937s
+        integer to_d      7.789M (± 1.9%) i/s  (128.39 ns/i) -     39.480M in   5.068714s
+  integer string new      4.675M (± 6.1%) i/s  (213.88 ns/i) -     23.816M in   5.093797s
+ integer string to_d      4.537M (± 9.6%) i/s  (220.43 ns/i) -     22.745M in   5.013831s
+
+Comparison:
+        integer new:  8200675.5 i/s
+       integer to_d:  7788881.6 i/s - same-ish: difference falls within error
+ integer string new:  4675490.6 i/s - 1.75x  slower
+integer string to_d:  4536507.4 i/s - 1.81x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+         integer new   833.601k i/100ms
+        integer to_d   998.642k i/100ms
+  integer string new   612.931k i/100ms
+ integer string to_d   622.024k i/100ms
+Calculating -------------------------------------
+         integer new     11.461M (± 8.4%) i/s   (87.25 ns/i) -     57.518M in   5.018754s
+        integer to_d      9.982M (± 7.9%) i/s  (100.18 ns/i) -     49.932M in   5.002014s
+  integer string new      6.318M (± 0.8%) i/s  (158.29 ns/i) -     31.872M in   5.045082s
+ integer string to_d      6.048M (± 7.3%) i/s  (165.34 ns/i) -     30.479M in   5.039416s
+
+Comparison:
+        integer new: 11460706.3 i/s
+       integer to_d:  9982400.0 i/s - same-ish: difference falls within error
+ integer string new:  6317520.9 i/s - 1.81x  slower
+integer string to_d:  6048156.9 i/s - 1.89x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 2.5.9p229 (2021-04-05 revision 67939) [aarch64-linux]
+Warming up --------------------------------------
+           float new   156.784k i/100ms
+          float to_d   140.804k i/100ms
+    float string new   544.740k i/100ms
+   float string to_d   489.796k i/100ms
+Calculating -------------------------------------
+           float new      1.571M (± 1.7%) i/s  (636.41 ns/i) -      7.996M in   5.088751s
+          float to_d      1.443M (± 1.3%) i/s  (693.24 ns/i) -      7.322M in   5.075776s
+    float string new      5.430M (± 0.9%) i/s  (184.16 ns/i) -     27.237M in   5.016063s
+   float string to_d      4.714M (± 8.8%) i/s  (212.13 ns/i) -     24.000M in   5.091113s
+
+Comparison:
+ float string new:  5429956.2 i/s
+float string to_d:  4714097.3 i/s - 1.15x  slower
+        float new:  1571305.9 i/s - 3.46x  slower
+       float to_d:  1442500.1 i/s - 3.76x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           float new   562.944k i/100ms
+          float to_d   515.554k i/100ms
+    float string new   464.840k i/100ms
+   float string to_d   383.190k i/100ms
+Calculating -------------------------------------
+           float new      6.390M (± 1.2%) i/s  (156.50 ns/i) -     32.088M in   5.021892s
+          float to_d      5.731M (± 2.4%) i/s  (174.50 ns/i) -     28.871M in   5.037882s
+    float string new      4.741M (± 2.3%) i/s  (210.93 ns/i) -     23.707M in   5.000438s
+   float string to_d      4.826M (± 1.7%) i/s  (207.19 ns/i) -     24.141M in   5.001873s
+
+Comparison:
+        float new:  6389585.0 i/s
+       float to_d:  5730786.4 i/s - 1.11x  slower
+float string to_d:  4826386.1 i/s - 1.32x  slower
+ float string new:  4740952.5 i/s - 1.35x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           float new   808.735k i/100ms
+          float to_d   710.639k i/100ms
+    float string new   603.015k i/100ms
+   float string to_d   589.930k i/100ms
+Calculating -------------------------------------
+           float new      7.953M (± 3.4%) i/s  (125.74 ns/i) -     40.437M in   5.084493s
+          float to_d      7.089M (± 7.2%) i/s  (141.06 ns/i) -     35.532M in   5.012103s
+    float string new      6.205M (± 2.2%) i/s  (161.16 ns/i) -     31.357M in   5.053567s
+   float string to_d      6.022M (± 4.0%) i/s  (166.06 ns/i) -     30.676M in   5.093998s
+
+Comparison:
+        float new:  7952955.5 i/s
+       float to_d:  7089229.6 i/s - 1.12x  slower
+ float string new:  6204880.6 i/s - 1.28x  slower
+float string to_d:  6022060.1 i/s - 1.32x  slower
 ```
 
 ### Date
