@@ -46,6 +46,7 @@ Idioms
 
 - [General](#general)
 - [Array](#array)
+- [BigDecimal](#bigdecimal)
 - [Date](#date)
 - [Enumerable](#enumerable)
 - [Hash](#hash)
@@ -499,10 +500,47 @@ Comparison:
              Array#+:        5.2 i/s - 243.60x  slower
 ```
 
-##### `Array#new` vs `Fixnum#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
+##### `Array#new` vs `range + map` vs `Integer#upto + map` vs `Integer#times + map` [code](code/array/array-new-vs-fixnum-times-map.rb)
 
 Typical slowdown is 40-60% depending on the size of the array. See the corresponding
 [pull request](https://github.com/fastruby/fast-ruby/pull/91/) for performance characteristics.
+
+The first run is from before `range + map` and `Integer#upto + map` were added.
+The second is from #227.
+
+```
+ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin15]
+Calculating -------------------------------------
+           Array#new    63.875k i/100ms
+  Fixnum#times + map    48.010k i/100ms
+-------------------------------------------------
+           Array#new      1.070M (± 2.2%) i/s -      5.365M
+  Fixnum#times + map    678.097k (± 2.7%) i/s -      3.409M
+
+Comparison:
+           Array#new:  1069837.0 i/s
+  Fixnum#times + map:   678097.4 i/s - 1.58x slower
+```
+
+```
+ruby 3.3.0dev (2023-11-12 master 60e19a0b5f) [x86_64-linux]
+Warming up --------------------------------------
+           Array#new   162.771k i/100ms
+         range + map   101.765k i/100ms
+ Integer#times + map    64.009k i/100ms
+  Integer#upto + map    86.411k i/100ms
+Calculating -------------------------------------
+           Array#new      1.629M (± 1.1%) i/s -      8.301M in   5.096134s
+         range + map      1.009M (± 1.3%) i/s -      5.088M in   5.045700s
+ Integer#times + map    621.555k (± 2.0%) i/s -      3.136M in   5.048250s
+  Integer#upto + map    810.206k (± 2.4%) i/s -      4.061M in   5.015800s
+
+Comparison:
+           Array#new:  1629141.5 i/s
+         range + map:  1008629.1 i/s - 1.62x  slower
+  Integer#upto + map:   810205.5 i/s - 2.01x  slower
+ Integer#times + map:   621555.5 i/s - 2.62x  slower
+```
 
 ```
 $ ruby -v code/array/array-new-vs-fixnum-times-map.rb
@@ -517,6 +555,27 @@ Calculating -------------------------------------
 Comparison:
            Array#new:  4250785.8 i/s
   Fixnum#times + map:  1885679.9 i/s - 2.25x  slower
+```
+
+```
+$ ruby -v code/array/array-new-vs-fixnum-times-map.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           Array#new   250.048k i/100ms
+         range + map   122.278k i/100ms
+  Integer#upto + map   137.831k i/100ms
+ Integer#times + map   123.032k i/100ms
+Calculating -------------------------------------
+           Array#new      2.572M (± 3.8%) i/s  (388.86 ns/i) -     13.002M in   5.056173s
+         range + map      1.707M (± 4.0%) i/s  (585.74 ns/i) -      8.559M in   5.013655s
+  Integer#upto + map      1.321M (±11.3%) i/s  (757.04 ns/i) -      6.616M in   5.008470s
+ Integer#times + map      1.067M (±13.2%) i/s  (937.27 ns/i) -      5.413M in   5.073819s
+
+Comparison:
+          Array#new:  2571608.0 i/s
+        range + map:  1707229.6 i/s - 1.51x  slower
+ Integer#upto + map:  1320940.0 i/s - 1.95x  slower
+Integer#times + map:  1066929.7 i/s - 2.41x  slower
 ```
 
 ##### `Array#sort.reverse` vs `Array#sort_by` +  block [code](code/array/sort-reverse-vs-sort_by-with-block.rb)
@@ -642,6 +701,41 @@ Comparison:
 
 ```
 $ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14]
+
+Calculating -------------------------------------
+          While Loop    22.553k i/100ms
+     each_with_index    11.963k i/100ms
+-------------------------------------------------
+          While Loop    240.752k (± 7.1%) i/s -      1.218M
+     each_with_index    126.753k (± 5.9%) i/s -    634.039k
+
+Comparison:
+          While Loop:   240752.1 i/s
+     each_with_index:   126753.4 i/s - 1.90x slower
+```
+
+The next run is from #155, with an extra "While optimal" loop that also copies ARRAY to a local variable (left out: it ties with the cached size).
+Its reports ran 1000 calls each, so its i/s are per 1000 calls.
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux]
+Calculating -------------------------------------
+       While optimal    443.606  (± 2.5%) i/s -      2.250k in   5.075720s
+   While cached size    441.961  (± 0.5%) i/s -      2.244k in   5.077426s
+          While loop    363.202  (± 3.3%) i/s -      1.836k in   5.061400s
+     each_with_index    277.373  (± 1.1%) i/s -      1.404k in   5.062208s
+
+Comparison:
+       While optimal:      443.6 i/s
+   While cached size:      442.0 i/s - same-ish: difference falls within error
+          While loop:      363.2 i/s - 1.22x  slower
+     each_with_index:      277.4 i/s - 1.60x  slower
+```
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
 Warming up --------------------------------------
           While Loop    49.050k i/100ms
@@ -653,6 +747,24 @@ Calculating -------------------------------------
 Comparison:
           While Loop:   501430.2 i/s
      each_with_index:   369364.5 i/s - 1.36x  slower
+```
+
+```
+$ ruby -v code/enumerable/each_with_index-vs-while-loop.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+   While cached size    40.277k i/100ms
+          While Loop    36.196k i/100ms
+     each_with_index    28.712k i/100ms
+Calculating -------------------------------------
+   While cached size    396.703k (± 1.8%) i/s    (2.52 μs/i) -      2.014M in   5.076466s
+          While Loop    374.002k (± 3.3%) i/s    (2.67 μs/i) -      1.882M in   5.032566s
+     each_with_index    290.320k (± 0.6%) i/s    (3.44 μs/i) -      1.464M in   5.043785s
+
+Comparison:
+While cached size:   396703.1 i/s
+       While Loop:   374002.4 i/s - 1.06x  slower
+  each_with_index:   290320.1 i/s - 1.37x  slower
 ```
 
 ##### `Enumerable#map`...`Array#flatten` vs `Enumerable#flat_map` [code](code/enumerable/map-flatten-vs-flat_map.rb)
@@ -826,6 +938,165 @@ Calculating -------------------------------------
 Comparison:
        Array#sum:  1526686.2 i/s
 Array#inject(:+):   977701.4 i/s - 1.56x  slower
+```
+
+### BigDecimal
+
+##### `BigDecimal` from a number vs from a String [integer code](code/bigdecimal/integer-string-vs-numeric.rb) [float code](code/bigdecimal/float-string-vs-numeric.rb)
+
+On current CRuby, building a `BigDecimal` from the number is faster than from a String.
+On Ruby 2.5 it was the other way around, as the 2.5 runs below show.
+
+The first run is from #172, when both files were one.
+
+```
+$ ruby -v code/bigdecimal/string-vs-numeric.rb
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-darwin18]
+Calculating -------------------------------------
+  integer string new      2.497M (± 2.0%) i/s -     12.645M in   5.066385s
+    float string new      2.414M (± 2.0%) i/s -     12.182M in   5.048473s
+ integer string to_d      2.402M (± 1.8%) i/s -     12.010M in   5.001784s
+   float string to_d      2.318M (± 1.8%) i/s -     11.663M in   5.032429s
+         integer new      1.601M (± 1.2%) i/s -      8.022M in   5.010201s
+        integer to_d      1.563M (± 1.8%) i/s -      7.817M in   5.001726s
+           float new    517.635k (± 4.5%) i/s -      2.604M in   5.042605s
+          float to_d    529.413k (± 3.6%) i/s -      2.671M in   5.051477s
+
+Comparison:
+  integer string new:  2496860.3 i/s
+    float string new:  2414122.8 i/s - same-ish: difference falls within error
+ integer string to_d:  2401929.3 i/s - 1.04x  slower
+   float string to_d:  2318272.7 i/s - 1.08x  slower
+         integer new:  1601402.4 i/s - 1.56x  slower
+        integer to_d:  1563335.6 i/s - 1.60x  slower
+          float to_d:   529412.7 i/s - 4.72x  slower
+           float new:   517634.5 i/s - 4.82x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 2.5.9p229 (2021-04-05 revision 67939) [aarch64-linux]
+Warming up --------------------------------------
+         integer new   414.193k i/100ms
+        integer to_d   403.499k i/100ms
+  integer string new   550.222k i/100ms
+ integer string to_d   495.285k i/100ms
+Calculating -------------------------------------
+         integer new      4.270M (± 4.1%) i/s  (234.17 ns/i) -     21.538M in   5.043465s
+        integer to_d      3.937M (± 6.7%) i/s  (254.03 ns/i) -     19.771M in   5.022536s
+  integer string new      5.491M (± 1.7%) i/s  (182.11 ns/i) -     27.511M in   5.010070s
+ integer string to_d      4.985M (± 0.5%) i/s  (200.61 ns/i) -     25.260M in   5.067219s
+
+Comparison:
+ integer string new:  5491160.4 i/s
+integer string to_d:  4984891.5 i/s - 1.10x  slower
+        integer new:  4270484.2 i/s - 1.29x  slower
+       integer to_d:  3936547.2 i/s - 1.39x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+         integer new   724.240k i/100ms
+        integer to_d   669.146k i/100ms
+  integer string new   476.320k i/100ms
+ integer string to_d   473.860k i/100ms
+Calculating -------------------------------------
+         integer new      8.201M (± 8.4%) i/s  (121.94 ns/i) -     41.282M in   5.033937s
+        integer to_d      7.789M (± 1.9%) i/s  (128.39 ns/i) -     39.480M in   5.068714s
+  integer string new      4.675M (± 6.1%) i/s  (213.88 ns/i) -     23.816M in   5.093797s
+ integer string to_d      4.537M (± 9.6%) i/s  (220.43 ns/i) -     22.745M in   5.013831s
+
+Comparison:
+        integer new:  8200675.5 i/s
+       integer to_d:  7788881.6 i/s - same-ish: difference falls within error
+ integer string new:  4675490.6 i/s - 1.75x  slower
+integer string to_d:  4536507.4 i/s - 1.81x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/integer-string-vs-numeric.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+         integer new   833.601k i/100ms
+        integer to_d   998.642k i/100ms
+  integer string new   612.931k i/100ms
+ integer string to_d   622.024k i/100ms
+Calculating -------------------------------------
+         integer new     11.461M (± 8.4%) i/s   (87.25 ns/i) -     57.518M in   5.018754s
+        integer to_d      9.982M (± 7.9%) i/s  (100.18 ns/i) -     49.932M in   5.002014s
+  integer string new      6.318M (± 0.8%) i/s  (158.29 ns/i) -     31.872M in   5.045082s
+ integer string to_d      6.048M (± 7.3%) i/s  (165.34 ns/i) -     30.479M in   5.039416s
+
+Comparison:
+        integer new: 11460706.3 i/s
+       integer to_d:  9982400.0 i/s - same-ish: difference falls within error
+ integer string new:  6317520.9 i/s - 1.81x  slower
+integer string to_d:  6048156.9 i/s - 1.89x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 2.5.9p229 (2021-04-05 revision 67939) [aarch64-linux]
+Warming up --------------------------------------
+           float new   156.784k i/100ms
+          float to_d   140.804k i/100ms
+    float string new   544.740k i/100ms
+   float string to_d   489.796k i/100ms
+Calculating -------------------------------------
+           float new      1.571M (± 1.7%) i/s  (636.41 ns/i) -      7.996M in   5.088751s
+          float to_d      1.443M (± 1.3%) i/s  (693.24 ns/i) -      7.322M in   5.075776s
+    float string new      5.430M (± 0.9%) i/s  (184.16 ns/i) -     27.237M in   5.016063s
+   float string to_d      4.714M (± 8.8%) i/s  (212.13 ns/i) -     24.000M in   5.091113s
+
+Comparison:
+ float string new:  5429956.2 i/s
+float string to_d:  4714097.3 i/s - 1.15x  slower
+        float new:  1571305.9 i/s - 3.46x  slower
+       float to_d:  1442500.1 i/s - 3.76x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           float new   562.944k i/100ms
+          float to_d   515.554k i/100ms
+    float string new   464.840k i/100ms
+   float string to_d   383.190k i/100ms
+Calculating -------------------------------------
+           float new      6.390M (± 1.2%) i/s  (156.50 ns/i) -     32.088M in   5.021892s
+          float to_d      5.731M (± 2.4%) i/s  (174.50 ns/i) -     28.871M in   5.037882s
+    float string new      4.741M (± 2.3%) i/s  (210.93 ns/i) -     23.707M in   5.000438s
+   float string to_d      4.826M (± 1.7%) i/s  (207.19 ns/i) -     24.141M in   5.001873s
+
+Comparison:
+        float new:  6389585.0 i/s
+       float to_d:  5730786.4 i/s - 1.11x  slower
+float string to_d:  4826386.1 i/s - 1.32x  slower
+ float string new:  4740952.5 i/s - 1.35x  slower
+```
+
+```
+$ ruby -v code/bigdecimal/float-string-vs-numeric.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+           float new   808.735k i/100ms
+          float to_d   710.639k i/100ms
+    float string new   603.015k i/100ms
+   float string to_d   589.930k i/100ms
+Calculating -------------------------------------
+           float new      7.953M (± 3.4%) i/s  (125.74 ns/i) -     40.437M in   5.084493s
+          float to_d      7.089M (± 7.2%) i/s  (141.06 ns/i) -     35.532M in   5.012103s
+    float string new      6.205M (± 2.2%) i/s  (161.16 ns/i) -     31.357M in   5.053567s
+   float string to_d      6.022M (± 4.0%) i/s  (166.06 ns/i) -     30.676M in   5.093998s
+
+Comparison:
+        float new:  7952955.5 i/s
+       float to_d:  7089229.6 i/s - 1.12x  slower
+ float string new:  6204880.6 i/s - 1.28x  slower
+float string to_d:  6022060.1 i/s - 1.32x  slower
 ```
 
 ### Date
@@ -1686,6 +1957,78 @@ Comparison:
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
+The first run is from before the `value.between?` report was added.
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
+
+Calculating -------------------------------------
+        range#cover?    85.467k i/100ms
+      range#include?     7.720k i/100ms
+       range#member?     7.783k i/100ms
+       plain compare   102.189k i/100ms
+-------------------------------------------------
+        range#cover?      1.816M (± 5.6%) i/s -      9.060M
+      range#include?     83.344k (± 5.0%) i/s -    416.880k
+       range#member?     82.654k (± 5.0%) i/s -    412.499k
+       plain compare      2.581M (± 6.2%) i/s -     12.876M
+
+Comparison:
+       plain compare:  2581211.8 i/s
+        range#cover?:  1816038.5 i/s - 1.42x slower
+      range#include?:    83343.9 i/s - 30.97x slower
+       range#member?:    82654.1 i/s - 31.23x slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        range#cover?   164.598k i/100ms
+      range#include?     9.327k i/100ms
+       range#member?     9.366k i/100ms
+       plain compare   198.178k i/100ms
+            between?   211.880k i/100ms
+Calculating -------------------------------------
+        range#cover?      2.681M (± 4.5%) i/s -     13.497M in   5.044550s
+      range#include?     94.109k (± 1.2%) i/s -    475.677k in   5.055317s
+       range#member?     94.958k (± 1.8%) i/s -    477.666k in   5.031849s
+       plain compare      3.857M (± 1.1%) i/s -     19.421M in   5.035455s
+            between?      4.694M (± 1.5%) i/s -     23.519M in   5.011280s
+
+Comparison:
+            between?:  4694228.0 i/s
+       plain compare:  3857415.9 i/s - 1.22x  slower
+        range#cover?:  2681447.3 i/s - 1.75x  slower
+       range#member?:    94958.2 i/s - 49.43x  slower
+      range#include?:    94109.3 i/s - 49.88x  slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+      value.between?   864.349k i/100ms
+       plain compare   702.492k i/100ms
+        range#cover?   475.755k i/100ms
+      range#include?    20.865k i/100ms
+       range#member?    22.486k i/100ms
+Calculating -------------------------------------
+      value.between?      8.123M (±13.4%) i/s  (123.10 ns/i) -     41.489M in   5.107425s
+       plain compare      6.686M (± 8.4%) i/s  (149.56 ns/i) -     33.720M in   5.042944s
+        range#cover?      4.322M (±11.6%) i/s  (231.40 ns/i) -     21.885M in   5.064129s
+      range#include?    215.368k (± 6.3%) i/s    (4.64 μs/i) -      1.085M in   5.037798s
+       range#member?    219.097k (± 2.1%) i/s    (4.56 μs/i) -      1.102M in   5.028889s
+
+Comparison:
+value.between?:  8123222.5 i/s
+ plain compare:  6686493.7 i/s - same-ish: difference falls within error
+  range#cover?:  4321519.3 i/s - 1.88x  slower
+ range#member?:   219096.9 i/s - 37.08x  slower
+range#include?:   215367.9 i/s - 37.72x  slower
+```
+
 ```
 $ ruby -v code/range/cover-vs-include.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
@@ -1708,6 +2051,30 @@ Comparison:
         range#cover?:  8323723.8 i/s - 1.83x  slower
       range#include?:   352846.2 i/s - 43.12x  slower
        range#member?:   349526.0 i/s - 43.53x  slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+      value.between?   544.090k i/100ms
+       plain compare   756.666k i/100ms
+        range#cover?   554.509k i/100ms
+      range#include?    24.581k i/100ms
+       range#member?    18.519k i/100ms
+Calculating -------------------------------------
+      value.between?      8.350M (±12.0%) i/s  (119.77 ns/i) -     41.895M in   5.017647s
+       plain compare      7.552M (± 1.9%) i/s  (132.42 ns/i) -     37.833M in   5.010034s
+        range#cover?      5.466M (± 3.1%) i/s  (182.97 ns/i) -     27.725M in   5.072790s
+      range#include?    237.519k (± 3.4%) i/s    (4.21 μs/i) -      1.204M in   5.071051s
+       range#member?    236.229k (± 4.7%) i/s    (4.23 μs/i) -      1.185M in   5.017233s
+
+Comparison:
+value.between?:  8349516.5 i/s
+ plain compare:  7551504.9 i/s - same-ish: difference falls within error
+  range#cover?:  5465522.4 i/s - 1.53x  slower
+range#include?:   237518.6 i/s - 35.15x  slower
+ range#member?:   236229.0 i/s - 35.35x  slower
 ```
 
 
