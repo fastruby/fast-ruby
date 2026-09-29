@@ -1686,6 +1686,78 @@ Comparison:
 
 `cover?` only check if it is within the start and end, `include?` needs to traverse the whole range.
 
+The first run is from before the `value.between?` report was added.
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
+
+Calculating -------------------------------------
+        range#cover?    85.467k i/100ms
+      range#include?     7.720k i/100ms
+       range#member?     7.783k i/100ms
+       plain compare   102.189k i/100ms
+-------------------------------------------------
+        range#cover?      1.816M (± 5.6%) i/s -      9.060M
+      range#include?     83.344k (± 5.0%) i/s -    416.880k
+       range#member?     82.654k (± 5.0%) i/s -    412.499k
+       plain compare      2.581M (± 6.2%) i/s -     12.876M
+
+Comparison:
+       plain compare:  2581211.8 i/s
+        range#cover?:  1816038.5 i/s - 1.42x slower
+      range#include?:    83343.9 i/s - 30.97x slower
+       range#member?:    82654.1 i/s - 31.23x slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 2.4.3p205 (2017-12-14 revision 61247) [x86_64-darwin17]
+Warming up --------------------------------------
+        range#cover?   164.598k i/100ms
+      range#include?     9.327k i/100ms
+       range#member?     9.366k i/100ms
+       plain compare   198.178k i/100ms
+            between?   211.880k i/100ms
+Calculating -------------------------------------
+        range#cover?      2.681M (± 4.5%) i/s -     13.497M in   5.044550s
+      range#include?     94.109k (± 1.2%) i/s -    475.677k in   5.055317s
+       range#member?     94.958k (± 1.8%) i/s -    477.666k in   5.031849s
+       plain compare      3.857M (± 1.1%) i/s -     19.421M in   5.035455s
+            between?      4.694M (± 1.5%) i/s -     23.519M in   5.011280s
+
+Comparison:
+            between?:  4694228.0 i/s
+       plain compare:  3857415.9 i/s - 1.22x  slower
+        range#cover?:  2681447.3 i/s - 1.75x  slower
+       range#member?:    94958.2 i/s - 49.43x  slower
+      range#include?:    94109.3 i/s - 49.88x  slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 3.4.10 (2026-06-30 revision 2b0b7728dc) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+      value.between?   864.349k i/100ms
+       plain compare   702.492k i/100ms
+        range#cover?   475.755k i/100ms
+      range#include?    20.865k i/100ms
+       range#member?    22.486k i/100ms
+Calculating -------------------------------------
+      value.between?      8.123M (±13.4%) i/s  (123.10 ns/i) -     41.489M in   5.107425s
+       plain compare      6.686M (± 8.4%) i/s  (149.56 ns/i) -     33.720M in   5.042944s
+        range#cover?      4.322M (±11.6%) i/s  (231.40 ns/i) -     21.885M in   5.064129s
+      range#include?    215.368k (± 6.3%) i/s    (4.64 μs/i) -      1.085M in   5.037798s
+       range#member?    219.097k (± 2.1%) i/s    (4.56 μs/i) -      1.102M in   5.028889s
+
+Comparison:
+value.between?:  8123222.5 i/s
+ plain compare:  6686493.7 i/s - same-ish: difference falls within error
+  range#cover?:  4321519.3 i/s - 1.88x  slower
+ range#member?:   219096.9 i/s - 37.08x  slower
+range#include?:   215367.9 i/s - 37.72x  slower
+```
+
 ```
 $ ruby -v code/range/cover-vs-include.rb
 ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]
@@ -1708,6 +1780,30 @@ Comparison:
         range#cover?:  8323723.8 i/s - 1.83x  slower
       range#include?:   352846.2 i/s - 43.12x  slower
        range#member?:   349526.0 i/s - 43.53x  slower
+```
+
+```
+$ ruby -v code/range/cover-vs-include.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+      value.between?   544.090k i/100ms
+       plain compare   756.666k i/100ms
+        range#cover?   554.509k i/100ms
+      range#include?    24.581k i/100ms
+       range#member?    18.519k i/100ms
+Calculating -------------------------------------
+      value.between?      8.350M (±12.0%) i/s  (119.77 ns/i) -     41.895M in   5.017647s
+       plain compare      7.552M (± 1.9%) i/s  (132.42 ns/i) -     37.833M in   5.010034s
+        range#cover?      5.466M (± 3.1%) i/s  (182.97 ns/i) -     27.725M in   5.072790s
+      range#include?    237.519k (± 3.4%) i/s    (4.21 μs/i) -      1.204M in   5.071051s
+       range#member?    236.229k (± 4.7%) i/s    (4.23 μs/i) -      1.185M in   5.017233s
+
+Comparison:
+value.between?:  8349516.5 i/s
+ plain compare:  7551504.9 i/s - same-ish: difference falls within error
+  range#cover?:  5465522.4 i/s - 1.53x  slower
+range#include?:   237518.6 i/s - 35.15x  slower
+ range#member?:   236229.0 i/s - 35.35x  slower
 ```
 
 
