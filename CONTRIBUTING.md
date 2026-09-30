@@ -112,6 +112,16 @@ it ran on:
 RESULTS_DIR=results RESULTS_LABEL=ruby_3.4 docker compose run --rm ruby_3.4 code/your-new/entry.rb
 ```
 
+To see those results the way the results site shows them, build the site
+into `_site/`, then open `_site/index.html` in a browser:
+
+```
+docker compose run --rm -T --entrypoint ruby ruby_4.0 script/build_results_site.rb results _site
+```
+
+CI does the same after every run: the site is attached to the run as the
+`site-preview` artifact, and published to GitHub Pages from `main`.
+
 ## Benchmarks that need a newer Ruby
 
 CI runs every benchmark on every Ruby in `compose.yaml`, back to Ruby 2.1, and
