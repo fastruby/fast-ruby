@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>fast-ruby results</title>
+<meta name="description" content="Does the fast-ruby advice hold on your Ruby? Every benchmark, on every Ruby from 2.1 to head, with and without the JIT.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 11 8 4h16l6 7-14 17z' fill='%23ff0000'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&family=Source+Code+Pro:wght@400;500;700&display=swap">
+<style>
+/* One reading column in the fastruby.io look: white, ruby red mark, green
+   square buttons, and one subway-line station per Ruby. Light only, like
+   fastruby.io. Built by script/build_results_site.rb. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --soft: #f8f8f8;
+  --ink: #262320;
+  --text: #333333;
+  --muted: #666666;
+  --faint: #999999;
+  --line: #dddddd;
+  --green: #00d242;
+  --green-dark: #00952f;
+  --red: #e00000;
+  --ruby: #ff0000;
+  --yellow: #fdca31;
+  --yellow-ink: #7a5c00;
+  --skip: #d0d0d0;
+  --font: "Oxygen", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font); }
+a { color: var(--text); }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+code { font-family: var(--mono); font-size: .88em; }
+.col { max-width: 860px; margin: 0 auto; padding-inline: 16px; }
+
+header .col { max-width: 1100px; display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-block: 22px; }
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+.logo svg { width: 60px; height: 34px; flex: none; }
+.logo b { display: block; font-size: 22px; line-height: 1; letter-spacing: -.01em; }
+.logo small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; color: var(--text); }
+nav { display: flex; align-items: center; gap: 8px 22px; flex-wrap: wrap; font-size: 14px; }
+nav a { text-decoration: underline; text-underline-offset: 3px; }
+nav a.maint { text-decoration: none; color: var(--muted); }
+nav a.maint b { color: var(--ink); }
+nav a.maint i { font-style: normal; color: var(--green-dark); }
+.btn { display: inline-block; background: var(--green); color: #fff; font-weight: 700; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; text-decoration: none; padding: 11px 16px; border: 0; }
+.btn:hover { background: var(--green-dark); }
+
+.intro { padding-block: 34px 10px; text-align: center; }
+h1 { font-size: clamp(36px, 7vw, 60px); line-height: 1.08; margin: 0 auto 14px; color: var(--text); letter-spacing: -.02em; max-width: 21ch; text-wrap: balance; }
+.intro p { margin: 0 auto; color: var(--muted); max-width: 58ch; font-size: 15px; }
+.intro p.run { margin-top: 10px; font-size: 13px; color: var(--faint); }
+.intro p.run a { color: var(--muted); }
+.intro p.incomplete { margin: 14px auto 0; max-width: 58ch; padding: 10px 14px; border: 2px solid var(--red); color: var(--ink); font-size: 14px; font-weight: 700; }
+.intro p.incomplete[hidden] { display: none; }
+
+.picker { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 16px; border-bottom: 3px solid var(--ink); display: grid; gap: 10px; }
+.current { font-size: clamp(22px, 4vw, 30px); font-weight: 700; color: var(--ink); line-height: 1.2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.current .pre { font-size: 14px; font-weight: 400; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.current .rb { background: var(--ink); color: #fff; padding: 2px 12px; font-family: var(--mono); }
+.current .md { font-size: 15px; font-weight: 700; color: var(--green-dark); border: 2px solid var(--green); padding: 1px 8px; }
+.prow { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.lbl { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 84px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 13px var(--mono); border: 1px solid var(--line); background: var(--bg); color: var(--text); padding: 4px 10px; cursor: pointer; }
+.chips.big .chip { font-size: 15px; padding: 7px 13px; }
+.chip:hover { border-color: var(--text); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip:disabled { color: var(--skip); border-style: dashed; cursor: not-allowed; }
+.chip .j { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-left: 5px; vertical-align: 2px; }
+.jkey { font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.jkey .j { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tabs button { font: 700 16px var(--font); background: var(--bg); border: 2px solid var(--line); padding: 8px 16px; color: var(--text); cursor: pointer; }
+.tabs button:hover { border-color: var(--text); }
+.tabs button .c { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--muted); margin-left: 6px; }
+.tabs button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+.tabs button[aria-pressed="true"] .c { color: #fff; }
+.tabs button:disabled { color: var(--skip); border-style: dashed; cursor: not-allowed; }
+.tabs button:disabled .c { display: none; }
+/* Skipped and Suspect are hidden when their count is 0. */
+.tabs button[hidden] { display: none; }
+
+/* (!) explanations: shown on hover, focus or tap. On phones they open as a
+   full-width bar at the bottom, so they never push the page wider. */
+/* A small black badge raised like an exponent, so it reads as clickable.
+   Black, not yellow: yellow already means "tie" on this page. */
+.tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; margin-left: 2px; padding: 0; border-radius: 50%; border: 0; background: var(--ink); color: #fff; font: 700 10px/1 var(--font); vertical-align: .55em; cursor: pointer; }
+.tip:hover, .tip:focus-visible, .tip.open { background: #000; box-shadow: 0 0 0 2px rgba(38, 35, 32, .25); }
+.tip::after { content: attr(data-tip); position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%); width: max-content; max-width: min(280px, 70vw); background: var(--ink); color: #fff; font: 400 13px/1.45 var(--font); text-align: left; padding: 8px 10px; display: none; pointer-events: none; z-index: 30; }
+.tip:hover::after, .tip:focus::after, .tip.open::after { display: block; }
+
+h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 32px 0 2px; }
+h2 .on { float: right; text-transform: none; letter-spacing: 0; font-family: var(--mono); font-weight: 500; color: var(--ink); }
+ul.list { list-style: none; margin: 0; padding: 0; }
+li.item { border-bottom: 1px solid var(--line); }
+li.item > button { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 6px 12px; align-items: start; padding: 14px 4px; cursor: pointer; }
+li.item > button:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+li.item > button:hover .t { text-decoration: underline; text-underline-offset: 3px; }
+.ico { position: relative; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; margin-top: 2px; }
+.ico.ok { background: var(--green); color: #fff; }
+.ico.eq { background: #fff; color: var(--yellow-ink); box-shadow: inset 0 0 0 3px var(--yellow); }
+.ico.no { background: var(--red); color: #fff; }
+.ico.na { background: #fff; color: var(--faint); box-shadow: inset 0 0 0 3px var(--skip); }
+.t { font-weight: 700; font-size: 15.5px; line-height: 1.35; color: var(--ink); min-width: 0; }
+.t code { font-weight: 400; }
+.meta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13.5px; color: var(--muted); }
+.meta > .line { margin-left: auto; }
+.res { font-family: var(--mono); font-size: 13.5px; font-weight: 700; margin-left: 4px; }
+.res.ok { color: var(--green-dark); }
+.res.eq { color: var(--yellow-ink); }
+.res.no { color: var(--red); }
+.res.na { color: var(--faint); }
+.res .sus { color: var(--ink); font-weight: 500; }
+
+/* Subway line: one station per Ruby that has the selected build. */
+.line { position: relative; display: flex; align-items: center; gap: 5px; padding: 0 2px; }
+.line::before { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 3px; margin-top: -1.5px; background: var(--line); }
+.line span { position: relative; width: 11px; height: 11px; border-radius: 50%; background: #fff; }
+.line .ok { background: var(--green); }
+.line .no { background: var(--red); }
+.line .eq { box-shadow: inset 0 0 0 3px var(--yellow); }
+.line .na { box-shadow: inset 0 0 0 2px var(--skip); }
+.line .me { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink); }
+.line .me.eq { box-shadow: inset 0 0 0 3px var(--yellow), 0 0 0 2px #fff, 0 0 0 4px var(--ink); }
+.line .me.na { box-shadow: inset 0 0 0 2px var(--skip), 0 0 0 2px #fff, 0 0 0 4px var(--ink); }
+
+.detail { padding: 0 4px 20px 42px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.detail .tb { overflow-x: auto; border: 1px solid var(--line); }
+.detail table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.detail th { text-align: right; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 8px 10px; background: var(--soft); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.detail th:first-child, .detail td:first-child { text-align: left; }
+.detail th .v { display: block; font-family: var(--mono); text-transform: none; letter-spacing: 0; font-weight: 700; margin-top: 2px; }
+.detail th .v.ok { color: var(--green-dark); }
+.detail th .v.eq { color: var(--yellow-ink); }
+.detail th .v.no { color: var(--red); }
+.detail th .v.na { color: var(--faint); }
+.detail th .v.sus { color: var(--ink); font-weight: 500; }
+.detail td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+.detail td:first-child { font-family: var(--font); font-size: 13.5px; white-space: normal; }
+.detail tr:last-child td { border-bottom: 0; }
+.detail td.fast { color: var(--green-dark); font-weight: 700; }
+.detail td small.ips { display: block; font-size: 11px; font-weight: 400; color: var(--faint); margin-top: 1px; }
+.detail tr.claimed td:first-child { font-weight: 700; }
+.detail tr.env td { background: var(--soft); font-size: 12px; color: var(--muted); }
+.detail .links { font-size: 13px; display: flex; gap: 18px; flex-wrap: wrap; }
+.fine { font-size: 12.5px; color: var(--muted); margin: 0; }
+.empty { padding: 24px 0; color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); padding-block: 20px 0; align-items: center; }
+.legend .line { display: inline-flex; }
+.legend .line::before { display: none; }
+
+.band { background: #262320; color: #f1ebe1; margin-top: 56px; }
+.bwrap { max-width: 1100px; margin: 0 auto; padding: 48px 16px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+.beyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #b9b0a3; }
+.bh { font-size: clamp(24px, 3vw, 32px); line-height: 1.15; margin: 6px 0 12px; color: #f1ebe1; text-transform: none; letter-spacing: -.01em; }
+.bh span { color: var(--green); }
+.band p { color: #b9b0a3; max-width: 58ch; margin: 0 0 12px; font-size: 15px; }
+.band p b { color: #f1ebe1; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.bbtn { display: inline-block; padding: 11px 16px; font-weight: 700; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; text-decoration: none; }
+.bbtn.primary { background: var(--green); color: #fff; }
+.bbtn.primary:hover { background: var(--green-dark); }
+.bbtn.ghost { border: 1px solid #57514a; color: #f1ebe1; }
+.bbtn.ghost:hover { border-color: var(--green); }
+.services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.svc { border: 1px solid #3a352f; padding: 14px; text-decoration: none; color: #f1ebe1; display: grid; gap: 4px; }
+.svc:hover { border-color: var(--green); }
+.svc b { font-size: 15px; }
+.svc span { font-size: 13px; color: #b9b0a3; line-height: 1.4; }
+.proof { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid #3a352f; padding-top: 18px; font-family: var(--mono); font-size: 13px; color: #b9b0a3; }
+.proof b { color: var(--green); font-size: 18px; margin-right: 6px; }
+.band a:focus-visible { outline-color: var(--green); }
+footer { border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+@media (max-width: 820px) { .bwrap { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  /* On a phone the pinned picker would cover most of the screen. */
+  .picker { position: static; border-bottom: 1px solid var(--line); }
+  .tip::after { position: fixed; left: 16px; right: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: none; width: auto; max-width: none; font-size: 14px; padding: 12px 14px; }
+}
+@media (max-width: 560px) { .detail { padding-left: 4px; } }
+@media (max-width: 480px) { .services { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="col">
+    <a class="logo" href="./" aria-label="fast-ruby results">
+      <svg viewBox="0 0 60 34" aria-hidden="true">
+        <g fill="var(--ruby)"><path d="M6 10 12 4h14l6 6-13 15z" opacity=".15"/><path d="M12 10 18 4h14l6 6-13 15z" opacity=".3"/><path d="M18 10 24 4h14l6 6-13 15z" opacity=".55"/><path d="M24 10 30 4h14l6 6-13 15z"/></g>
+      </svg>
+      <span><b>fast-ruby</b><small>results</small></span>
+    </a>
+    <nav>
+      <a href="https://github.com/fastruby/fast-ruby">GitHub</a>
+      <a href="https://www.fastruby.io/blog">Blog</a>
+      <a class="maint" href="#sponsor">Maintained by <b>FastRuby<i>.io</i></b></a>
+      <a class="btn" href="https://www.fastruby.io/contact">Contact us</a>
+    </nav>
+  </div>
+</header>
+
+<main class="col" id="top">
+  <div class="intro">
+    <h1>Which fast-ruby advice holds on your Ruby?</h1>
+    <p>Every benchmark names the idiom it claims is fastest. We run each one on every Ruby, with and without the JIT, and check whether the claim still wins on that Ruby.</p>
+    <p class="run" id="run"></p>
+    <p class="incomplete" id="incomplete" hidden>Some benchmark jobs in this run failed. Their results are missing, so a result shown as skipped may be a crash. Check the CI run for the failed jobs.</p>
+  </div>
+
+  <div class="picker" id="picker">
+    <div class="current" id="current"></div>
+    <div class="prow"><span class="lbl">Your Ruby</span><div class="chips big" id="chips"></div><span class="jkey"><span class="j"></span>also built with YJIT or ZJIT</span></div>
+    <div class="prow"><span class="lbl">Build</span><div class="chips" id="modes"></div></div>
+    <div class="tabs" id="tabs">
+      <button type="button" data-f="all">All</button>
+      <button type="button" data-f="no">Does not hold</button>
+      <button type="button" data-f="eq">Tie</button>
+      <button type="button" data-f="ok">Holds</button>
+      <button type="button" data-f="na">Skipped</button>
+      <button type="button" data-f="sus">Suspect</button>
+      <button type="button" data-f="jit">JIT changes the result</button>
+    </div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="legend">
+    <span class="line"><span class="ok"></span></span>holds
+    <span class="line"><span class="eq"></span></span>tie, within error
+    <span class="line"><span class="no"></span></span>another idiom won
+    <span class="line"><span class="na"></span></span>skipped
+    <span>Each dot is one Ruby, from 2.1 to head, then JRuby and TruffleRuby, that has the build you picked. The dot with the dark ring is the Ruby you selected, <b id="legendme"></b>. Hover a dot to see which Ruby it is.</span>
+  </div>
+</main>
+
+<section class="band" id="sponsor" aria-label="Sponsor">
+  <div class="bwrap">
+    <div>
+      <div class="beyebrow">Maintained and sponsored by</div>
+      <h2 class="bh">FastRuby<span>.io</span> keeps fast-ruby running</h2>
+      <p>FastRuby.io is the Rails upgrade team at OmbuLabs. We maintain this project and run every benchmark on <b id="rubycount"></b> Ruby builds.</p>
+      <p>If these results show your app is stuck on an old Ruby, that is the work we do every day: we upgrade Ruby on Rails applications without interrupting product development.</p>
+      <div class="cta">
+        <a class="bbtn primary" href="https://www.fastruby.io/contact">Talk to us about your upgrade</a>
+        <a class="bbtn ghost" href="https://www.fastruby.io/blog">Read the FastRuby.io blog</a>
+      </div>
+    </div>
+    <div class="services">
+      <a class="svc" href="https://www.fastruby.io/"><b>Rails upgrades</b><span>Upgrade your Rails application without interrupting product development.</span></a>
+      <a class="svc" href="https://www.fastruby.io/roadmap"><b>The Roadmap</b><span>A deep-dive audit with a step-by-step plan, effort estimates and risk flags.</span></a>
+      <a class="svc" href="https://www.fastruby.io/monthly-rails-maintenance"><b>Monthly maintenance</b><span>Get your Rails app current while your team keeps shipping.</span></a>
+      <a class="svc" href="https://www.fastruby.io/security-audit"><b>Security audit</b><span>A list of vulnerable dependencies and security issues in your code.</span></a>
+    </div>
+    <div class="proof"><span><b>100+</b>apps upgraded</span><span><b>2012</b>upgrading since</span><span><b>1 to 100</b>people on the teams we work with</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    <span>fast-ruby, code under CC0.</span>
+    <a href="https://github.com/fastruby/fast-ruby">GitHub</a>
+    <a href="https://www.fastruby.io/">fastruby.io</a>
+    <a href="https://www.ombulabs.com/">OmbuLabs</a>
+  </div>
+</footer>
+
+<script>
+/*RESULTS_DATA*/
+</script>
+<script>
+(function () {
+  const D = window.RESULTS, M = D.meta, B = D.benchmarks;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+  const x = (r) => r >= 1e6 ? (r / 1e6).toFixed(1) + "M×" : r >= 1e4 ? Math.round(r / 1e3) + "k×" : r >= 10 ? Math.round(r) + "×" : r < 1.1 ? r.toFixed(2) + "×" : r.toFixed(1) + "×";
+  const fmtIps = (v) => v >= 1e9 ? (v / 1e9).toFixed(2) + "B" : v >= 1e6 ? (v / 1e6).toFixed(2) + "M" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v.toFixed(1);
+  const cpu = (l) => (M.cpus[l] || "unknown").replace(/^AMD /, "").replace(/ \d+-Core Processor$/, "").replace(/^Intel\(R\) Xeon\(R\) Platinum (\S+) CPU.*$/i, "Xeon $1");
+
+  const bases = M.labels.filter((l) => !l.includes("+"));
+  const MODES = [["", "Interpreter"], ["yjit", "YJIT"], ["zjit", "ZJIT"]];
+  const FILTERS = ["all", "no", "eq", "ok", "na", "sus", "jit"];
+  const lab = (base, mode) => mode ? base + "+" + mode : base;
+  const has = (base, mode) => M.labels.includes(lab(base, mode));
+  const modeName = (mode) => MODES.find(([m]) => m === mode)[1];
+  const nice = (l) => { const [b, m] = l.split("+"); return b.replace(/^ruby_/, "Ruby ").replace(/^jruby_/, "JRuby ").replace(/^truffleruby_/, "TruffleRuby ") + (m ? " + " + m.toUpperCase() : ""); };
+  const shortLabel = (l) => l.replace(/^ruby_/, "");
+  const jitsOf = (base) => MODES.filter(([m]) => m && has(base, m)).map(([m]) => m);
+
+  // The builder computed every verdict; here each run only gets its reports
+  // by name and its fastest one.
+  B.forEach((b, i) => {
+    b.i = i;
+    b.v = {};
+    M.labels.forEach((l) => {
+      const r = b.runs[l];
+      if (!r) { b.v[l] = { s: "na" }; return; }
+      const es = r.entries.map((e, k) => e && { name: b.names[k], ips: e[0], err: e[1] }).filter(Boolean);
+      const top = es.reduce((a, c) => (c.ips > a.ips ? c : a), es[0]);
+      b.v[l] = { s: r.state, r: r.ratio, winner: r.winner == null ? null : b.names[r.winner], sus: r.suspect && r.state !== "na", es, top };
+    });
+  });
+  const jitDiff = (b, base) => jitsOf(base).some((m) => { const a = b.v[base].s, c = b.v[lab(base, m)].s; return a !== "na" && c !== "na" && a !== c; });
+  const bucket = (v) => (v.sus ? "sus" : v.s);
+
+  const TIPS = {
+    ok: "Holds: the idiom the file says is fastest won on this Ruby.",
+    no: "Does not hold: another idiom was faster, by more than the measured error.",
+    eq: "Tie: the gap is within the error, so neither is faster.",
+    na: "Skipped: the benchmark uses a method this Ruby does not have yet, so it did not run here.",
+    sus: "Suspect: a report ran over a billion times per second, under 1 ns per iteration. The JIT most likely removed the work, so these results are not counted as holds, ties or losses.",
+    jit: "JIT changes the result: with YJIT or ZJIT on this Ruby, the verdict is different from the interpreter.",
+    ips: "i/s is iterations per second: how many times benchmark-ips ran that code in one second. Higher is faster.",
+    cols: "Each build (interpreter, YJIT, ZJIT) ran as a separate CI job on its own machine. Read each column of a report on its own: it ranks the idioms inside that build. Do not compare i/s across columns to decide whether YJIT or ZJIT is faster.",
+    cpu: "The CPU model of the machine each build's job ran on. It is the same for every benchmark of that build in this run.",
+    cpuMixed: "These builds did not share a CPU model in this run, so their i/s numbers are even less comparable.",
+  };
+  const tip = (k) => `<button type="button" class="tip" aria-label="${esc(TIPS[k])}" data-tip="${esc(TIPS[k])}">!</button>`;
+  const icon = { ok: "✓", eq: "=", no: "✗", na: "–" };
+  const tabName = { all: "All", no: "Does not hold", eq: "Tie", ok: "Holds", na: "Skipped", sus: "Suspect", jit: "JIT changes the result" };
+
+  function resText(v) {
+    if (v.s === "ok") return `wins by ${x(v.r)}`;
+    if (v.s === "eq") return "tie";
+    if (v.s === "no") return `loses to ${esc(v.winner)} by ${x(v.r)}`;
+    return "skipped";
+  }
+  const short = (v) => v.s === "ok" ? "✓ wins by " + x(v.r) : v.s === "eq" ? "= tie" : v.s === "no" ? "✗ loses" : "skipped";
+
+  // State: Ruby, build and filter, kept in the URL (?ruby=3.3&build=yjit&filter=no).
+  let me, mode, filter;
+  const open = new Set();
+  function fromURL() {
+    const p = new URLSearchParams(location.search);
+    me = bases.find((l) => shortLabel(l) === p.get("ruby")) || M.default;
+    mode = MODES.some(([m]) => m && m === p.get("build")) ? p.get("build") : "";
+    filter = FILTERS.includes(p.get("filter")) ? p.get("filter") : "all";
+  }
+  function toURL(push) {
+    const p = new URLSearchParams();
+    if (me !== M.default) p.set("ruby", shortLabel(me));
+    if (mode) p.set("build", mode);
+    if (filter !== "all") p.set("filter", filter);
+    const q = p.toString();
+    const url = location.pathname + (q ? "?" + q : "") + location.hash;
+    if (url === location.pathname + location.search + location.hash) return;
+    try { history[push ? "pushState" : "replaceState"](null, "", url); } catch (e) { /* file:// in some browsers */ }
+  }
+
+  $("chips").innerHTML = bases.map((l) => `<button type="button" class="chip" data-l="${esc(l)}">${esc(shortLabel(l).replace("truffleruby_", "truffle ").replace("jruby_", "jruby "))}${jitsOf(l).length ? '<span class="j" title="also built with YJIT or ZJIT"></span>' : ""}</button>`).join("");
+  $("rubycount").textContent = M.labels.length;
+  // Where the results come from: the live site shows a main run, a PR preview its PR, a local build no run at all.
+  const runLink = M.run_id ? `<a href="${M.repo}/actions/runs/${esc(M.run_id)}">CI run ${esc(M.run_id)}</a>` : "a local run";
+  const where = M.pr ? `<a href="${M.repo}/pull/${esc(M.pr)}">PR #${esc(M.pr)}</a>` : M.run_id ? "<code>main</code>" : "";
+  const at = M.commit ? ` @ <a href="${M.repo}/commit/${esc(M.commit)}">${esc(String(M.commit).slice(0, 7))}</a>` : "";
+  $("run").innerHTML = `Results from ${runLink}${where ? " on " + where : ""}${at}, built ${esc(M.built_at)}.`;
+  if (M.incomplete) {
+    $("incomplete").hidden = false;
+    TIPS.na += " In this run some benchmark jobs failed, so a skipped result may also be a crash.";
+  }
+
+  function detail(b) {
+    const cols = ["", ...jitsOf(me)].map((m) => lab(me, m));
+    const vs = cols.map((l) => b.v[l]);
+    if (vs.every((v) => v.s === "na")) {
+      const why = M.incomplete
+        ? `No result on ${esc(nice(me))}: this benchmark needs a newer Ruby, or its job failed in this run (check the CI run).`
+        : `This benchmark needs a newer Ruby than ${esc(nice(me))}.`;
+      return `<div class="detail"><p class="fine">${why}</p></div>`;
+    }
+    const head = cols.map((l, i) => `<th>${esc(i ? l.split("+")[1].toUpperCase() : "Interpreter")}<span class="v ${vs[i].s}">${short(vs[i])}</span>${vs[i].sus ? '<span class="v sus">! suspect</span>' : ""}</th>`).join("");
+    const rows = b.names.map((nm) => `<tr class="${nm === b.names[0] ? "claimed" : ""}"><td><code>${esc(nm)}</code>${nm === b.names[0] ? " (claimed)" : ""}</td>` +
+      vs.map((v) => {
+        if (v.s === "na" && !v.es) return "<td>–</td>";
+        const e = v.es.find((z) => z.name === nm);
+        if (!e) return "<td>–</td>";
+        const ips = `<small class="ips">${fmtIps(e.ips)} i/s ±${((e.err / e.ips) * 100).toFixed(1)}%</small>`;
+        return e === v.top ? `<td class="fast">fastest${ips}</td>` : `<td>${x(v.top.ips / e.ips)} slower${ips}</td>`;
+      }).join("") + "</tr>").join("");
+    const envRow = `<tr class="env"><td>Ran on</td>${cols.map((l) => `<td title="${esc(M.cpus[l] || "")}">${esc(cpu(l))}</td>`).join("")}</tr>`;
+    // How to read this table, next to it instead of in the pinned picker.
+    const mixedCpu = new Set(cols.map((l) => cpu(l))).size > 1;
+    const used = new Set(vs.map((v) => (v.sus ? "sus" : v.s)));
+    const words = [["ok", "holds"], ["eq", "tie"], ["no", "does not hold"], ["na", "skipped"], ["sus", "suspect"]]
+      .filter(([k]) => ["ok", "eq", "no"].includes(k) || used.has(k))
+      .map(([k, w]) => `${w}${tip(k)}`).join(", ");
+    const howto = `<p class="fine">Reading the numbers: ${words} · i/s${tip("ips")} · one machine per build${tip("cols")} · Ran on${tip(mixedCpu ? "cpuMixed" : "cpu")}</p>`;
+    const built = bases.filter((l) => has(l, mode));
+    const fails = built.filter((l) => b.v[lab(l, mode)].s === "no");
+    const ran = built.filter((l) => b.v[lab(l, mode)].s !== "na").length;
+    const buildName = mode ? esc(mode.toUpperCase()) : "the interpreter";
+    const claim = `<code>${esc(b.names[0])}</code>`;
+    const across = fails.length
+      ? `Across all Rubies with ${buildName}: ${claim} does not hold on ${fails.map(nice).map(esc).join(", ")}. It holds or ties on the other ${ran - fails.length} that ran it.`
+      : `Across all Rubies with ${buildName}: ${claim} holds or ties on all ${ran} that ran it.`;
+    return `<div class="detail">
+      <div class="tb"><table><thead><tr><th>${esc(nice(me))}</th>${head}</tr></thead><tbody>${rows}${envRow}</tbody></table></div>
+      ${howto}
+      <p class="fine">${across}</p>
+      <div class="links"><a href="${M.repo}/blob/main/${encodeURI(b.file)}">View the code</a>${M.run_id ? `<a href="${M.repo}/actions/runs/${esc(M.run_id)}">CI run</a>` : ""}</div>
+    </div>`;
+  }
+
+  function render() {
+    if (!has(me, mode)) mode = "";
+    const cur = lab(me, mode);
+    const jits = jitsOf(me);
+    const cnt = { ok: 0, eq: 0, no: 0, na: 0, sus: 0 };
+    B.forEach((b) => cnt[bucket(b.v[cur])]++);
+    const nDiff = jits.length ? B.filter((b) => jitDiff(b, me)).length : 0;
+    if ((filter === "jit" && !jits.length) || (filter === "na" && !cnt.na) || (filter === "sus" && !cnt.sus)) filter = "all";
+
+    document.querySelectorAll("#chips .chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.l === me)));
+    $("modes").innerHTML = MODES.map(([m, name]) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${m === mode}" ${has(me, m) ? "" : 'disabled title="Not built for this Ruby"'}>${name}</button>`).join("");
+    const tabCount = { all: B.length, no: cnt.no, eq: cnt.eq, ok: cnt.ok, na: cnt.na, sus: cnt.sus, jit: nDiff };
+    document.querySelectorAll("#tabs button").forEach((c) => {
+      const f = c.dataset.f;
+      c.innerHTML = `${tabName[f]}<span class="c">${tabCount[f]}</span>`;
+      if (TIPS[f]) c.title = TIPS[f];
+      c.setAttribute("aria-pressed", String(f === filter));
+      if (f === "jit") c.disabled = !jits.length;
+      if (f === "na" || f === "sus") c.hidden = !tabCount[f];
+    });
+
+    $("current").innerHTML = `<span class="pre">Results for</span><span class="rb">${esc(nice(me))}</span><span class="md">${esc(modeName(mode))}</span>`;
+    $("legendme").textContent = nice(me);
+
+    const shown = B.filter((b) => filter === "all" || (filter === "jit" ? jitDiff(b, me) : bucket(b.v[cur]) === filter));
+    const stations = bases.filter((l) => has(l, mode));
+    let h = "", sec = null;
+    shown.forEach((b) => {
+      if (b.section !== sec) {
+        if (sec !== null) h += "</ul>";
+        sec = b.section;
+        h += `<h2>${esc(sec)}<span class="on">on ${esc(nice(cur))}</span></h2><ul class="list">`;
+      }
+      const v = b.v[cur], isOpen = open.has(b.i);
+      h += `<li class="item"><button type="button" data-i="${b.i}" aria-expanded="${isOpen}">
+        <span class="ico ${v.s}" aria-hidden="true">${icon[v.s]}</span>
+        <span class="t">${md(b.title)}</span>
+        <span class="meta"><span>Use <code>${esc(b.names[0])}</code><span class="res ${v.s}">${resText(v)}${v.sus ? ' <span class="sus">(suspect)</span>' : ""}</span></span>
+          <span class="line" aria-label="Result on every Ruby with ${esc(modeName(mode))}">${stations.map((l) => { const w = b.v[lab(l, mode)]; return `<span class="${w.s}${l === me ? " me" : ""}" title="${esc(nice(lab(l, mode)))}: ${resText(w).replace(/<[^>]+>/g, "")}${w.sus ? " (suspect)" : ""}"></span>`; }).join("")}</span></span>
+      </button>${isOpen ? detail(b) : ""}</li>`;
+    });
+    if (sec !== null) h += "</ul>";
+    $("out").innerHTML = h || `<p class="empty">Nothing in this group on ${esc(nice(cur))}. Pick "All" to see every benchmark.</p>`;
+  }
+
+  // A change made while scrolled into the list:
+  // - on the All list, switching Ruby or build keeps the same benchmark at the
+  //   same place on screen (the list is the same, so results can be compared);
+  // - otherwise the new list starts right under the pinned picker, instead of
+  //   keeping the old scroll offset.
+  function change(fn, keepPlace) {
+    const picker = $("picker"), out = $("out");
+    const edge = () => picker.getBoundingClientRect().bottom;
+    const inList = getComputedStyle(picker).position === "sticky" && out.getBoundingClientRect().top < edge();
+    const wasAll = filter === "all";
+    const anchor = inList && keepPlace && wasAll
+      ? [...out.querySelectorAll("li.item")].find((li) => li.getBoundingClientRect().bottom > edge())
+      : null;
+    const anchorId = anchor && anchor.querySelector("button").dataset.i;
+    const anchorGap = anchor && anchor.getBoundingClientRect().top - edge();
+    fn();
+    render();
+    toURL(true);
+    if (!inList) return;
+    const again = anchorId != null && filter === "all" && out.querySelector(`li.item > button[data-i="${anchorId}"]`);
+    if (again) window.scrollTo(0, window.scrollY + again.getBoundingClientRect().top - edge() - anchorGap);
+    else window.scrollTo(0, window.scrollY + out.getBoundingClientRect().top - picker.getBoundingClientRect().height);
+  }
+  $("chips").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) change(() => { me = c.dataset.l; }, true); });
+  $("modes").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c && !c.disabled) change(() => { mode = c.dataset.m; }, true); });
+  $("tabs").addEventListener("click", (e) => { const c = e.target.closest("button"); if (c && !c.disabled) change(() => { filter = c.dataset.f; }); });
+  $("out").addEventListener("click", (e) => {
+    const c = e.target.closest("li.item > button");
+    if (!c) return;
+    const i = +c.dataset.i;
+    open.has(i) ? open.delete(i) : open.add(i);
+    render();
+  });
+  window.addEventListener("popstate", () => { fromURL(); render(); });
+  // iPhone Safari does not focus a button on tap, so :focus alone never
+  // shows the text there: a tap toggles it, a tap anywhere else closes it.
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest(".tip");
+    document.querySelectorAll(".tip.open").forEach((o) => { if (o !== t) o.classList.remove("open"); });
+    if (t) t.classList.toggle("open");
+  });
+
+  fromURL();
+  render();
+  toURL(false);
+})();
+</script>
+</body>
+</html>
