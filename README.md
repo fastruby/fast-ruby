@@ -112,6 +112,24 @@ Comparison:
 module_eval with string:     5632.8 i/s - same-ish: difference falls within error
 ```
 
+The run above measured the old code, which built 10 random names on every call and defined them on one class that kept growing.
+The one below measures the current code, where every call defines the same 10 names on a new class.
+
+```
+$ ruby -v code/general/define_method-vs-module-eval.rb
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [aarch64-linux]
+Warming up --------------------------------------
+          define_method    15.939k i/100ms
+module_eval with string     2.507k i/100ms
+Calculating -------------------------------------
+          define_method    132.661k (±12.4%) i/s    (7.54 μs/i) -    669.438k in   5.046213s
+module_eval with string     18.753k (±18.6%) i/s   (53.32 μs/i) -     95.266k in   5.079985s
+
+Comparison:
+          define_method:   132661.5 i/s
+module_eval with string:    18753.2 i/s - 7.07x  slower
+```
+
 ##### `String#constantize` vs a comparison for inflection [code](code/general/constantize-vs-comparison.rb)
 
 ActiveSupport's [String#constantize](https://guides.rubyonrails.org/active_support_core_extensions.html#constantize) "resolves the constant reference expression in its receiver".

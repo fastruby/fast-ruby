@@ -1,24 +1,24 @@
 require 'benchmark/ips'
 
-def method_names(number)
-  number.times.map do
-    10.times.inject("") { |e| e << ('a'..'z').to_a.sample}
-  end
-end
+# Built once, so the benchmark measures defining the methods, not building names.
+# Random names built on every call made garbage, and the GC paused at random moments.
+METHOD_NAMES = Array.new(10) { |i| "method_#{i}" }
 
-class DefineMethod
-  def self.def_methods(_methods)
-    _methods.each do |method_name|
+# Each call defines the 10 methods on a new, empty class, so every call does the same work.
+# Adding them to one class that is never reset made late calls slower than early ones.
+def fast
+  Class.new do
+    METHOD_NAMES.each do |method_name|
       define_method method_name do
-        puts "win"
+        puts 'win'
       end
     end
   end
 end
 
-class ModuleEvalWithString
-  def self.def_methods(_methods)
-    _methods.each do |method_name|
+def slow
+  Class.new do
+    METHOD_NAMES.each do |method_name|
       module_eval %{
         def #{method_name}
           puts "win"
@@ -28,16 +28,8 @@ class ModuleEvalWithString
   end
 end
 
-def fast
-  DefineMethod.def_methods(method_names(10))
-end
-
-def slow
-  ModuleEvalWithString.def_methods(method_names(10))
-end
-
 Benchmark.ips do |x|
-  x.report("define_method")           { fast }
-  x.report("module_eval with string") { slow }
+  x.report('define_method')           { fast }
+  x.report('module_eval with string') { slow }
   x.compare!
 end
