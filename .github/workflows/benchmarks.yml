@@ -99,6 +99,99 @@ jobs:
           path: results/
           if-no-files-found: warn
 
+  # Builds the results site from every job's results, also when some jobs
+  # failed, so a PR gets a preview (the site-preview artifact, named outside
+  # the results-* pattern so a re-run never downloads it). Skipped when the
+  # benchmark jobs did not run (a lint failure). Only a push to
+  # main where every job passed publishes it, so a partial run never replaces
+  # the live site. Not required: a Pages problem never blocks a merge.
+  site:
+    needs: [changes, rake]
+    if: ${{ !cancelled() && needs.changes.outputs.run == 'true' && needs.rake.result != 'skipped' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: results/
+          merge-multiple: true
+      - name: Build the results site
+        # A failed benchmark job leaves no result file, like a benchmark that needs a newer Ruby, so the page says missing results may be crashes.
+        env:
+          RESULTS_INCOMPLETE: ${{ needs.rake.result != 'success' && '1' || '' }}
+        run: docker compose run --rm -T -e RESULTS_INCOMPLETE --entrypoint ruby ruby_4.0 script/build_results_site.rb results _site
+      - name: Upload the site preview
+        id: preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: _site/
+          # A re-run replaces the earlier attempt's preview.
+          overwrite: true
+      # A one-click link on the run's Summary page; it needs no extra permissions, so it works for PRs from forks too.
+      - name: Link the site preview in the run summary
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.artifact-url }}
+        run: |
+          {
+            echo "### Results site preview"
+            echo ""
+            echo "[Download the site preview]($PREVIEW_URL) (a zip, needs a GitHub login), unzip it and open \`index.html\` in a browser."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the site for GitHub Pages
+        if: github.event_name == 'push' && github.ref_name == 'main' && needs.rake.result == 'success'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site/
+
+  deploy:
+    needs: [rake, site]
+    if: github.event_name == 'push' && github.ref_name == 'main' && needs.rake.result == 'success' && needs.site.result == 'success'
+    runs-on: ubuntu-latest
+    # Only this job can publish; the rest of the workflow keeps the default
+    # token permissions.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # One deploy at a time; a newer merge waits instead of cancelling one that
+    # is halfway through.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    steps:
+      # Runs can finish out of order, so an older run must not put its results back over a newer one.
+      # When main moved on, ask pick-benchmarks.sh (the same rule CI uses) whether the newer commits run benchmarks.
+      # If they do, their own run deploys newer results; if not (a README-only merge), this run's results are still the newest.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Check no newer run on main will deploy
+        id: newest
+        run: |
+          if [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          GITHUB_EVENT_NAME=push GITHUB_OUTPUT=newer.txt .github/scripts/pick-benchmarks.sh "$GITHUB_SHA"
+          if grep -q '^run=true' newer.txt; then
+            echo "main moved on and its newer commits run benchmarks, so their run deploys; skipping."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "main moved on, but nothing since this run affects benchmarks; deploying."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.newest.outputs.deploy == 'true'
+        uses: actions/deploy-pages@v5
+
   # The check to require on main. Passes when every benchmark job passed, or
   # when there was nothing to benchmark.
   benchmarks-ok:
