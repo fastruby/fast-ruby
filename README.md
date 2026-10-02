@@ -59,7 +59,7 @@ Idioms
 
 ##### `attr_accessor` vs `getter and setter` [code](code/general/attr-accessor-vs-getter-and-setter.rb)
 
-> https://github.com/ruby/ruby/blob/v2_2_0/method.h#L43-L44
+> https://docs.ruby-lang.org/en/2.2.0/Module.html#method-i-attr_accessor
 
 ```
 $ ruby -v code/general/attr-accessor-vs-getter-and-setter.rb
