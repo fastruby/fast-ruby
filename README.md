@@ -196,7 +196,7 @@ delegated method:  2228579.5 i/s - 2.55x  slower
 
 ##### `raise` vs `E2MM#Raise` for raising (and defining) exceptions  [code](code/general/raise-vs-e2mmap.rb) [custom exception code](code/general/raise-custom-vs-e2mmap.rb)
 
-Ruby's [Exception2MessageMapper module](http://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
+Ruby's [Exception2MessageMapper module](https://ruby-doc.org/stdlib-2.2.0/libdoc/e2mmap/rdoc/index.html) allows one to define and raise exceptions with predefined messages.
 
 ```
 $ ruby -v code/general/raise-vs-e2mmap.rb
@@ -1250,7 +1250,7 @@ Comparison:
 ##### `Hash#[]` vs `Hash#fetch` [code](code/hash/bracket-vs-fetch.rb)
 
 If you use Ruby 2.2, `Symbol` could be more performant than `String` as `Hash` keys.
-Read more regarding this: [Symbol GC in Ruby 2.2](http://www.sitepoint.com/symbol-gc-ruby-2-2/) and [Unraveling String Key Performance in Ruby 2.2](http://www.sitepoint.com/unraveling-string-key-performance-ruby-2-2/).
+Read more regarding this: [Symbol GC in Ruby 2.2](https://www.sitepoint.com/symbol-gc-ruby-2-2/) and [Unraveling String Key Performance in Ruby 2.2](https://web.archive.org/web/20151222034748/http://www.sitepoint.com:80/unraveling-string-key-performance-ruby-2-2/).
 
 ```
 $ ruby -v code/hash/bracket-vs-fetch.rb
@@ -1275,7 +1275,7 @@ Comparison:
 
 ##### `Hash#dig` vs `Hash#[]` vs `Hash#fetch` [code](code/hash/dig-vs-[]-vs-fetch.rb)
 
-[Ruby 2.3 introduced `Hash#dig`](http://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
+[Ruby 2.3 introduced `Hash#dig`](https://ruby-doc.org/core-2.3.0/Hash.html#method-i-dig) which is a readable
 and performant option for retrieval from a nested hash, returning `nil` if an extraction step fails.
 See [#102 (comment)](https://github.com/fastruby/fast-ruby/pull/102#issuecomment-198827506) for more info.
 
@@ -1308,7 +1308,7 @@ Comparison:
 
 ##### `Hash[]` vs `Hash#dup` [code](code/hash/bracket-vs-dup.rb)
 
-Source: http://tenderlovemaking.com/2015/02/11/weird-stuff-with-hashes.html
+Source: https://tenderlovemaking.com/2015/02/11/weird-stuff-with-hashes/
 
 > Does this mean that you should switch to Hash[]?
 > Only if your benchmarks can prove that it’s a bottleneck.
@@ -1818,7 +1818,7 @@ Comparison:
 ##### `Regexp#===` vs `Regexp#match` vs `Regexp#match?` vs `String#match` vs `String#=~` vs `String#match?` [code ](code/string/===-vs-=~-vs-match.rb)
 
 `String#match?` and `Regexp#match?` are available on Ruby 2.4 or later.
-ActiveSupport [provides](http://guides.rubyonrails.org/v5.1/active_support_core_extensions.html#match-questionmark)
+ActiveSupport [provides](https://guides.rubyonrails.org/v5.1/active_support_core_extensions.html#match-questionmark)
 a forward compatible extension of `Regexp` for older Rubies without the speed
 improvement.
 
@@ -2316,7 +2316,7 @@ Feel free to talk with me on Twitter! <3
 
 ## Also Checkout
 
-- [Derailed Benchmarks](https://github.com/schneems/derailed_benchmarks)
+- [Derailed Benchmarks](https://github.com/zombocom/derailed_benchmarks)
 
   Go faster, off the Rails - Benchmarks for your whole Rails app
 
