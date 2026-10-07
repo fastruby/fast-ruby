@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>fast-ruby results</title>
-<meta name="description" content="Does the fast-ruby advice hold on your Ruby? Every benchmark, on every Ruby from 2.1 to head, with and without the JIT.">
+<meta name="description" content="How fast is each fast-ruby idiom on each Ruby, and does the advice hold on yours? Every benchmark, on every Ruby from 2.1 to head, with and without the JIT.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 11 8 4h16l6 7-14 17z' fill='%23ff0000'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +29,15 @@
   --yellow: #fdca31;
   --yellow-ink: #7a5c00;
   --skip: #d0d0d0;
+  --grid: #eeeeee;
+  /* Chart series, claimed report first: up to 6 reports, checked for color blindness on neighbouring lines.
+     --s5 and --s6 are under 3:1 contrast, so every chart also has a legend and a table. */
+  --s1: #00952f;
+  --s2: #2a78d6;
+  --s3: #eb6834;
+  --s4: #4a3aa7;
+  --s5: #eda100;
+  --s6: #e87ba4;
   --font: "Oxygen", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -58,8 +67,8 @@ h1 { font-size: clamp(36px, 7vw, 60px); line-height: 1.08; margin: 0 auto 14px; 
 .intro p { margin: 0 auto; color: var(--muted); max-width: 58ch; font-size: 15px; }
 .intro p.run { margin-top: 10px; font-size: 13px; color: var(--faint); }
 .intro p.run a { color: var(--muted); }
-.intro p.incomplete { margin: 14px auto 0; max-width: 58ch; padding: 10px 14px; border: 2px solid var(--red); color: var(--ink); font-size: 14px; font-weight: 700; }
-.intro p.incomplete[hidden] { display: none; }
+.intro p.note { margin: 14px auto 0; max-width: 58ch; padding: 10px 14px; border: 2px solid var(--red); color: var(--ink); font-size: 14px; font-weight: 700; }
+.intro p.note[hidden] { display: none; }
 
 .picker { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 16px; border-bottom: 3px solid var(--ink); display: grid; gap: 10px; }
 .current { font-size: clamp(22px, 4vw, 30px); font-weight: 700; color: var(--ink); line-height: 1.2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
@@ -182,6 +191,52 @@ li.item > button:hover .t { text-decoration: underline; text-underline-offset: 3
 footer { border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
 
+/* The two views, Across Rubies first. */
+.views { display: flex; justify-content: center; padding-top: 18px; }
+.views div { display: inline-flex; border: 2px solid var(--ink); }
+.views button { font: 700 13px var(--font); letter-spacing: .04em; text-transform: uppercase; background: var(--bg); color: var(--ink); border: 0; padding: 9px 16px; cursor: pointer; }
+.views button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.views button:hover:not([aria-pressed="true"]) { background: var(--soft); }
+
+/* Across Rubies: one card per benchmark, a chart with the Rubies on the x axis. */
+.rcard { border-bottom: 1px solid var(--line); padding-block: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.rcard h3 { margin: 0; font-size: 15.5px; line-height: 1.35; color: var(--ink); text-wrap: balance; }
+.rcard h3 code { font-weight: 400; }
+.rcard .say { margin: 0; font-size: 14px; color: var(--text); max-width: 75ch; }
+.rcard .say b { color: var(--ink); }
+.rlegend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--text); }
+.rlegend span { display: inline-flex; align-items: center; gap: 6px; }
+.rlegend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.rlegend .ghost i { height: 0; border-top: 2px dashed var(--faint); background: none; }
+.chart { position: relative; width: 100%; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+.chart .tick line { stroke: var(--grid); }
+.chart .base { stroke: var(--line); }
+.chart .cross { stroke: var(--faint); stroke-width: 1; opacity: 0; }
+.chart .cross.on { opacity: 1; }
+.chart .hit { fill: transparent; cursor: crosshair; }
+.tipbox { position: absolute; pointer-events: none; background: var(--ink); color: #fff; font: 13px/1.45 var(--font); padding: 8px 10px; width: max-content; max-width: min(280px, 80%); z-index: 4; }
+.tipbox b { display: block; font-family: var(--mono); font-size: 12.5px; margin-bottom: 3px; }
+.tipbox .r { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; }
+.tipbox .r i { width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1.5px #fff; }
+.tipbox .n { color: #cfcfcf; font-size: 12px; margin-top: 3px; }
+.rfoot { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); }
+.rfoot .noisy { color: var(--red); font-weight: 700; }
+.rcard details summary { cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--ink); width: max-content; }
+.rcard .tb { overflow-x: auto; border: 1px solid var(--line); margin-top: 8px; }
+.rcard table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.rcard th { text-align: right; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 7px 9px; background: var(--soft); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.rcard td { text-align: right; padding: 5px 9px; border-bottom: 1px solid var(--grid); font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+.rcard th:first-child, .rcard td:first-child { text-align: left; }
+.rcard td:first-child { font-family: var(--font); font-size: 13px; }
+.rcard td small { color: var(--faint); font-size: 11.5px; margin-left: 4px; }
+.rcard td .sm { color: var(--yellow-ink); }
+.rcard td.off { color: var(--faint); }
+.rcard .links { font-size: 13px; }
+.rhow { padding-block: 22px 0; display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
+.rhow p { margin: 0; max-width: 75ch; }
+
 @media (max-width: 820px) { .bwrap { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) {
   /* On a phone the pinned picker would cover most of the screen. */
@@ -211,11 +266,38 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 </header>
 
 <main class="col" id="top">
+  <nav class="views" aria-label="Views"><div id="views">
+    <button type="button" data-view="across-rubies">Across Rubies</button>
+    <button type="button" data-view="does-it-hold">Does it hold?</button>
+  </div></nav>
+
+  <div id="view-across-rubies" hidden>
+  <div class="intro">
+    <h1>How fast is each idiom on each Ruby?</h1>
+    <p>Every Ruby ran each benchmark on the same machine, one after the other, so here you can compare i/s across Rubies. A reference Ruby ran again and again between them, to show how steady the machine was during the run.</p>
+    <p class="run" id="rrun"></p>
+    <p class="note" id="rnote" hidden></p>
+  </div>
+
+  <div class="picker" id="rpicker">
+    <div class="prow"><span class="lbl">Build</span><div class="chips" id="rmodes"></div><span class="jkey" id="rhint"></span></div>
+    <div class="prow"><span class="lbl">Show</span><div class="chips" id="rshow"></div></div>
+  </div>
+
+  <div id="rout"></div>
+
+  <div class="rhow" id="rhow">
+    <p><b>How this is measured.</b> Each shard of benchmark files ran on one GitHub runner: every build, in a random order, with benchmark-ips' default timing. The numbers are i/s as measured.</p>
+    <p><b>How steady the machine was.</b> The reference Ruby ran first, again after every few builds, and last. It is the same code every time, so how much its i/s varies is the machine, not Ruby. Under each chart is that variation (standard deviation over mean). Over 5% the benchmark is marked noisy, and when the typical benchmark of a run is over 5%, the page warns at the top. Two Rubies whose i/s differ by less than that variation are shown as same-ish.</p>
+    <p>Only Rubies of the same run are compared. Weeks are not compared with each other: each week can land on a different CPU. Results over a billion iterations per second (under 1 ns each) are marked suspect and kept off the chart: the JIT most likely removed the work.</p>
+  </div>
+  </div>
+
+  <div id="view-does-it-hold">
   <div class="intro">
     <h1>Which fast-ruby advice holds on your Ruby?</h1>
     <p>Every benchmark names the idiom it claims is fastest. We run each one on every Ruby, with and without the JIT, and check whether the claim still wins on that Ruby.</p>
     <p class="run" id="run"></p>
-    <p class="incomplete" id="incomplete" hidden>Some benchmark jobs in this run failed. Their results are missing, so a result shown as skipped may be a crash. Check the CI run for the failed jobs.</p>
   </div>
 
   <div class="picker" id="picker">
@@ -241,6 +323,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     <span class="line"><span class="no"></span></span>another idiom won
     <span class="line"><span class="na"></span></span>skipped
     <span>Each dot is one Ruby, from 2.1 to head, then JRuby and TruffleRuby, that has the build you picked. The dot with the dark ring is the Ruby you selected, <b id="legendme"></b>. Hover a dot to see which Ruby it is.</span>
+  </div>
   </div>
 </main>
 
@@ -280,14 +363,48 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 /*ACROSS_RUBIES_DATA*/
 </script>
 <script>
+// Two views, chosen by ?view=across-rubies (the default) or ?view=does-it-hold.
+// Each view keeps its own choices in the URL and leaves the others' alone.
 (function () {
-  const D = window.DOES_IT_HOLD, M = D.meta, B = D.benchmarks;
+  const VIEWS = ["across-rubies", "does-it-hold"], preferred = "across-rubies";
+  const current = () => { const v = new URLSearchParams(location.search).get("view"); return VIEWS.includes(v) ? v : preferred; };
+  // Sets (or with null, removes) these URL parameters; push makes a history entry.
+  function setParams(values, push) {
+    const p = new URLSearchParams(location.search);
+    Object.entries(values).forEach(([k, v]) => (v == null || v === "" ? p.delete(k) : p.set(k, v)));
+    const q = p.toString();
+    const url = location.pathname + (q ? "?" + q : "") + location.hash;
+    if (url === location.pathname + location.search + location.hash) return;
+    try { history[push ? "pushState" : "replaceState"](null, "", url); } catch (e) { /* file:// in some browsers */ }
+  }
+  function show() {
+    const v = current();
+    VIEWS.forEach((x) => { document.getElementById("view-" + x).hidden = x !== v; });
+    document.querySelectorAll("#views button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    document.dispatchEvent(new CustomEvent("viewchange", { detail: v }));
+  }
+  document.getElementById("views").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b || b.dataset.view === current()) return;
+    setParams({ view: b.dataset.view === preferred ? null : b.dataset.view }, true);
+    window.scrollTo(0, 0);
+    show();
+  });
+  window.addEventListener("popstate", show);
+  document.getElementById("rubycount").textContent = window.ACROSS_RUBIES.meta.labels.length;
+  window.SiteViews = { current, setParams, show };
+})();
+</script>
+<script>
+(function () {
   const $ = (id) => document.getElementById(id);
+  const D = window.DOES_IT_HOLD, M = D.meta, B = D.benchmarks;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
   const x = (r) => r >= 1e6 ? (r / 1e6).toFixed(1) + "M×" : r >= 1e4 ? Math.round(r / 1e3) + "k×" : r >= 10 ? Math.round(r) + "×" : r < 1.1 ? r.toFixed(2) + "×" : r.toFixed(1) + "×";
   const fmtIps = (v) => v >= 1e9 ? (v / 1e9).toFixed(2) + "B" : v >= 1e6 ? (v / 1e6).toFixed(2) + "M" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v.toFixed(1);
-  const cpu = (l) => (M.cpus[l] || "unknown").replace(/^AMD /, "").replace(/ \d+-Core Processor$/, "").replace(/^Intel\(R\) Xeon\(R\) Platinum (\S+) CPU.*$/i, "Xeon $1");
+  const cpuName = (c) => (c || "unknown").replace(/^AMD /, "").replace(/ \d+-Core Processor$/, "").replace(/^Intel\(R\) Xeon\(R\) Platinum (\S+) CPU.*$/i, "Xeon $1");
+
 
   const bases = M.labels.filter((l) => !l.includes("+"));
   const MODES = [["", "Interpreter"], ["yjit", "YJIT"], ["zjit", "ZJIT"]];
@@ -323,9 +440,9 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     sus: "Suspect: a report ran over a billion times per second, under 1 ns per iteration. The JIT most likely removed the work, so these results are not counted as holds, ties or losses.",
     jit: "JIT changes the result: with YJIT or ZJIT on this Ruby, the verdict is different from the interpreter.",
     ips: "i/s is iterations per second: how many times benchmark-ips ran that code in one second. Higher is faster.",
-    cols: "Each build (interpreter, YJIT, ZJIT) ran as a separate CI job on its own machine. Read each column of a report on its own: it ranks the idioms inside that build. Do not compare i/s across columns to decide whether YJIT or ZJIT is faster.",
-    cpu: "The CPU model of the machine each build's job ran on. It is the same for every benchmark of that build in this run.",
-    cpuMixed: "These builds did not share a CPU model in this run, so their i/s numbers are even less comparable.",
+
+    same: "Every build of this benchmark (interpreter, YJIT, ZJIT, every Ruby) ran on the same machine, one after the other, so the columns can be compared: YJIT against the interpreter is a fair comparison here.",
+    cpuSame: "The CPU model of the machine every build of this benchmark ran on.",
   };
   const tip = (k) => `<button type="button" class="tip" aria-label="${esc(TIPS[k])}" data-tip="${esc(TIPS[k])}">!</button>`;
   const icon = { ok: "✓", eq: "=", no: "✗", na: "–" };
@@ -349,36 +466,20 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     filter = FILTERS.includes(p.get("filter")) ? p.get("filter") : "all";
   }
   function toURL(push) {
-    const p = new URLSearchParams();
-    if (me !== M.default) p.set("ruby", shortLabel(me));
-    if (mode) p.set("build", mode);
-    if (filter !== "all") p.set("filter", filter);
-    const q = p.toString();
-    const url = location.pathname + (q ? "?" + q : "") + location.hash;
-    if (url === location.pathname + location.search + location.hash) return;
-    try { history[push ? "pushState" : "replaceState"](null, "", url); } catch (e) { /* file:// in some browsers */ }
+    window.SiteViews.setParams({ ruby: me !== M.default ? shortLabel(me) : null, build: mode || null, filter: filter !== "all" ? filter : null }, push);
   }
 
   $("chips").innerHTML = bases.map((l) => `<button type="button" class="chip" data-l="${esc(l)}">${esc(shortLabel(l).replace("truffleruby_", "truffle ").replace("jruby_", "jruby "))}${jitsOf(l).length ? '<span class="j" title="also built with YJIT or ZJIT"></span>' : ""}</button>`).join("");
-  $("rubycount").textContent = M.labels.length;
-  // Where the results come from: the live site shows a main run, a PR preview its PR, a local build no run at all.
+  // Where the results come from: the weekly run on main, or a local run.
   const runLink = M.run_id ? `<a href="${M.repo}/actions/runs/${esc(M.run_id)}">CI run ${esc(M.run_id)}</a>` : "a local run";
-  const where = M.pr ? `<a href="${M.repo}/pull/${esc(M.pr)}">PR #${esc(M.pr)}</a>` : M.run_id ? "<code>main</code>" : "";
   const at = M.commit ? ` @ <a href="${M.repo}/commit/${esc(M.commit)}">${esc(String(M.commit).slice(0, 7))}</a>` : "";
-  $("run").innerHTML = `Results from ${runLink}${where ? " on " + where : ""}${at}, built ${esc(M.built_at)}.`;
-  if (M.incomplete) {
-    $("incomplete").hidden = false;
-    TIPS.na += " In this run some benchmark jobs failed, so a skipped result may also be a crash.";
-  }
+  $("run").innerHTML = `Results from ${runLink}${at}, built ${esc(M.built_at)}.`;
 
   function detail(b) {
     const cols = ["", ...jitsOf(me)].map((m) => lab(me, m));
     const vs = cols.map((l) => b.v[l]);
     if (vs.every((v) => v.s === "na")) {
-      const why = M.incomplete
-        ? `No result on ${esc(nice(me))}: this benchmark needs a newer Ruby, or its job failed in this run (check the CI run).`
-        : `This benchmark needs a newer Ruby than ${esc(nice(me))}.`;
-      return `<div class="detail"><p class="fine">${why}</p></div>`;
+      return `<div class="detail"><p class="fine">This benchmark needs a newer Ruby than ${esc(nice(me))}.</p></div>`;
     }
     const head = cols.map((l, i) => `<th>${esc(i ? l.split("+")[1].toUpperCase() : "Interpreter")}<span class="v ${vs[i].s}">${short(vs[i])}</span>${vs[i].sus ? '<span class="v sus">! suspect</span>' : ""}</th>`).join("");
     const rows = b.names.map((nm) => `<tr class="${nm === b.names[0] ? "claimed" : ""}"><td><code>${esc(nm)}</code>${nm === b.names[0] ? " (claimed)" : ""}</td>` +
@@ -389,14 +490,14 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
         const ips = `<small class="ips">${fmtIps(e.ips)} i/s ±${((e.err / e.ips) * 100).toFixed(1)}%</small>`;
         return e === v.top ? `<td class="fast">fastest${ips}</td>` : `<td>${x(v.top.ips / e.ips)} slower${ips}</td>`;
       }).join("") + "</tr>").join("");
-    const envRow = `<tr class="env"><td>Ran on</td>${cols.map((l) => `<td title="${esc(M.cpus[l] || "")}">${esc(cpu(l))}</td>`).join("")}</tr>`;
+    // Every build of a benchmark ran on one machine.
+    const envRow = `<tr class="env"><td>Ran on</td>${cols.map(() => `<td title="${esc(b.cpu || "")}">${esc(cpuName(b.cpu))}</td>`).join("")}</tr>`;
     // How to read this table, next to it instead of in the pinned picker.
-    const mixedCpu = new Set(cols.map((l) => cpu(l))).size > 1;
     const used = new Set(vs.map((v) => (v.sus ? "sus" : v.s)));
     const words = [["ok", "holds"], ["eq", "tie"], ["no", "does not hold"], ["na", "skipped"], ["sus", "suspect"]]
       .filter(([k]) => ["ok", "eq", "no"].includes(k) || used.has(k))
       .map(([k, w]) => `${w}${tip(k)}`).join(", ");
-    const howto = `<p class="fine">Reading the numbers: ${words} · i/s${tip("ips")} · one machine per build${tip("cols")} · Ran on${tip(mixedCpu ? "cpuMixed" : "cpu")}</p>`;
+    const howto = `<p class="fine">Reading the numbers: ${words} · i/s${tip("ips")} · one machine for every build${tip("same")} · Ran on${tip("cpuSame")}</p>`;
     const built = bases.filter((l) => has(l, mode));
     const fails = built.filter((l) => b.v[lab(l, mode)].s === "no");
     const ran = built.filter((l) => b.v[lab(l, mode)].s !== "na").length;
@@ -492,6 +593,8 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     render();
   });
   window.addEventListener("popstate", () => { fromURL(); render(); });
+  // The other view may have changed the build, which both views share.
+  document.addEventListener("viewchange", (e) => { if (e.detail === "does-it-hold") { fromURL(); render(); } });
   // iPhone Safari does not focus a button on tap, so :focus alone never
   // shows the text there: a tap toggles it, a tap anywhere else closes it.
   document.addEventListener("click", (e) => {
@@ -500,10 +603,254 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     if (t) t.classList.toggle("open");
   });
 
+  // No URL write here: on load, a build the selected Ruby lacks falls back to the interpreter on screen only, so a build chosen in Across Rubies survives a reload.
   fromURL();
   render();
-  toURL(false);
 })();
+</script>
+<script>
+// Across Rubies. Each entry is [i/s, error, relative to the reference's median].
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const D = window.ACROSS_RUBIES;
+  const M = D.meta, B = D.benchmarks, REF = M.reference;
+  const COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+  // A seventh report (none today) would reuse a color, never fail to draw.
+  const color = (i) => COLORS[i % COLORS.length];
+  const MODES = [["", "Interpreter"], ["yjit", "YJIT"], ["zjit", "ZJIT"]];
+  // Without the reference (its image failed, say), there is nothing to be relative to.
+  const SHOWS = REF ? [["ips", "i/s"], ["rel", "Relative to " + nice(REF)]] : [["ips", "i/s"]];
+  let mode = "", showing = "ips";
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  function md(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+  function nice(l) { const [b, m] = l.split("+"); return b.replace(/^ruby_/, "Ruby ").replace(/^jruby_/, "JRuby ").replace(/^truffleruby_/, "TruffleRuby ") + (m ? " + " + m.toUpperCase() : ""); }
+  function short(l) { const [b, m] = l.split("+"); return b.replace(/^ruby_/, "").replace(/^jruby_/, "jruby ").replace(/^truffleruby_/, "truffle ") + (m ? " +" + m : ""); }
+  function fmt(v) { return v >= 1e9 ? (v / 1e9).toFixed(1) + "B" : v >= 1e6 ? (v / 1e6).toFixed(v >= 1e7 ? 1 : 2) + "M" : v >= 1e3 ? (v / 1e3).toFixed(v >= 1e5 ? 0 : 1) + "k" : v.toFixed(1); }
+  function pct(a, b) { const p = (a / b - 1) * 100; return (p >= 0 ? "+" : "") + p.toFixed(1) + "%"; }
+  function cpu(c) { return (c || "unknown CPU").replace(/^AMD /, "").replace(/ \d+-Core Processor$/, "").replace(/^Intel\(R\) Xeon\(R\) Platinum (\S+) CPU.*$/i, "Xeon $1"); }
+  const base = (l) => l.split("+")[0], variant = (l) => l.split("+")[1] || "", mri = (l) => /^ruby_/.test(l);
+  const has = (m) => M.labels.some((l) => variant(l) === m);
+  const sus = (e) => !!e && e[0] > M.suspect;
+  // A result that can be drawn and compared: it ran and is not suspect.
+  const ok = (e) => !!e && !sus(e) && e[0] > 0;
+  // Relative needs the reference to have that report.
+  const val = (e) => ok(e) ? (showing === "rel" ? e[2] : e[0]) : null;
+  // Two reports of one build, measured seconds apart: same-ish when the error bars overlap, as benchmark-ips says.
+  const same = (a, b) => a[0] + a[1] > b[0] - b[1] && a[0] - a[1] < b[0] + b[1];
+  // Two Rubies, measured minutes apart: also same-ish when the gap is within how much the reference varied on that machine, which is larger than benchmark-ips' error bars.
+  const sameRuby = (a, b, floor) => same(a, b) || Math.abs(a[0] / b[0] - 1) <= (floor || 0);
+
+  // The x axis: MRI builds of the selected build as a line, then (interpreter only) the other engines as points.
+  function columns() {
+    const line = M.labels.filter((l) => mri(l) && variant(l) === mode);
+    const other = mode ? [] : M.labels.filter((l) => !mri(l));
+    return { line, other, all: line.concat(other) };
+  }
+
+  function fromURL() {
+    const p = new URLSearchParams(location.search);
+    mode = MODES.some(([m]) => m && m === p.get("build")) && has(p.get("build")) ? p.get("build") : "";
+    showing = p.get("show") === "rel" && REF ? "rel" : "ips";
+  }
+
+  if (!M.passed) {
+    const why = [];
+    why.push(!REF
+      ? "The reference Ruby did not run in this run, so there is no way to tell how steady the machine was. Small differences between Rubies may be the machine, not Ruby."
+      : M.variation == null
+      ? "The reference Ruby ran only once in this run, so there is no way to tell how steady the machine was."
+      : `The machine was not steady during this run: the reference Ruby's i/s varied by ${(M.variation * 100).toFixed(1)}% on a typical benchmark (the limit is ${(M.gate * 100).toFixed(0)}%). Small differences between Rubies may be the machine, not Ruby.`);
+    $("rnote").textContent = why.join(" ");
+    $("rnote").hidden = false;
+  }
+  const runLink = M.run_id ? `<a href="${M.repo}/actions/runs/${esc(M.run_id)}">run ${esc(M.run_id)}</a>` : "a local run";
+  const at = M.commit ? ` @ <a href="${M.repo}/commit/${esc(M.commit)}">${esc(String(M.commit).slice(0, 7))}</a>` : "";
+  const day = M.shards.length ? M.shards[0].from.slice(0, 10) : "";
+  $("rrun").innerHTML = `Results from ${runLink}${at}, ${esc(day)}: ${M.labels.length} builds on ${M.shards.length} machine${M.shards.length === 1 ? "" : "s"}, built ${esc(M.built_at)}.`;
+
+  function summary(b) {
+    const plain = M.labels.filter((l) => !variant(l));
+    let wins = 0, ties = 0, ran = 0;
+    const ratios = [];
+    plain.forEach((l) => {
+      const r = b.runs[l];
+      if (!r || !ok(r.entries[0])) return;
+      const c = r.entries[0];
+      const others = r.entries.slice(1).filter(ok);
+      if (!others.length) return;
+      ran++;
+      const top = others.reduce((a, o) => (o[0] > a[0] ? o : a));
+      if (same(c, top)) ties++;
+      else if (c[0] > top[0]) { wins++; ratios.push([c[0] / top[0], l]); }
+    });
+    let s = `<code>${esc(b.names[0])}</code> is fastest on <b>${wins} of ${ran}</b> builds without a JIT`;
+    if (ties) s += ` (${ties} tie${ties > 1 ? "s" : ""})`;
+    if (ratios.length) {
+      ratios.sort((a, c) => a[0] - c[0]);
+      const lo = ratios[0], hi = ratios[ratios.length - 1];
+      s += lo === hi ? `, by ${lo[0].toFixed(1)}×` : `, by ${lo[0].toFixed(1)}× (${esc(nice(lo[1]))}) to ${hi[0].toFixed(1)}× (${esc(nice(hi[1]))})`;
+    }
+    const line = plain.filter((l) => mri(l) && l !== "ruby_head" && b.runs[l] && ok(b.runs[l].entries[0]));
+    if (line.length > 1) {
+      const first = line[0], last = line[line.length - 1];
+      s += `. Its own speed from ${esc(nice(first))} to ${esc(nice(last))}: <b>${pct(b.runs[last].entries[0][0], b.runs[first].entries[0][0])}</b>`;
+    }
+    return s + ".";
+  }
+
+  function ticks(max) {
+    if (!(max > 0) || !isFinite(max)) max = 1;
+    const raw = max / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((x) => x >= raw);
+    const t = [];
+    for (let v = 0; ; v += step) { t.push(v); if (v >= max) break; }
+    return t;
+  }
+
+  function path(pts, c, extra, w) {
+    let d = "", pen = false;
+    pts.forEach((p) => { if (!p) { pen = false; return; } d += (pen ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); pen = true; });
+    return d ? `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"${extra}/>` : "";
+  }
+
+  function chart(b, host) {
+    const cols = columns();
+    const W = Math.max(300, host.clientWidth || 300), H = W < 520 ? 210 : 250;
+    const P = { l: 54, r: 10, t: 14, b: 40 };
+    const gap = cols.other.length ? 22 : 0, n = Math.max(1, cols.all.length);
+    const band = (W - P.l - P.r - gap) / n;
+    const x = (k) => P.l + band * (k + 0.5) + (k >= cols.line.length ? gap : 0);
+    const ghost = mode ? cols.line.map(base) : [];
+    const vals = [];
+    b.names.forEach((_, i) => cols.all.concat(ghost).forEach((l) => { const r = b.runs[l]; const v = r && val(r.entries[i]); if (v != null) vals.push(v + (showing === "rel" ? r.entries[i][1] / r.entries[i][0] * v : r.entries[i][1])); }));
+    const tk = ticks(Math.max(...vals, showing === "rel" ? 1 : 1e-9));
+    const top = tk[tk.length - 1];
+    const y = (v) => P.t + (H - P.t - P.b) * (1 - v / top);
+    const lab = (t) => t === 0 ? "0" : showing === "rel" ? t.toFixed(t < 1 ? 2 : 1) + "×" : fmt(t);
+
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(b.names.join(" vs "))} on every Ruby">`;
+    tk.forEach((t) => { s += `<g class="tick"><line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l - 8}" y="${y(t) + 4}" text-anchor="end">${lab(t)}</text></g>`; });
+    s += `<line class="base" x1="${P.l}" x2="${W - P.r}" y1="${y(0)}" y2="${y(0)}"/>`;
+    if (showing === "rel") s += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(1)}" y2="${y(1)}" stroke="var(--faint)" stroke-dasharray="2 3"/>`;
+    cols.all.forEach((l, k) => {
+      const parts = short(l).split(" ");
+      s += `<text x="${x(k)}" y="${H - P.b + 16}" text-anchor="middle">${esc(parts[0])}</text>`;
+      if (parts[1]) s += `<text x="${x(k)}" y="${H - P.b + 29}" text-anchor="middle">${esc(parts.slice(1).join(" "))}</text>`;
+    });
+    if (cols.other.length) { const gx = x(cols.line.length) - band / 2 - gap / 2; s += `<line x1="${gx}" x2="${gx}" y1="${P.t}" y2="${y(0)}" stroke="var(--line)"/>`; }
+    // Under a JIT build: the same Rubies without it, dashed.
+    if (ghost.length) b.names.forEach((_, i) => { s += path(ghost.map((l, k) => { const r = b.runs[l], v = r && val(r.entries[i]); return v == null ? null : [x(k), y(v)]; }), color(i), ' stroke-dasharray="4 4" opacity=".55"', 1.5); });
+    b.names.forEach((_, i) => {
+      const c = color(i);
+      s += path(cols.line.map((l, k) => { const r = b.runs[l], v = r && val(r.entries[i]); return v == null ? null : [x(k), y(v)]; }), c, "", 2);
+      cols.all.forEach((l, k) => {
+        const r = b.runs[l], e = r && r.entries[i];
+        if (!e) return;
+        if (sus(e)) { const tx = x(k), ty = P.t + 2 + i * 9; s += `<path d="M${tx - 4},${ty + 6} L${tx},${ty} L${tx + 4},${ty + 6}Z" fill="var(--bg)" stroke="${c}" stroke-width="1.5"/>`; return; }
+        const v = val(e);
+        if (v == null) return;
+        const err = showing === "rel" ? e[1] / e[0] * v : e[1];
+        s += `<line x1="${x(k)}" x2="${x(k)}" y1="${y(Math.max(0, v - err))}" y2="${y(v + err)}" stroke="${c}" stroke-width="1" opacity=".5"/>`;
+        s += `<circle cx="${x(k)}" cy="${y(v)}" r="4" fill="${c}" stroke="var(--bg)" stroke-width="2"/>`;
+      });
+    });
+    s += `<line class="cross" y1="${P.t}" y2="${y(0)}" x1="0" x2="0"/>`;
+    cols.all.forEach((l, k) => { s += `<rect class="hit" data-k="${k}" x="${x(k) - band / 2}" y="${P.t}" width="${band}" height="${y(0) - P.t}"/>`; });
+    host.innerHTML = s + "</svg><div class=\"tipbox\" hidden></div>";
+
+    const tip = host.querySelector(".tipbox"), cross = host.querySelector(".cross");
+    host.querySelectorAll(".hit").forEach((h) => {
+      const on = () => {
+        const k = +h.dataset.k, l = cols.all[k], r = b.runs[l];
+        cross.setAttribute("x1", x(k)); cross.setAttribute("x2", x(k)); cross.classList.add("on");
+        let t = `<b>${esc(nice(l))}${l === REF ? " (reference)" : ""}</b>`;
+        if (!r) t += '<div class="n">Did not run: this benchmark needs a newer Ruby, or the build failed.</div>';
+        else {
+          b.names.forEach((nm, i) => {
+            const e = r.entries[i];
+            t += `<div class="r"><i style="background:${color(i)}"></i>${esc(nm)}: ${!e ? "did not run" : fmt(e[0]) + " i/s" + (sus(e) ? " (suspect)" : "")}</div>`;
+          });
+          const c = r.entries[0], o = r.entries[1];
+          if (ok(c) && ok(o)) t += `<div class="n">${same(c, o) ? "Same-ish: the gap is within the error." : `${esc(b.names[0])} is ${(c[0] / o[0]).toFixed(2)}× ${esc(b.names[1])}.`}</div>`;
+          const prev = k > 0 && k < cols.line.length && b.runs[cols.line[k - 1]];
+          const pc = prev && prev.entries[0];
+          if (ok(pc) && ok(c)) t += `<div class="n">vs ${esc(nice(cols.line[k - 1]))}: ${sameRuby(c, pc, b.variation) ? "same-ish" : pct(c[0], pc[0])}</div>`;
+          const g = mode && b.runs[base(l)], gc = g && g.entries[0];
+          if (ok(gc) && ok(c)) t += `<div class="n">vs no JIT: ${sameRuby(c, gc, b.variation) ? "same-ish" : pct(c[0], gc[0])}</div>`;
+        }
+        tip.innerHTML = t; tip.hidden = false;
+        const scale = host.clientWidth / W;
+        let left = x(k) * scale + 12;
+        if (left + tip.offsetWidth > host.clientWidth) left = x(k) * scale - 12 - tip.offsetWidth;
+        tip.style.left = Math.max(0, left) + "px"; tip.style.top = "6px";
+      };
+      h.addEventListener("mouseenter", on);
+      h.addEventListener("click", on);
+      h.addEventListener("mouseleave", () => { tip.hidden = true; cross.classList.remove("on"); });
+    });
+  }
+
+  function table(b) {
+    const cols = columns();
+    let h = `<tr><th>Build</th>${b.names.map((nm, i) => `<th>${esc(nm)}${i ? "" : " (claimed)"}</th>`).join("")}<th>Gap</th></tr>`;
+    cols.all.forEach((l, k) => {
+      const r = b.runs[l], prev = k > 0 && k < cols.line.length ? b.runs[cols.line[k - 1]] : null;
+      h += `<tr><td>${esc(nice(l))}${l === REF ? " (reference)" : ""}</td>`;
+      b.names.forEach((_, i) => {
+        const e = r && r.entries[i];
+        if (!e) { h += '<td class="off">did not run</td>'; return; }
+        if (sus(e)) { h += `<td class="off">${fmt(e[0])} suspect</td>`; return; }
+        if (!ok(e)) { h += '<td class="off">0 i/s</td>'; return; }
+        const pe = prev && prev.entries[i];
+        const d = ok(pe) ? (sameRuby(e, pe, b.variation) ? ' <small class="sm">same-ish</small>' : ` <small>${pct(e[0], pe[0])}</small>`) : "";
+        h += `<td>${fmt(e[0])} <small>±${(e[1] / e[0] * 100).toFixed(1)}%</small>${d}</td>`;
+      });
+      const c = r && r.entries[0], o = r && r.entries[1];
+      h += `<td>${ok(c) && ok(o) ? (same(c, o) ? '<span class="sm">tie</span>' : (c[0] / o[0]).toFixed(2) + "×") : ""}</td></tr>`;
+    });
+    return `<div class="tb"><table>${h}</table></div>`;
+  }
+
+  function foot(b) {
+    const shard = M.shards.find((x) => x.shard === b.shard) || {};
+    const parts = [`Ran on ${esc(cpu(shard.cpu))}${M.shards_total > 1 ? `, shard ${b.shard + 1} of ${M.shards_total}` : ""}`];
+    if (b.variation != null) parts.push(`<span class="${b.noisy ? "noisy" : ""}">${esc(nice(REF))} ran ${b.reference_passes} times; its i/s varied by ${(b.variation * 100).toFixed(1)}%${b.noisy ? " (noisy)" : ""}</span>`);
+    return `<div class="rfoot">${parts.map((p) => `<span>${p}</span>`).join("")}</div>`;
+  }
+
+  const open = new Set();
+  function render() {
+    if (mode && !has(mode)) mode = "";
+    $("rmodes").innerHTML = MODES.map(([m, name]) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${m === mode}" ${has(m) ? "" : 'disabled title="Not built in this run"'}>${name}</button>`).join("");
+    $("rshow").innerHTML = SHOWS.map(([k, name]) => `<button type="button" class="chip" data-s="${k}" aria-pressed="${k === showing}">${esc(name)}</button>`).join("");
+    $("rhint").textContent = mode ? "Dashed: the same Rubies without the JIT, on the same machine." : "";
+    let h = "", sec = null;
+    B.forEach((b, n) => {
+      if (b.section !== sec) { sec = b.section; h += `<h2>${esc(sec)}<span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }
+      const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "");
+      h += `<article class="rcard"><h3>${md(b.title)}</h3><p class="say">${summary(b)}</p><div class="rlegend">${legend}</div>` +
+        `<div class="chart" data-n="${n}"></div>${foot(b)}` +
+        `<details data-n="${n}"${open.has(n) ? " open" : ""}><summary>Numbers per build</summary>${table(b)}</details>` +
+        `<div class="links"><a href="${M.repo}/blob/main/${encodeURI(b.file)}">View the code</a></div></article>`;
+    });
+    $("rout").innerHTML = h;
+    if (!$("view-across-rubies").hidden) $("rout").querySelectorAll(".chart").forEach((c) => chart(B[+c.dataset.n], c));
+  }
+
+  $("rmodes").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c && !c.disabled) { mode = c.dataset.m; window.SiteViews.setParams({ build: mode || null }, true); render(); } });
+  $("rshow").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) { showing = c.dataset.s; window.SiteViews.setParams({ show: showing === "rel" ? "rel" : null }, true); render(); } });
+  $("rout").addEventListener("toggle", (e) => { const d = e.target; if (d.matches("details")) d.open ? open.add(+d.dataset.n) : open.delete(+d.dataset.n); }, true);
+  window.addEventListener("popstate", () => { fromURL(); render(); });
+  // Charts are drawn only when the view is shown, at the width it has then.
+  document.addEventListener("viewchange", (e) => { if (e.detail === "across-rubies") { fromURL(); render(); } });
+  let resizing;
+  window.addEventListener("resize", () => { clearTimeout(resizing); resizing = setTimeout(() => { if (!$("view-across-rubies").hidden) render(); }, 150); });
+  // The first render comes from SiteViews.show() below, once this view is visible.
+  fromURL();
+})();
+// Both views have run; show the chosen one (and draw its charts).
+window.SiteViews.show();
 </script>
 </body>
 </html>
