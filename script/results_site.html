@@ -276,11 +276,12 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 </footer>
 
 <script>
-/*RESULTS_DATA*/
+/*DOES_IT_HOLD_DATA*/
+/*ACROSS_RUBIES_DATA*/
 </script>
 <script>
 (function () {
-  const D = window.RESULTS, M = D.meta, B = D.benchmarks;
+  const D = window.DOES_IT_HOLD, M = D.meta, B = D.benchmarks;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
