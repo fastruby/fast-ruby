@@ -1,0 +1,96 @@
+name: Results site
+
+# Builds and publishes the results site (https://fastruby.github.io/fast-ruby/).
+# Every Ruby runs each benchmark on the same machine, so the site can compare i/s across Rubies; benchmarks.yml runs each Ruby on its own machine and only checks that the benchmarks run.
+# Weekly, because a full run takes about 3 hours per shard; run it by hand to publish sooner.
+on:
+  schedule:
+    # Sunday 03:00 UTC, away from the working day's PR runs.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  # 6 machines, each running every 6th benchmark file on all 26 builds, with the newest released Ruby run again between them (script/run_cross_ruby.rb).
+  shard:
+    name: shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    # 35 passes of about 13 files each; the job limit is 6 hours.
+    timeout-minutes: 330
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+
+    # Read by docker/collect_results.rb.
+    env:
+      RESULTS_COMMIT: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run every build on this machine
+        run: ruby script/run_cross_ruby.rb --shard ${{ matrix.shard }} --shards 6 --fresh-images --out results
+      # Also when a pass failed: the shard's other results are kept, to see what went wrong (the site is not built from an incomplete run).
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-shard-${{ matrix.shard }}
+          path: results/
+          retention-days: 90
+          # A re-run of a failed shard replaces its earlier attempt.
+          overwrite: true
+
+  # Builds both views from all six shards and publishes them, only for a complete run on main.
+  site:
+    needs: shard
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      # Reads this workflow's earlier runs (the newest-results check below).
+      actions: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # One deploy at a time; a newer run waits instead of cancelling one that is halfway through.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+      # Never put older results back: a re-run of an old run, or two runs finishing out of order, must not publish over a newer run's results.
+      # Run ids only grow and a re-run keeps its id, so a newer run has a higher id (and, since main cannot be force-pushed, a commit at least as new).
+      - name: Check no newer results are live
+        id: newest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The highest id among recent successful runs, so the order the list comes back in does not matter.
+          live=$(gh run list --workflow results-site.yml --branch main --status success --limit 20 --json databaseId --jq 'map(.databaseId) | max // empty')
+          if [ -n "$live" ] && [ "$live" -gt "$GITHUB_RUN_ID" ]; then
+            echo "The live site has results from run $live, newer than this run ($GITHUB_RUN_ID); not publishing."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/download-artifact@v4
+        if: steps.newest.outputs.publish == 'true'
+        with:
+          pattern: results-shard-*
+          path: results/
+          merge-multiple: true
+      - name: Build the results site
+        if: steps.newest.outputs.publish == 'true'
+        run: docker compose run --rm -T --entrypoint ruby ruby_4.0 script/build_results_site.rb results _site
+      - name: Upload the site for GitHub Pages
+        if: steps.newest.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.newest.outputs.publish == 'true'
+        uses: actions/deploy-pages@v5
