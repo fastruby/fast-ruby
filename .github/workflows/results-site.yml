@@ -1,0 +1,43 @@
+name: Results site
+
+# Builds and publishes the results site (https://fastruby.github.io/fast-ruby/).
+# Every Ruby runs each benchmark on the same machine, so the site can compare i/s across Rubies; benchmarks.yml runs each Ruby on its own machine and only checks that the benchmarks run.
+# Weekly, because a full run takes about 3 hours per shard; run it by hand to publish sooner.
+on:
+  schedule:
+    # Sunday 03:00 UTC, away from the working day's PR runs.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  # 6 machines, each running every 6th benchmark file on all 26 builds, with the newest released Ruby run again between them (script/run_cross_ruby.rb).
+  shard:
+    name: shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    # 35 passes of about 13 files each; the job limit is 6 hours.
+    timeout-minutes: 330
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+
+    # Read by docker/collect_results.rb.
+    env:
+      RESULTS_COMMIT: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run every build on this machine
+        run: ruby script/run_cross_ruby.rb --shard ${{ matrix.shard }} --shards 6 --fresh-images --out results
+      # Also when a pass failed: the shard's other results are kept, to see what went wrong (the site is not built from an incomplete run).
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-shard-${{ matrix.shard }}
+          path: results/
+          retention-days: 90
+          # A re-run of a failed shard replaces its earlier attempt.
+          overwrite: true
+
