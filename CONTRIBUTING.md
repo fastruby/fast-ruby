@@ -12,6 +12,7 @@ These idioms list here are trying to satisfy following goals:
 
 - [Note on entry](#note-on-entry)
 - [Running it on other Rubies](#running-it-on-other-rubies)
+- [The results site](#the-results-site)
 - [Benchmarks that need a newer Ruby](#benchmarks-that-need-a-newer-ruby)
 - [License](#license)
 
@@ -104,23 +105,25 @@ RUBY_VARIANT=yjit RUBY_VARIANT_FLAGS=--yjit docker compose run --rm ruby_3.4 cod
 RUBY_VARIANT=zjit RUBY_VARIANT_FLAGS=--zjit docker compose run --rm ruby_4.0 code/your-new/entry.rb
 ```
 
-To keep the results, set `RESULTS_DIR`. Each benchmark then also writes its
-report as JSON to `results/<label>/`, with the Ruby, its flags and the machine
-it ran on:
+## The results site
+
+The results site (https://fastruby.github.io/fast-ruby/) compares Rubies, so every build of a benchmark has to run on the same machine.
+`script/run_cross_ruby.rb` (Ruby 3 on your machine, it calls Docker) does that, and runs the newest released MRI again after every 3 builds, so the site can show how steady the machine was.
+To see a few benchmarks the way the site shows them, run them on a few builds, build the site into `_site/`, then open `_site/index.html` in a browser:
 
 ```
-RESULTS_DIR=results RESULTS_LABEL=ruby_3.4 docker compose run --rm ruby_3.4 code/your-new/entry.rb
+ruby script/run_cross_ruby.rb --files code/date/iso8601-vs-parse.rb,code/string/gsub-vs-tr.rb --builds ruby_3.4,ruby_3.4+yjit,ruby_4.0 --out cross-ruby
+docker compose run --rm -T --entrypoint ruby ruby_4.0 script/build_results_site.rb cross-ruby _site
 ```
 
-To see those results the way the results site shows them, build the site
-into `_site/`, then open `_site/index.html` in a browser:
+`ruby script/run_cross_ruby.rb --help` lists the options.
+The builds are the ones in the CI matrix (`.github/workflows/benchmarks.yml`), so a new Ruby added there and in `compose.yaml` is measured too, and once released it becomes both the reference and the Ruby the site opens on.
+On an Apple silicon Mac, leave out `ruby_2.1` and `jruby_9.1` (they run under emulation, so their numbers are not comparable) and `ruby_3.1+yjit` (Ruby 3.1's YJIT only exists on x86-64).
 
-```
-docker compose run --rm -T --entrypoint ruby ruby_4.0 script/build_results_site.rb results _site
-```
+CI has two workflows:
 
-CI does the same after every run: the site is attached to the run as the
-`site-preview` artifact, and published to GitHub Pages from `main`.
+- `.github/workflows/benchmarks.yml` checks that every benchmark runs on every Ruby: on a PR, the benchmark files it changes; on `main`, all of them when a benchmark or a shared file changed. It publishes nothing.
+- `.github/workflows/results-site.yml` runs every build on every file once a week, split over 6 machines, and publishes the site. Run it by hand from the Actions tab to publish sooner.
 
 ## Benchmarks that need a newer Ruby
 
