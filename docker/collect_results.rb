@@ -52,6 +52,13 @@ module CollectResults
         "run_id" => env("GITHUB_RUN_ID"),
         "run_attempt" => env("GITHUB_RUN_ATTEMPT"),
         "runner" => env("RUNNER_NAME"),
+        # Set by script/run_cross_ruby.rb, which runs every build on one machine and the reference build between them; nil otherwise.
+        "shard" => env("RESULTS_SHARD") && env("RESULTS_SHARD").to_i,
+        "shards" => env("RESULTS_SHARDS") && env("RESULTS_SHARDS").to_i,
+        "pass" => env("RESULTS_PASS") && env("RESULTS_PASS").to_i,
+        "reference" => env("RESULTS_REFERENCE") == "1",
+        # When this report finished, to place it between the reference passes.
+        "measured_at" => Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "environment" => environment,
         "entries" => report.data
       }))

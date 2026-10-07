@@ -21,6 +21,11 @@ x-benchmark: &benchmark
     - RESULTS_LABEL
     - RESULTS_COMMIT
     - RESULTS_PR
+    # Cross-Ruby runs only (script/run_cross_ruby.rb).
+    - RESULTS_SHARD
+    - RESULTS_SHARDS
+    - RESULTS_PASS
+    - RESULTS_REFERENCE
     - GITHUB_RUN_ID
     - GITHUB_RUN_ATTEMPT
     - RUNNER_NAME
