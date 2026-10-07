@@ -20,7 +20,6 @@ x-benchmark: &benchmark
     - RESULTS_DIR
     - RESULTS_LABEL
     - RESULTS_COMMIT
-    - RESULTS_PR
     # Cross-Ruby runs only (script/run_cross_ruby.rb).
     - RESULTS_SHARD
     - RESULTS_SHARDS

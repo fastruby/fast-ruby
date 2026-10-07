@@ -48,7 +48,6 @@ module CollectResults
         "flags" => env("RUBY_VARIANT_FLAGS"),
         "jit" => jit,
         "commit" => env("RESULTS_COMMIT"),
-        "pr" => env("RESULTS_PR") && env("RESULTS_PR").to_i,
         "run_id" => env("GITHUB_RUN_ID"),
         "run_attempt" => env("GITHUB_RUN_ATTEMPT"),
         "runner" => env("RUNNER_NAME"),
