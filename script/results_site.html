@@ -240,6 +240,14 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 .rcard td .sm { color: var(--yellow-ink); }
 .rcard td.off { color: var(--faint); }
 .rcard .links { font-size: 13px; }
+/* Section headings: one per folder under code/, with how many benchmarks it shows. */
+.rsec { font-size: 24px; letter-spacing: -.01em; text-transform: none; color: var(--ink); margin: 40px 0 0; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; scroll-margin-top: calc(var(--rpick, 0px) + 8px); }
+.rsec small { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.rsec .on { margin-left: auto; font: 500 13px var(--mono); color: var(--ink); float: none; }
+.find, .jump { font: 14px var(--font); color: var(--text); background: var(--bg); border: 1px solid var(--line); padding: 5px 9px; min-width: 0; max-width: 100%; }
+.find { width: 260px; }
+.find:focus-visible, .jump:focus-visible { outline: 2px solid var(--green); outline-offset: 0; border-color: var(--green); }
+#rpicker label.lbl + .find + label.lbl { min-width: 0; margin-left: 10px; }
 .rhow { padding-block: 22px 0; display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
 .rhow p { margin: 0; max-width: 75ch; }
 
@@ -288,6 +296,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   <div class="picker" id="rpicker">
     <div class="prow"><span class="lbl">Build</span><div class="chips" id="rmodes"></div><span class="jkey" id="rhint"></span></div>
     <div class="prow"><span class="lbl">Show</span><div class="chips" id="rshow"></div></div>
+    <div class="prow"><label class="lbl" for="rfind">Find</label><input type="search" id="rfind" class="find" placeholder="A method or idiom, e.g. gsub" autocomplete="off"><label class="lbl" for="rjump">Jump to</label><select id="rjump" class="jump"></select></div>
   </div>
 
   <div id="rout"></div>
@@ -626,7 +635,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   const MODES = [["", "Interpreter"], ["yjit", "YJIT"], ["zjit", "ZJIT"]];
   // Without the reference (its image failed, say), there is nothing to be relative to.
   const SHOWS = REF ? [["ips", "i/s"], ["rel", "Relative to " + nice(REF)]] : [["ips", "i/s"]];
-  let mode = "", showing = "ips";
+  let mode = "", showing = "ips", find = "";
 
   function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   function md(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
@@ -658,6 +667,8 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     const p = new URLSearchParams(location.search);
     mode = MODES.some(([m]) => m && m === p.get("build")) && has(p.get("build")) ? p.get("build") : "";
     showing = p.get("show") === "rel" && REF ? "rel" : "ips";
+    find = (p.get("find") || "").trim();
+    $("rfind").value = find;
   }
 
   if (!M.passed) {
@@ -771,9 +782,9 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     const t = steps.filter((v) => v >= bottom && v <= top);
     if (t.length <= 7) return t;
     const d0 = Math.log10(bottom), d1 = Math.log10(top), every = Math.ceil((d1 - d0) / 6);
-    // Inner powers of ten, none closer than 0.35 of a decade to either end, so labels never overlap.
-    const inner = [];
-    for (let k = Math.ceil(d0); k < d1; k += every) if (k - d0 > 0.35 && d1 - k > 0.35) inner.push(+Math.pow(10, k).toPrecision(1));
+    // Inner powers of ten, kept away from both ends (8% of the axis, at least 0.29 of a decade) so labels never overlap.
+    const room = Math.max(0.29, (d1 - d0) * 0.08), inner = [];
+    for (let k = Math.ceil(d0); k < d1; k += every) if (k - d0 > room && d1 - k > room) inner.push(+Math.pow(10, k).toPrecision(1));
     return [bottom, ...inner, top];
   }
   // Tick labels without trailing zeros: 2M, 500k, 0.05×.
@@ -910,9 +921,14 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     if (showing === "rel") hints.push(`1× is the claimed idiom on ${nice(REF)}.`);
     if (mode) hints.push("Dashed: the same Rubies without the JIT, on the same machine.");
     $("rhint").textContent = hints.join(" ");
+    const shown = B.map((b, n) => [b, n]).filter(([b]) => matches(b));
+    const count = {};
+    shown.forEach(([b]) => { count[b.section] = (count[b.section] || 0) + 1; });
+    const secs = Object.keys(count);
+    $("rjump").innerHTML = `<option value="">${secs.length ? "A section" : "No section"}</option>` + secs.map((x) => `<option value="${esc(slug(x))}">${esc(x)} (${count[x]})</option>`).join("");
     let h = "", sec = null;
-    B.forEach((b, n) => {
-      if (b.section !== sec) { sec = b.section; h += `<h2>${esc(sec)}<span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }
+    shown.forEach(([b, n]) => {
+      if (b.section !== sec) { sec = b.section; h += `<h2 class="rsec" id="${esc(slug(sec))}">${esc(sec)}<small>${count[sec]} benchmark${count[sec] > 1 ? "s" : ""}</small><span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }
       const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "");
       const v = verdict(b);
       h += `<article class="rcard"><p class="what">${md(b.title)}</p><h3><span class="ico ${v.icon}" aria-hidden="true">${RICON[v.icon]}</span><span>${v.head}</span></h3>` +
@@ -921,12 +937,37 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
         `<details data-n="${n}"${open.has(n) ? " open" : ""}><summary>Numbers per build</summary>${table(b)}</details>` +
         `<div class="links"><a href="${M.repo}/blob/main/${encodeURI(b.file)}">View the code</a></div></article>`;
     });
-    $("rout").innerHTML = h;
+    $("rout").innerHTML = h || `<p class="empty">No benchmark matches "${esc(find)}". Clear the find box to see all ${B.length}.</p>`;
     if (!$("view-across-rubies").hidden) $("rout").querySelectorAll(".chart").forEach((c) => chart(B[+c.dataset.n], c));
+    pinned();
+  }
+  // A section heading reached from "Jump to" lands under the pinned picker, not behind it.
+  function pinned() {
+    const p = $("rpicker");
+    document.documentElement.style.setProperty("--rpick", getComputedStyle(p).position === "sticky" ? p.offsetHeight + "px" : "0px");
+  }
+  const slug = (x) => "section-" + x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // Find: every word must appear in the title, a report name, the file or the section.
+  function matches(b) {
+    const words = find.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return true;
+    const text = [b.title, b.file, b.section, ...b.names].join(" ").toLowerCase();
+    return words.every((w) => text.includes(w));
   }
 
   $("rmodes").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c && !c.disabled) { mode = c.dataset.m; window.SiteViews.setParams({ build: mode || null }, true); render(); } });
   $("rshow").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) { showing = c.dataset.s; window.SiteViews.setParams({ show: showing === "rel" ? "rel" : null }, true); render(); } });
+  // Typing replaces the URL instead of adding to history, so back does not step through every letter.
+  let typing;
+  $("rfind").addEventListener("input", () => {
+    clearTimeout(typing);
+    typing = setTimeout(() => { find = $("rfind").value.trim(); window.SiteViews.setParams({ find: find || null }, false); render(); }, 150);
+  });
+  $("rjump").addEventListener("change", (e) => {
+    const target = e.target.value && document.getElementById(e.target.value);
+    e.target.value = "";
+    if (target) { pinned(); target.scrollIntoView(); }
+  });
   $("rout").addEventListener("toggle", (e) => { const d = e.target; if (d.matches("details")) d.open ? open.add(+d.dataset.n) : open.delete(+d.dataset.n); }, true);
   window.addEventListener("popstate", () => { fromURL(); render(); });
   // Charts are drawn only when the view is shown, at the width it has then.
