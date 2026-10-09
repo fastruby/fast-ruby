@@ -217,6 +217,8 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 .chart { position: relative; width: 100%; min-width: 0; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+.chart text.eng { font-family: var(--font); fill: var(--faint); }
+.rlegend .sus svg { width: 10px; height: 8px; fill: var(--bg); stroke: var(--muted); stroke-width: 1.5; overflow: visible; }
 .chart .tick line { stroke: var(--grid); }
 .chart .base { stroke: var(--line); }
 .chart .cross { stroke: var(--faint); stroke-width: 1; opacity: 0; }
@@ -227,8 +229,8 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 .tipbox .r { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; }
 .tipbox .r i { width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1.5px #fff; }
 .tipbox .n { color: #cfcfcf; font-size: 12px; margin-top: 3px; }
-.rfoot { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); }
-.rfoot .noisy { color: var(--red); font-weight: 700; }
+.rfoot { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.rfoot.noisy { margin: 0; color: var(--red); font-weight: 700; }
 .rcard details summary { cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--ink); width: max-content; }
 .rcard .tb { overflow-x: auto; border: 1px solid var(--line); margin-top: 8px; }
 .rcard table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -290,6 +292,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     <h1>How fast is each idiom on each Ruby?</h1>
     <p>Every Ruby ran each benchmark on the same machine, one after the other, so here you can compare i/s across Rubies. A reference Ruby ran again and again between them, to show how steady the machine was during the run.</p>
     <p class="run" id="rrun"></p>
+    <p class="run"><a href="#rhow">How to read these charts</a></p>
     <p class="note" id="rnote" hidden></p>
   </div>
 
@@ -302,8 +305,10 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   <div id="rout"></div>
 
   <div class="rhow" id="rhow">
+    <p><b>How to read a card.</b> The heading says what happened on the build you picked: ✓ the claimed idiom (the one the benchmark file says is fastest) wins or ties on every Ruby, ~ it wins on some and another idiom wins on others, ✗ another idiom wins everywhere. It compares the claimed idiom with the fastest of the others, and a gap within the measured error is a tie.</p>
+    <p><b>How to read a chart.</b> The y axis is logarithmic: each gridline step is the same ratio, so a 100× gap between two idioms and a 10% change between two Rubies both show. Under "Relative", every line is divided by the claimed idiom on the reference Ruby, so 1× is that idiom there and the higher line is still the faster one.</p>
     <p><b>How this is measured.</b> Each shard of benchmark files ran on one GitHub runner: every build, in a random order, with benchmark-ips' default timing. The numbers are i/s as measured.</p>
-    <p><b>How steady the machine was.</b> The reference Ruby ran first, again after every few builds, and last. It is the same code every time, so how much its i/s varies is the machine, not Ruby. Under each chart is that variation (standard deviation over mean). Over 5% the benchmark is marked noisy, and when the typical benchmark of a run is over 5%, the page warns at the top. Two Rubies whose i/s differ by less than that variation are shown as same-ish.</p>
+    <p><b>How steady the machine was.</b> The reference Ruby ran first, again after every few builds, and last. It is the same code every time, so how much its i/s varies is the machine, not Ruby. "Numbers per build" shows that variation (standard deviation over mean). Over 5% the benchmark is marked noisy under its chart, and when the typical benchmark of a run is over 5%, the page warns at the top. Two Rubies whose i/s differ by less than that variation are shown as same-ish.</p>
     <p>Only Rubies of the same run are compared. Weeks are not compared with each other: each week can land on a different CPU. Results over a billion iterations per second (under 1 ns each) are marked suspect and kept off the chart: the JIT most likely removed the work.</p>
   </div>
   </div>
@@ -826,10 +831,18 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     tk.forEach((t) => { s += `<g class="tick"><line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l - 8}" y="${y(t) + 4}" text-anchor="end">${tickLabel(t)}</text></g>`; });
     s += `<line class="base" x1="${P.l}" x2="${W - P.r}" y1="${yb}" y2="${yb}"/>`;
     if (showing === "rel" && bottom < 1 && top > 1) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(1)}" y2="${y(1)}" stroke="var(--faint)" stroke-dasharray="2 3"/>`;
-    cols.all.forEach((l, k) => {
-      const parts = short(l).split(" ");
-      s += `<text x="${x(k)}" y="${H - P.b + 16}" text-anchor="middle">${esc(parts[0])}</text>`;
-      if (parts[1]) s += `<text x="${x(k)}" y="${H - P.b + 29}" text-anchor="middle">${esc(parts.slice(1).join(" "))}</text>`;
+    // x labels: the version on each column ("+yjit" is already in the picker), and under it the engine once per group of columns.
+    // About 7 px per character at 11 px: on a narrow chart every other version is labelled, and a long engine name shortens.
+    const cw = 7, every = band < 4 * cw + 2 ? 2 : 1;
+    const groups = [];
+    cols.all.forEach((l, k) => { const e = base(l).split("_")[0]; if (groups.length && groups[groups.length - 1].e === e) groups[groups.length - 1].to = k; else groups.push({ e, from: k, to: k }); });
+    groups.forEach((g) => {
+      for (let k = g.from; k <= g.to; k += every) s += `<text x="${x(k)}" y="${H - P.b + 16}" text-anchor="middle">${esc(base(cols.all[k]).replace(/^[a-z]+_/, ""))}</text>`;
+    });
+    groups.forEach((g) => {
+      const room = band * (g.to - g.from + 1);
+      const name = [{ ruby: "Ruby", jruby: "JRuby", truffleruby: "TruffleRuby" }[g.e] || g.e, { truffleruby: "Truffle" }[g.e], { jruby: "JR", truffleruby: "TR" }[g.e]].filter(Boolean).find((n) => n.length * cw <= room) || "";
+      if (name) s += `<text x="${(x(g.from) + x(g.to)) / 2}" y="${H - P.b + 30}" text-anchor="middle" class="eng">${esc(name)}</text>`;
     });
     if (cols.other.length) { const gx = x(cols.line.length) - band / 2 - gap / 2; s += `<line x1="${gx}" x2="${gx}" y1="${P.t}" y2="${yb}" stroke="var(--line)"/>`; }
     // Under a JIT build: the same Rubies without it, dashed.
@@ -905,11 +918,19 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     return `<div class="tb"><table>${h}</table></div>`;
   }
 
-  function foot(b) {
+  // The machine, inside "Numbers per build": the same on every card but the CPU, so it only shows on the card when the benchmark was noisy.
+  function machine(b) {
     const shard = M.shards.find((x) => x.shard === b.shard) || {};
-    const parts = [`Ran on ${esc(cpu(shard.cpu))}${M.shards_total > 1 ? `, shard ${b.shard + 1} of ${M.shards_total}` : ""}`];
-    if (b.variation != null) parts.push(`<span class="${b.noisy ? "noisy" : ""}">${esc(nice(REF))} ran ${b.reference_passes} times; its i/s varied by ${(b.variation * 100).toFixed(1)}%${b.noisy ? " (noisy)" : ""}</span>`);
-    return `<div class="rfoot">${parts.map((p) => `<span>${p}</span>`).join("")}</div>`;
+    const parts = [`Ran on ${esc(cpu(shard.cpu))}${M.shards_total > 1 ? `, shard ${b.shard + 1} of ${M.shards_total}` : ""}.`];
+    if (b.variation != null) parts.push(`${esc(nice(REF))} ran ${b.reference_passes} times; its i/s varied by ${(b.variation * 100).toFixed(1)}%.`);
+    return `<p class="rfoot">${parts.join(" ")}</p>`;
+  }
+  function noisy(b) {
+    return b.noisy ? `<p class="rfoot noisy">Noisy: ${esc(nice(REF))}'s i/s varied by ${(b.variation * 100).toFixed(1)}% during this benchmark, so gaps that small may be the machine, not Ruby.</p>` : "";
+  }
+  // Suspect results are drawn as triangles along the top of the chart.
+  function hasSuspect(b) {
+    return columns().all.some((l) => b.runs[l] && b.runs[l].entries.some(sus));
   }
 
   const open = new Set();
@@ -929,12 +950,13 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     let h = "", sec = null;
     shown.forEach(([b, n]) => {
       if (b.section !== sec) { sec = b.section; h += `<h2 class="rsec" id="${esc(slug(sec))}">${esc(sec)}<small>${count[sec]} benchmark${count[sec] > 1 ? "s" : ""}</small><span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }
-      const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "");
+      const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "") +
+        (hasSuspect(b) ? '<span class="sus"><svg viewBox="0 0 10 8" aria-hidden="true"><path d="M1,7 L5,1 L9,7Z"/></svg>suspect, over 1B i/s: kept off the chart</span>' : "");
       const v = verdict(b);
       h += `<article class="rcard"><p class="what">${md(b.title)}</p><h3><span class="ico ${v.icon}" aria-hidden="true">${RICON[v.icon]}</span><span>${v.head}</span></h3>` +
         (v.sub ? `<p class="say">${v.sub}</p>` : "") + `<div class="rlegend">${legend}</div>` +
-        `<div class="chart" data-n="${n}"></div>${foot(b)}` +
-        `<details data-n="${n}"${open.has(n) ? " open" : ""}><summary>Numbers per build</summary>${table(b)}</details>` +
+        `<div class="chart" data-n="${n}"></div>${noisy(b)}` +
+        `<details data-n="${n}"${open.has(n) ? " open" : ""}><summary>Numbers per build</summary>${machine(b)}${table(b)}</details>` +
         `<div class="links"><a href="${M.repo}/blob/main/${encodeURI(b.file)}">View the code</a></div></article>`;
     });
     $("rout").innerHTML = h || `<p class="empty">No benchmark matches "${esc(find)}". Clear the find box to see all ${B.length}.</p>`;
