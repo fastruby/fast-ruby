@@ -609,7 +609,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 })();
 </script>
 <script>
-// Across Rubies. Each entry is [i/s, error, relative to the reference's median].
+// Across Rubies. Each entry is [i/s, error, relative to the reference's median of the claimed report].
 (function () {
   const $ = (id) => document.getElementById(id);
   const D = window.ACROSS_RUBIES;
@@ -634,7 +634,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   const sus = (e) => !!e && e[0] > M.suspect;
   // A result that can be drawn and compared: it ran and is not suspect.
   const ok = (e) => !!e && !sus(e) && e[0] > 0;
-  // Relative needs the reference to have that report.
+  // Relative needs the reference to have the claimed report.
   const val = (e) => ok(e) ? (showing === "rel" ? e[2] : e[0]) : null;
   // Two reports of one build, measured seconds apart: same-ish when the error bars overlap, as benchmark-ips says.
   const same = (a, b) => a[0] + a[1] > b[0] - b[1] && a[0] - a[1] < b[0] + b[1];
@@ -824,7 +824,10 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     if (mode && !has(mode)) mode = "";
     $("rmodes").innerHTML = MODES.map(([m, name]) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${m === mode}" ${has(m) ? "" : 'disabled title="Not built in this run"'}>${name}</button>`).join("");
     $("rshow").innerHTML = SHOWS.map(([k, name]) => `<button type="button" class="chip" data-s="${k}" aria-pressed="${k === showing}">${esc(name)}</button>`).join("");
-    $("rhint").textContent = mode ? "Dashed: the same Rubies without the JIT, on the same machine." : "";
+    const hints = [];
+    if (showing === "rel") hints.push(`1× is the claimed idiom on ${nice(REF)}.`);
+    if (mode) hints.push("Dashed: the same Rubies without the JIT, on the same machine.");
+    $("rhint").textContent = hints.join(" ");
     let h = "", sec = null;
     B.forEach((b, n) => {
       if (b.section !== sec) { sec = b.section; h += `<h2>${esc(sec)}<span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }

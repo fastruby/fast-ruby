@@ -172,17 +172,19 @@ module ResultsSite
     report["entries"].find { |e| e["name"] == name }
   end
 
-  # Per report: [i/s, error, relative to the reference's median]. Relative is nil for a suspect or zero result, or a report the reference does not have.
+  # Per report: [i/s, error, relative to the reference's median of the claimed report].
+  # Every report of a benchmark shares that one baseline, so on the chart the higher line is the faster report.
+  # Relative is nil for a suspect or zero result, or when the reference has no usable pass of the claimed report.
   def cross_run(report, names, ref_ips)
     entries = names.each_with_index.map do |name, i|
       e = entry(report, name) or next nil
-      rel = ref_ips[i].empty? || !e["ips"].positive? || e["ips"] > SUSPECT_IPS ? nil : (e["ips"] / median(ref_ips[i])).round(4)
+      rel = ref_ips[0].empty? || !e["ips"].positive? || e["ips"] > SUSPECT_IPS ? nil : (e["ips"] / median(ref_ips[0])).round(4)
       [e["ips"].round(3), e["error"].to_f.round(1), rel]
     end
     { entries: entries, pass: report["pass"] }
   end
 
-  # The reference itself: its median pass, 1.0 relative to itself.
+  # The reference itself: its median pass, relative to its own claimed report (1.0 for the claimed report).
   def reference_run(passes, names, ref_ips)
     entries = names.each_with_index.map do |name, i|
       es = passes.filter_map { |r| entry(r, name) }
@@ -190,7 +192,9 @@ module ResultsSite
 
       usable = es.select { |e| e["ips"].positive? && e["ips"] <= SUSPECT_IPS }
       pick = usable.empty? ? es : usable
-      [median(pick.map { |e| e["ips"] }).round(3), median(pick.map { |e| e["error"].to_f }).round(1), ref_ips[i].empty? ? nil : 1.0]
+      ips = median(pick.map { |e| e["ips"] })
+      rel = ref_ips[0].empty? || ref_ips[i].empty? ? nil : (median(ref_ips[i]) / median(ref_ips[0])).round(4)
+      [ips.round(3), median(pick.map { |e| e["error"].to_f }).round(1), rel]
     end
     { entries: entries, passes: passes.map { |r| r["pass"] }.sort }
   end
