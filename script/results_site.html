@@ -201,7 +201,9 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 /* Across Rubies: one card per benchmark, a chart with the Rubies on the x axis. */
 .rcard { border-bottom: 1px solid var(--line); padding-block: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
 /* Card: the title says what is compared, the verdict what happened, the tiles the numbers behind it. */
-.rcard h3 { margin: 0; font-size: 20px; line-height: 1.3; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
+.rcard h3 { margin: 0; font-size: 20px; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
+/* One line when it fits: fitTitles() shrinks a long title down to 14px first, and only lets it wrap past that. */
+.rcard h3.one { white-space: nowrap; overflow-wrap: normal; }
 .rcard h3 code { font-weight: 700; font-size: .9em; }
 .rcard .verdict { margin: 0; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 15.5px; line-height: 1.45; color: var(--text); text-wrap: pretty; overflow-wrap: anywhere; }
 .rcard .verdict code { font-weight: 700; color: var(--ink); }
@@ -986,7 +988,20 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     });
     $("rout").innerHTML = h || `<p class="empty">No benchmark matches "${esc(find)}". Clear the find box to see all ${B.length}.</p>`;
     if (!$("view-across-rubies").hidden) $("rout").querySelectorAll(".chart").forEach((c) => chart(B[+c.dataset.n], c));
+    fitTitles();
     pinned();
+  }
+  // A title of many report names stays on one line by getting smaller (20px down to 14px); one too long even at 14px wraps at 14px.
+  function fitTitles() {
+    $("rout").querySelectorAll(".rcard h3").forEach((h) => {
+      h.classList.add("one");
+      h.style.fontSize = "";
+      const room = h.clientWidth, need = h.scrollWidth;
+      if (need <= room) return;
+      const size = Math.floor(20 * room / need * 10) / 10;
+      if (size >= 14) h.style.fontSize = size + "px";
+      else { h.style.fontSize = "14px"; h.classList.remove("one"); }
+    });
   }
   // A section heading reached from "Jump to" lands under the pinned picker, not behind it.
   function pinned() {
