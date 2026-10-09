@@ -200,16 +200,24 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
 
 /* Across Rubies: one card per benchmark, a chart with the Rubies on the x axis. */
 .rcard { border-bottom: 1px solid var(--line); padding-block: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
-.rcard .what { margin: 0; font-size: 13px; color: var(--muted); }
-.rcard h3 { margin: 0; font-size: 18px; line-height: 1.35; color: var(--ink); display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; }
-.rcard h3 > span:last-child { text-wrap: pretty; overflow-wrap: anywhere; }
-.rcard h3 code { font-weight: 700; font-size: .85em; }
-.rcard h3 .ico { margin-top: 1px; }
+/* Card: the title says what is compared, the verdict what happened, the tiles the numbers behind it. */
+.rcard h3 { margin: 0; font-size: 20px; line-height: 1.3; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
+.rcard h3 code { font-weight: 700; font-size: .9em; }
+.rcard .verdict { margin: 0; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 15.5px; line-height: 1.45; color: var(--text); text-wrap: pretty; overflow-wrap: anywhere; }
+.rcard .verdict code { font-weight: 700; color: var(--ink); }
+.rcard .verdict b { color: var(--ink); }
+.rcard .verdict .ico { width: 20px; height: 20px; font-size: 11px; margin-top: 1px; }
 .ico.mix { background: #fff; color: var(--red); box-shadow: inset 0 0 0 3px var(--red); }
-.rcard .say { padding-left: 36px; }
+.stats { margin: 4px 0 2px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.stats > div { border: 1px solid var(--line); padding: 10px 12px; display: grid; align-content: start; gap: 2px; min-width: 0; }
+.stats dt { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.stats dd { margin: 0; }
+.stats .v { font: 700 22px/1.2 var(--mono); color: var(--ink); }
+.stats .v.up { color: var(--green-dark); }
+.stats .v.down { color: var(--red); }
+.stats .n { font-size: 12.5px; line-height: 1.4; color: var(--muted); overflow-wrap: anywhere; }
+.stats .n code { color: var(--text); }
 .rcard td .lose { color: var(--red); }
-.rcard .say { margin: 0; font-size: 14px; color: var(--text); max-width: 75ch; }
-.rcard .say b { color: var(--ink); }
 .rlegend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--text); }
 .rlegend span { display: inline-flex; align-items: center; gap: 6px; }
 .rlegend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
@@ -259,7 +267,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   .picker { position: static; border-bottom: 1px solid var(--line); }
   .tip::after { position: fixed; left: 16px; right: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: none; width: auto; max-width: none; font-size: 14px; padding: 12px 14px; }
 }
-@media (max-width: 560px) { .detail { padding-left: 4px; } }
+@media (max-width: 560px) { .detail { padding-left: 4px; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats > div { padding: 8px 10px; } .stats .v { font-size: 16px; } }
 @media (max-width: 480px) { .services { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
@@ -708,11 +716,11 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   const x2 = (r) => r >= 1e6 ? (r / 1e6).toFixed(1) + "M×" : r >= 1e4 ? Math.round(r / 1e3) + "k×" : r >= 10 ? Math.round(r) + "×" : r < 1.1 ? r.toFixed(2) + "×" : r.toFixed(1) + "×";
   // The Ruby without its build: under YJIT the build is already in the heading.
   const rb = (l) => nice(base(l));
-  // Rubies next to each other on the axis, as "Ruby 2.1 to 2.6"; a run never spans two engines.
+  // Rubies next to each other on the axis, as "Ruby 2.1 to 2.6" (two: "Ruby 3.1 and 3.2"); a run never spans two engines.
   function runsOf(labels, cols) {
     const out = [];
     let run = [];
-    const flush = () => { if (run.length) out.push(run.length === 1 ? rb(run[0]) : `${rb(run[0])} to ${base(run[run.length - 1]).replace(/^[a-z]+_/, "")}`); run = []; };
+    const flush = () => { if (run.length) out.push(run.length === 1 ? rb(run[0]) : `${rb(run[0])} ${run.length === 2 ? "and" : "to"} ${base(run[run.length - 1]).replace(/^[a-z]+_/, "")}`); run = []; };
     cols.forEach((l) => {
       if (!labels.includes(l)) return flush();
       if (run.length && base(run[0]).split("_")[0] !== base(l).split("_")[0]) flush();
@@ -749,30 +757,46 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
       else { icon = "mix"; head = `${claim} wins on <b>${wins.length} of ${n} Rubies${where}</b>${ties.length ? ` (${ties.length} tie${ties.length > 1 ? "s" : ""})` : ""}; ${named.join("; ")}`; }
     }
 
-    const facts = [];
-    const span = (list, verb) => {
-      if (!list.length) return;
+    // One tile per fact: a label, one number, and a caption saying who it is about and where.
+    const tiles = [];
+    const rival = b.names.length === 2 ? nm(1) : "the fastest other idiom";
+    const range = (list) => {
       const s = list.slice().sort((a, c) => a[1].ratio - c[1].ratio), lo = s[0], hi = s[s.length - 1];
-      facts.push(lo === hi || x2(lo[1].ratio) === x2(hi[1].ratio) ? `${verb} by ${x2(hi[1].ratio)}` : `${verb} by ${x2(lo[1].ratio)} (${esc(rb(lo[0]))}) to ${x2(hi[1].ratio)} (${esc(rb(hi[0]))})`);
+      const one = lo === hi || x2(lo[1].ratio) === x2(hi[1].ratio);
+      return { value: one ? x2(hi[1].ratio) : `${x2(lo[1].ratio)} to ${x2(hi[1].ratio)}`, where: one ? (list.length === 1 ? `on ${esc(rb(hi[0]))}` : "") : `least on ${esc(rb(lo[0]))}, most on ${esc(rb(hi[0]))}` };
     };
-    span(wins, "Wins");
-    span(losses, "Loses");
+    if (wins.length) {
+      const g = range(wins);
+      tiles.push({ label: losses.length ? "Faster, where it wins" : "Faster by", value: g.value, cls: "up", note: `${claim} over ${rival}${g.where ? `<br>${g.where}` : ""}` });
+    }
+    if (losses.length) {
+      const g = range(losses);
+      tiles.push({ label: "Slower, where it loses", value: g.value, cls: "down", note: `${claim} behind the winner${g.where ? `<br>${g.where}` : ""}` });
+    }
     // Its own speed over the released Rubies of this build; head changes every week, so it is left out.
+    const change = (t, f) => sameRuby(t, f, b.variation) ? { value: "Same", cls: "" } : { value: pct(t[0], f[0]), cls: t[0] > f[0] ? "up" : "down" };
     const line = columns().line.filter((l) => base(l) !== "ruby_head" && b.runs[l] && ok(b.runs[l].entries[0]));
     if (line.length > 1) {
-      const f = b.runs[line[0]].entries[0], t = b.runs[line[line.length - 1]].entries[0];
-      facts.push(`Own speed from ${esc(rb(line[0]))} to ${esc(base(line[line.length - 1]).replace(/^ruby_/, ""))}: ${sameRuby(t, f, b.variation) ? "about the same" : `<b>${pct(t[0], f[0])}</b>`}`);
+      const c = change(b.runs[line[line.length - 1]].entries[0], b.runs[line[0]].entries[0]);
+      tiles.push({ label: `${esc(rb(line[0]))} → ${esc(base(line[line.length - 1]).replace(/^ruby_/, ""))}`, value: c.value, cls: c.cls, note: `Its own i/s on the newer Ruby${c.value === "Same" ? ", within the machine's noise" : ""}` });
     }
     if (mode && line.length) {
-      const l = line[line.length - 1], j = b.runs[l].entries[0], g = b.runs[base(l)] && b.runs[base(l)].entries[0];
-      if (ok(g)) facts.push(`${esc(mode.toUpperCase())} vs no JIT on ${esc(rb(l))}: ${sameRuby(j, g, b.variation) ? "about the same" : `<b>${pct(j[0], g[0])}</b>`}`);
+      const l = line[line.length - 1], g = b.runs[base(l)] && b.runs[base(l)].entries[0];
+      if (ok(g)) {
+        const c = change(b.runs[l].entries[0], g);
+        tiles.push({ label: `${esc(mode.toUpperCase())} on ${esc(rb(l))}`, value: c.value, cls: c.cls, note: `Its own i/s with ${esc(mode.toUpperCase())} against the interpreter` });
+      }
     }
     // Rubies on the chart that are not in the count.
-    const left = cols.filter((l) => !res.some(([k]) => k === l));
+    const left = cols.filter((l) => !res.some(([k]) => k === l)), notes = [];
     const susp = left.filter((l) => b.runs[l] && b.runs[l].entries.some(sus)), gone = left.filter((l) => !susp.includes(l));
-    if (susp.length) facts.push(`Not counted: ${esc(runsOf(susp, cols))} (suspect)`);
-    if (gone.length) facts.push(`Did not run: ${esc(runsOf(gone, cols))}`);
-    return { icon, head, sub: facts.join(" · ") };
+    if (susp.length) notes.push(`Not counted: ${esc(runsOf(susp, cols))}, suspect results (over 1B i/s).`);
+    if (gone.length) notes.push(`Did not run: ${esc(runsOf(gone, cols))}.`);
+    return { icon, head, tiles, foot: notes.join(" ") };
+  }
+  function tilesHtml(v) {
+    if (!v.tiles.length) return "";
+    return `<dl class="stats">${v.tiles.map((t) => `<div><dt>${t.label}</dt><dd class="v ${t.cls}">${t.value}</dd><dd class="n">${t.note}</dd></div>`).join("")}</dl>`;
   }
 
   // The y axis is logarithmic, so a 100× gap between two reports and a 10% change between two Rubies are both readable on one chart.
@@ -953,9 +977,10 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
       const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "") +
         (hasSuspect(b) ? '<span class="sus"><svg viewBox="0 0 10 8" aria-hidden="true"><path d="M1,7 L5,1 L9,7Z"/></svg>suspect, over 1B i/s: kept off the chart</span>' : "");
       const v = verdict(b);
-      h += `<article class="rcard"><p class="what">${md(b.title)}</p><h3><span class="ico ${v.icon}" aria-hidden="true">${RICON[v.icon]}</span><span>${v.head}</span></h3>` +
-        (v.sub ? `<p class="say">${v.sub}</p>` : "") + `<div class="rlegend">${legend}</div>` +
-        `<div class="chart" data-n="${n}"></div>${noisy(b)}` +
+      // Title (what is compared), verdict (what happened), the numbers behind it, then the chart.
+      h += `<article class="rcard"><h3>${md(b.title)}</h3><p class="verdict"><span class="ico ${v.icon}" aria-hidden="true">${RICON[v.icon]}</span><span>${v.head}</span></p>` +
+        tilesHtml(v) + `<div class="rlegend">${legend}</div>` +
+        `<div class="chart" data-n="${n}"></div>${v.foot ? `<p class="rfoot">${v.foot}</p>` : ""}${noisy(b)}` +
         `<details data-n="${n}"${open.has(n) ? " open" : ""}><summary>Numbers per build</summary>${machine(b)}${table(b)}</details>` +
         `<div class="links"><a href="${M.repo}/blob/main/${encodeURI(b.file)}">View the code</a></div></article>`;
     });
