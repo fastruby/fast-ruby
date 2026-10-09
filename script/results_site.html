@@ -699,13 +699,28 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     return s + ".";
   }
 
-  function ticks(max) {
-    if (!(max > 0) || !isFinite(max)) max = 1;
-    const raw = max / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
-    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((x) => x >= raw);
-    const t = [];
-    for (let v = 0; ; v += step) { t.push(v); if (v >= max) break; }
-    return t;
+  // The y axis is logarithmic, so a 100× gap between two reports and a 10% change between two Rubies are both readable on one chart.
+  // It spans at least 4×, from the 1-2-5 step under the lowest value to the one over the highest.
+  // Past 7 ticks, the lines in between are powers of ten only (every other one, or fewer, on a very wide span).
+  function ticks(lo, hi) {
+    if (!(lo > 0) || !(hi >= lo) || !isFinite(hi)) { lo = 1; hi = 10; }
+    if (hi / lo < 4) { const g = Math.sqrt(hi * lo); lo = g / 2; hi = g * 2; }
+    const steps = [];
+    for (let k = Math.floor(Math.log10(lo)) - 1; k <= Math.ceil(Math.log10(hi)) + 1; k++) [1, 2, 5].forEach((m) => steps.push(+(m * Math.pow(10, k)).toPrecision(1)));
+    const bottom = steps.filter((t) => t <= lo).pop(), top = steps.find((t) => t >= hi);
+    const t = steps.filter((v) => v >= bottom && v <= top);
+    if (t.length <= 7) return t;
+    const d0 = Math.log10(bottom), d1 = Math.log10(top), every = Math.ceil((d1 - d0) / 6);
+    // Inner powers of ten, none closer than 0.35 of a decade to either end, so labels never overlap.
+    const inner = [];
+    for (let k = Math.ceil(d0); k < d1; k += every) if (k - d0 > 0.35 && d1 - k > 0.35) inner.push(+Math.pow(10, k).toPrecision(1));
+    return [bottom, ...inner, top];
+  }
+  // Tick labels without trailing zeros: 2M, 500k, 0.05×.
+  function tickLabel(t) {
+    const n = (v) => String(+v.toPrecision(3));
+    if (showing === "rel") return n(t) + "×";
+    return t >= 1e9 ? n(t / 1e9) + "B" : t >= 1e6 ? n(t / 1e6) + "M" : t >= 1e3 ? n(t / 1e3) + "k" : n(t);
   }
 
   function path(pts, c, extra, w) {
@@ -722,23 +737,30 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     const band = (W - P.l - P.r - gap) / n;
     const x = (k) => P.l + band * (k + 0.5) + (k >= cols.line.length ? gap : 0);
     const ghost = mode ? cols.line.map(base) : [];
-    const vals = [];
-    b.names.forEach((_, i) => cols.all.concat(ghost).forEach((l) => { const r = b.runs[l]; const v = r && val(r.entries[i]); if (v != null) vals.push(v + (showing === "rel" ? r.entries[i][1] / r.entries[i][0] * v : r.entries[i][1])); }));
-    const tk = ticks(Math.max(...vals, showing === "rel" ? 1 : 1e-9));
-    const top = tk[tk.length - 1];
-    const y = (v) => P.t + (H - P.t - P.b) * (1 - v / top);
-    const lab = (t) => t === 0 ? "0" : showing === "rel" ? t.toFixed(t < 1 ? 2 : 1) + "×" : fmt(t);
+    // Every drawn value with its error bar; a lower end at or under 0 is left out, since a log axis has no 0.
+    const lows = [], highs = [];
+    b.names.forEach((_, i) => cols.all.concat(ghost).forEach((l) => {
+      const r = b.runs[l], v = r && val(r.entries[i]);
+      if (v == null) return;
+      const err = r.entries[i][1] / r.entries[i][0] * v;
+      lows.push(v - err > 0 ? v - err : v);
+      highs.push(v + err);
+    }));
+    const tk = lows.length ? ticks(Math.min(...lows), Math.max(...highs)) : ticks(1, 10);
+    const bottom = tk[0], top = tk[tk.length - 1], span = Math.log10(top / bottom);
+    const y = (v) => P.t + (H - P.t - P.b) * (1 - Math.log10(Math.max(v, bottom) / bottom) / span);
+    const yb = y(bottom);
 
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(b.names.join(" vs "))} on every Ruby">`;
-    tk.forEach((t) => { s += `<g class="tick"><line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l - 8}" y="${y(t) + 4}" text-anchor="end">${lab(t)}</text></g>`; });
-    s += `<line class="base" x1="${P.l}" x2="${W - P.r}" y1="${y(0)}" y2="${y(0)}"/>`;
-    if (showing === "rel") s += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(1)}" y2="${y(1)}" stroke="var(--faint)" stroke-dasharray="2 3"/>`;
+    tk.forEach((t) => { s += `<g class="tick"><line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l - 8}" y="${y(t) + 4}" text-anchor="end">${tickLabel(t)}</text></g>`; });
+    s += `<line class="base" x1="${P.l}" x2="${W - P.r}" y1="${yb}" y2="${yb}"/>`;
+    if (showing === "rel" && bottom < 1 && top > 1) s += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(1)}" y2="${y(1)}" stroke="var(--faint)" stroke-dasharray="2 3"/>`;
     cols.all.forEach((l, k) => {
       const parts = short(l).split(" ");
       s += `<text x="${x(k)}" y="${H - P.b + 16}" text-anchor="middle">${esc(parts[0])}</text>`;
       if (parts[1]) s += `<text x="${x(k)}" y="${H - P.b + 29}" text-anchor="middle">${esc(parts.slice(1).join(" "))}</text>`;
     });
-    if (cols.other.length) { const gx = x(cols.line.length) - band / 2 - gap / 2; s += `<line x1="${gx}" x2="${gx}" y1="${P.t}" y2="${y(0)}" stroke="var(--line)"/>`; }
+    if (cols.other.length) { const gx = x(cols.line.length) - band / 2 - gap / 2; s += `<line x1="${gx}" x2="${gx}" y1="${P.t}" y2="${yb}" stroke="var(--line)"/>`; }
     // Under a JIT build: the same Rubies without it, dashed.
     if (ghost.length) b.names.forEach((_, i) => { s += path(ghost.map((l, k) => { const r = b.runs[l], v = r && val(r.entries[i]); return v == null ? null : [x(k), y(v)]; }), color(i), ' stroke-dasharray="4 4" opacity=".55"', 1.5); });
     b.names.forEach((_, i) => {
@@ -750,13 +772,13 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
         if (sus(e)) { const tx = x(k), ty = P.t + 2 + i * 9; s += `<path d="M${tx - 4},${ty + 6} L${tx},${ty} L${tx + 4},${ty + 6}Z" fill="var(--bg)" stroke="${c}" stroke-width="1.5"/>`; return; }
         const v = val(e);
         if (v == null) return;
-        const err = showing === "rel" ? e[1] / e[0] * v : e[1];
-        s += `<line x1="${x(k)}" x2="${x(k)}" y1="${y(Math.max(0, v - err))}" y2="${y(v + err)}" stroke="${c}" stroke-width="1" opacity=".5"/>`;
+        const err = e[1] / e[0] * v;
+        s += `<line x1="${x(k)}" x2="${x(k)}" y1="${v - err > 0 ? y(v - err) : yb}" y2="${y(v + err)}" stroke="${c}" stroke-width="1" opacity=".5"/>`;
         s += `<circle cx="${x(k)}" cy="${y(v)}" r="4" fill="${c}" stroke="var(--bg)" stroke-width="2"/>`;
       });
     });
-    s += `<line class="cross" y1="${P.t}" y2="${y(0)}" x1="0" x2="0"/>`;
-    cols.all.forEach((l, k) => { s += `<rect class="hit" data-k="${k}" x="${x(k) - band / 2}" y="${P.t}" width="${band}" height="${y(0) - P.t}"/>`; });
+    s += `<line class="cross" y1="${P.t}" y2="${yb}" x1="0" x2="0"/>`;
+    cols.all.forEach((l, k) => { s += `<rect class="hit" data-k="${k}" x="${x(k) - band / 2}" y="${P.t}" width="${band}" height="${yb - P.t}"/>`; });
     host.innerHTML = s + "</svg><div class=\"tipbox\" hidden></div>";
 
     const tip = host.querySelector(".tipbox"), cross = host.querySelector(".cross");
