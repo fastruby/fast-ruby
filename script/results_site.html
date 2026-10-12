@@ -313,7 +313,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   <div id="rout"></div>
 
   <div class="rhow" id="rhow">
-    <p><b>How to read a card.</b> The heading says what happened on the build you picked: ✓ the claimed idiom (the one the benchmark file says is fastest) wins or ties on every Ruby, ~ it wins on some and another idiom wins on others, ✗ another idiom wins everywhere. It compares the claimed idiom with the fastest of the others, and a gap within the measured error is a tie.</p>
+    <p><b>How to read a card.</b> The heading says what happened on the build you picked: ✓ the claimed idiom (the one the benchmark file says is fastest) wins on every Ruby, or wins on some and ties on the rest; = it ties on every Ruby; ~ it wins on some and another idiom wins on others; ✗ it never wins; – no Ruby could compare them. It compares the claimed idiom with the fastest of the others, and a gap within the measured error is a tie.</p>
     <p><b>How to read a chart.</b> The y axis is logarithmic: each gridline step is the same ratio, so a 100× gap between two idioms and a 10% change between two Rubies both show. Under "Relative", every line is divided by the claimed idiom on the reference Ruby, so 1× is that idiom there and the higher line is still the faster one.</p>
     <p><b>How this is measured.</b> Each shard of benchmark files ran on one GitHub runner: every build, in a random order, with benchmark-ips' default timing. The numbers are i/s as measured.</p>
     <p><b>How steady the machine was.</b> The reference Ruby ran first, again after every few builds, and last. It is the same code every time, so how much its i/s varies is the machine, not Ruby. "Numbers per build" shows that variation (standard deviation over mean). Over 5% the benchmark is marked noisy under its chart, and when the typical benchmark of a run is over 5%, the page warns at the top. Two Rubies whose i/s differ by less than that variation are shown as same-ish.</p>
@@ -653,7 +653,6 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   function md(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
   function nice(l) { const [b, m] = l.split("+"); return b.replace(/^ruby_/, "Ruby ").replace(/^jruby_/, "JRuby ").replace(/^truffleruby_/, "TruffleRuby ") + (m ? " + " + m.toUpperCase() : ""); }
-  function short(l) { const [b, m] = l.split("+"); return b.replace(/^ruby_/, "").replace(/^jruby_/, "jruby ").replace(/^truffleruby_/, "truffle ") + (m ? " +" + m : ""); }
   function fmt(v) { return v >= 1e9 ? (v / 1e9).toFixed(1) + "B" : v >= 1e6 ? (v / 1e6).toFixed(v >= 1e7 ? 1 : 2) + "M" : v >= 1e3 ? (v / 1e3).toFixed(v >= 1e5 ? 0 : 1) + "k" : v.toFixed(1); }
   function pct(a, b) { const p = (a / b - 1) * 100; return (p >= 0 ? "+" : "") + p.toFixed(1) + "%"; }
   function cpu(c) { return (c || "unknown CPU").replace(/^AMD /, "").replace(/ \d+-Core Processor$/, "").replace(/^Intel\(R\) Xeon\(R\) Platinum (\S+) CPU.*$/i, "Xeon $1"); }
@@ -663,7 +662,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   // A result that can be drawn and compared: it ran and is not suspect.
   const ok = (e) => !!e && !sus(e) && e[0] > 0;
   // Relative needs the reference to have the claimed report.
-  const val = (e) => ok(e) ? (showing === "rel" ? e[2] : e[0]) : null;
+  const val = (e) => { const v = ok(e) ? (showing === "rel" ? e[2] : e[0]) : null; return v > 0 ? v : null; };
   // Two reports of one build, measured seconds apart: same-ish when the error bars overlap, as benchmark-ips says.
   const same = (a, b) => a[0] + a[1] > b[0] - b[1] && a[0] - a[1] < b[0] + b[1];
   // Two Rubies, measured minutes apart: also same-ish when the gap is within how much the reference varied on that machine, which is larger than benchmark-ips' error bars.
@@ -736,7 +735,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     const res = cols.map((l) => [l, versus(b.runs[l])]).filter(([, v]) => v);
     const n = res.length, of = (s) => res.filter(([, v]) => v.s === s);
     const wins = of("ok"), ties = of("eq"), losses = of("no");
-    const all = `all ${n} Rubies${where}`;
+    const all = `${n === 1 ? "the one Ruby" : `all ${n} Rubies`}${where}`;
     let icon = "ok", head;
     if (!n) { icon = "na"; head = `Did not run on any Ruby${where}`; }
     else if (!losses.length && !ties.length) head = b.names.length === 2 ? `${claim} beats ${nm(1)} on <b>${all}</b>` : `${claim} is the fastest on <b>${all}</b>`;
@@ -752,6 +751,7 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
       if (rest) named.push(`others on ${rest} more`);
       if (losses.length === n && top.length === 1) { icon = "no"; head = `${nm(+top[0])} beats ${claim} on <b>${all}</b>`; }
       else if (losses.length === n) { icon = "no"; head = `${claim} loses on <b>${all}</b>: ${named.join("; ")}`; }
+      else if (!wins.length) { icon = "no"; head = `${claim} never wins: it ties on <b>${ties.length} of ${n} Rubies${where}</b>; ${named.join("; ")}`; }
       else { icon = "mix"; head = `${claim} wins on <b>${wins.length} of ${n} Rubies${where}</b>${ties.length ? ` (${ties.length} tie${ties.length > 1 ? "s" : ""})` : ""}; ${named.join("; ")}`; }
     }
 
@@ -787,8 +787,9 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     }
     // Rubies on the chart that are not in the count.
     const left = cols.filter((l) => !res.some(([k]) => k === l)), notes = [];
-    const susp = left.filter((l) => b.runs[l] && b.runs[l].entries.some(sus)), gone = left.filter((l) => !susp.includes(l));
+    const susp = left.filter((l) => b.runs[l] && b.runs[l].entries.some(sus)), gone = left.filter((l) => !b.runs[l]), odd = left.filter((l) => b.runs[l] && !susp.includes(l));
     if (susp.length) notes.push(`Not counted: ${esc(runsOf(susp, cols))}, suspect results (over 1B i/s).`);
+    if (odd.length) notes.push(`Not compared: ${esc(runsOf(odd, cols))}, an idiom has no result there.`);
     if (gone.length) notes.push(`Did not run: ${esc(runsOf(gone, cols))}.`);
     return { icon, head, tiles, foot: notes.join(" ") };
   }
@@ -817,8 +818,10 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   // Tick labels without trailing zeros: 2M, 500k, 0.05×.
   function tickLabel(t) {
     const n = (v) => String(+v.toPrecision(3));
-    if (showing === "rel") return n(t) + "×";
-    return t >= 1e9 ? n(t / 1e9) + "B" : t >= 1e6 ? n(t / 1e6) + "M" : t >= 1e3 ? n(t / 1e3) + "k" : n(t);
+    const big = (v) => v >= 1e9 ? n(v / 1e9) + "B" : v >= 1e6 ? n(v / 1e6) + "M" : v >= 1e3 ? n(v / 1e3) + "k" : n(v);
+    // Far below the claimed idiom, as a fraction: 1/10M× rather than 1e-7×.
+    if (showing === "rel") return (t < 1e-3 ? "1/" + big(1 / t) : n(t)) + "×";
+    return big(t);
   }
 
   function path(pts, c, extra, w) {
@@ -964,13 +967,12 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     if (showing === "rel") hints.push(`1× is the claimed idiom on ${nice(REF)}.`);
     if (mode) hints.push("Dashed: the same Rubies without the JIT, on the same machine.");
     $("rhint").textContent = hints.join(" ");
-    const shown = B.map((b, n) => [b, n]);
     const count = {};
-    shown.forEach(([b]) => { count[b.section] = (count[b.section] || 0) + 1; });
+    B.forEach((b) => { count[b.section] = (count[b.section] || 0) + 1; });
     const secs = Object.keys(count);
     $("rjump").innerHTML = `<option value="">A section</option>` + secs.map((x) => `<option value="${esc(slug(x))}">${esc(x)} (${count[x]})</option>`).join("");
     let h = "", sec = null;
-    shown.forEach(([b, n]) => {
+    B.forEach((b, n) => {
       if (b.section !== sec) { sec = b.section; h += `<h2 class="rsec" id="${esc(slug(sec))}">${esc(sec)}<small>${count[sec]} benchmark${count[sec] > 1 ? "s" : ""}</small><span class="on">${esc(MODES.find(([m]) => m === mode)[1])}</span></h2>`; }
       const legend = b.names.map((nm, i) => `<span><i style="background:${color(i)}"></i><code>${esc(nm)}</code>${i ? "" : " (claimed)"}</span>`).join("") + (mode ? '<span class="ghost"><i></i>without the JIT</span>' : "") +
         (hasSuspect(b) ? '<span class="sus"><svg viewBox="0 0 10 8" aria-hidden="true"><path d="M1,7 L5,1 L9,7Z"/></svg>suspect, over 1B i/s: kept off the chart</span>' : "");
@@ -988,17 +990,21 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
     pinned();
   }
   // A title of many report names stays on one line by getting smaller (20px down to 14px); one too long even at 14px wraps at 14px.
+  // All writes, then all reads, then all writes: one layout for every card instead of one per card.
   function fitTitles() {
-    $("rout").querySelectorAll(".rcard h3").forEach((h) => {
-      h.classList.add("one");
-      h.style.fontSize = "";
-      const room = h.clientWidth, need = h.scrollWidth;
+    const hs = [...$("rout").querySelectorAll(".rcard h3")];
+    hs.forEach((h) => { h.classList.add("one"); h.style.fontSize = ""; });
+    const fit = hs.map((h) => [h.clientWidth, h.scrollWidth]);
+    hs.forEach((h, i) => {
+      const [room, need] = fit[i];
       if (need <= room) return;
       const size = Math.floor(20 * room / need * 10) / 10;
       if (size >= 14) h.style.fontSize = size + "px";
       else { h.style.fontSize = "14px"; h.classList.remove("one"); }
     });
   }
+  // A title measured before the web font arrived is measured again once it has.
+  if (document.fonts) document.fonts.ready.then(() => { if (!$("view-across-rubies").hidden) fitTitles(); });
   // A section heading reached from "Jump to" lands under the pinned picker, not behind it.
   function pinned() {
     const p = $("rpicker");
@@ -1010,7 +1016,6 @@ footer .col { padding-block: 18px 30px; display: flex; flex-wrap: wrap; gap: 6px
   $("rshow").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) { showing = c.dataset.s; window.SiteViews.setParams({ show: showing === "rel" ? "rel" : null }, true); render(); } });
   $("rjump").addEventListener("change", (e) => {
     const target = e.target.value && document.getElementById(e.target.value);
-    e.target.value = "";
     if (target) { pinned(); target.scrollIntoView(); }
   });
   $("rout").addEventListener("toggle", (e) => { const d = e.target; if (d.matches("details")) d.open ? open.add(+d.dataset.n) : open.delete(+d.dataset.n); }, true);

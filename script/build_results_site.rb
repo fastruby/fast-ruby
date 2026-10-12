@@ -178,7 +178,7 @@ module ResultsSite
   def cross_run(report, names, ref_ips)
     entries = names.each_with_index.map do |name, i|
       e = entry(report, name) or next nil
-      rel = ref_ips[0].empty? || !e["ips"].positive? || e["ips"] > SUSPECT_IPS ? nil : (e["ips"] / median(ref_ips[0])).round(4)
+      rel = ref_ips[0].empty? || !e["ips"].positive? || e["ips"] > SUSPECT_IPS ? nil : sig(e["ips"] / median(ref_ips[0]))
       [e["ips"].round(3), e["error"].to_f.round(1), rel]
     end
     { entries: entries, pass: report["pass"] }
@@ -193,7 +193,7 @@ module ResultsSite
       usable = es.select { |e| e["ips"].positive? && e["ips"] <= SUSPECT_IPS }
       pick = usable.empty? ? es : usable
       ips = median(pick.map { |e| e["ips"] })
-      rel = ref_ips[0].empty? || ref_ips[i].empty? ? nil : (median(ref_ips[i]) / median(ref_ips[0])).round(4)
+      rel = ref_ips[0].empty? || ref_ips[i].empty? ? nil : sig(median(ref_ips[i]) / median(ref_ips[0]))
       [ips.round(3), median(pick.map { |e| e["error"].to_f }).round(1), rel]
     end
     { entries: entries, passes: passes.map { |r| r["pass"] }.sort }
@@ -206,6 +206,11 @@ module ResultsSite
       Math.sqrt(v.sum { |x| (x - mean)**2 } / (v.size - 1)) / mean
     end
     cvs.empty? ? nil : median(cvs)
+  end
+
+  # Four significant digits: a report 27M times slower than the claimed one keeps its value instead of rounding to 0.
+  def sig(value)
+    Float(format("%.4g", value))
   end
 
   def median(values)
